@@ -60,9 +60,9 @@ export function HowItWorksSection() {
                   <span className="flex size-7 items-center justify-center rounded-full bg-brand-crimson text-xs font-bold text-white sm:size-9 sm:text-sm md:size-10 md:text-base">
                     {bengaliDigits[index + 1]}
                   </span>
-                  <p className="text-[11px] font-semibold leading-tight sm:text-sm sm:leading-snug md:text-base lg:text-lg">
+                  <p className="text-[11px] leading-tight sm:text-sm sm:leading-snug md:text-base lg:text-lg">
                     <span className="font-bold text-brand-crimson">{benefit.accent}</span>{" "}
-                    <span className="text-foreground">{benefit.rest}</span>
+                    <span className="font-normal text-foreground">{benefit.rest}</span>
                   </p>
                 </div>
               </Reveal>
