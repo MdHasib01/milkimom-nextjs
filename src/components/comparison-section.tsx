@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Check, X } from "lucide-react";
+import { Check, Crown, X } from "lucide-react";
 
 import { Reveal } from "@/components/motion/reveal";
 import { comparisonRows, siteConfig } from "@/lib/content";
@@ -31,8 +31,9 @@ export function ComparisonSection() {
         <Reveal delay={0.1} className="mt-10 overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           <div className="grid grid-cols-2 divide-x divide-border border-b border-border text-center text-xs sm:text-sm">
             <div className="bg-gradient-to-b from-primary/10 to-transparent p-3 sm:p-4">
-              <span className="font-heading font-bold text-primary">
-                👑 {siteConfig.name}
+              <span className="inline-flex items-center gap-1.5 font-heading font-bold text-primary">
+                <Crown className="size-4 shrink-0 fill-primary sm:size-5" />
+                {siteConfig.name}
               </span>
             </div>
             <div className="p-3 font-semibold text-muted-foreground sm:p-4">অন্যান্য</div>
