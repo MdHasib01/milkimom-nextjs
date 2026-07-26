@@ -61,7 +61,7 @@ export function HowItWorksSection() {
                     {bengaliDigits[index + 1]}
                   </span>
                   <p className="text-[11px] font-semibold leading-tight sm:text-sm sm:leading-snug md:text-base lg:text-lg">
-                    <span className="text-brand-crimson">{benefit.accent}</span>{" "}
+                    <span className="font-bold text-brand-crimson">{benefit.accent}</span>{" "}
                     <span className="text-foreground">{benefit.rest}</span>
                   </p>
                 </div>
