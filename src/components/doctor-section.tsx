@@ -6,6 +6,13 @@ import { Reveal } from "@/components/motion/reveal";
 export function DoctorSection() {
   return (
     <section id="ingredients" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <Reveal className="mx-auto mb-10 max-w-3xl text-center">
+        <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">
+          মিল্কিমমের উপর আস্থা রেখেছেন দেশের স্বনামধন্য হসপিটাল এবং{" "}
+          <span className="text-primary">অসংখ্য ডাক্তার</span>
+        </h2>
+      </Reveal>
+
       <div className="grid items-center gap-10 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
         <Reveal className="mx-auto w-full max-w-xs lg:max-w-sm">
           <div className="overflow-hidden rounded-2xl">
@@ -25,14 +32,11 @@ export function DoctorSection() {
             <BadgeCheck className="size-4" />
             মেডিকেল বোর্ড অনুমোদিত
           </span>
-          <h2 className="mt-3 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
+          <h3 className="mt-3 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
             চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা
-          </h2>
+          </h3>
           <p className="mt-2 font-heading text-lg font-semibold text-brand-crimson">
-            ডা. [ডাক্তারের নাম বসবে]
-          </p>
-          <p className="text-sm text-muted-foreground">
-            [ডিগ্রি ও রেজিস্ট্রেশন নম্বর বসবে]
+            ডা. মোঃ সাদ্দাম
           </p>
           <p className="mt-4 text-balance text-muted-foreground">
             মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে,

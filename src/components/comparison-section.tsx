@@ -21,7 +21,8 @@ export function ComparisonSection() {
             তুলনা করুন
           </span>
           <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
-            কেন অন্যান্য মেডিসিন এবং &quot;{siteConfig.name}&quot; সম্পূর্ণ আলাদা?
+            কেন অন্যান্য মেডিসিন এবং{" "}
+            <span className="text-primary">{siteConfig.name} সম্পূর্ণ আলাদা?</span>
           </h2>
           <p className="mt-3 text-balance text-muted-foreground">
             শুধু দাবি নয়, বাস্তব পার্থক্যটা নিজের চোখেই দেখুন।
