@@ -2,16 +2,14 @@ export const siteConfig = {
   name: "মিল্কিমম",
   nameEn: "Milkimom",
   tagline: "Make Mother Great Again",
-  phone: "+8801700000000",
-  phoneDisplay: "01700-000000",
+  phone: "+8801517102603",
+  phoneDisplay: "01517-102603",
 };
 
 export const navLinks = [
   { href: "#benefits", label: "উপকারিতা" },
-  { href: "#ingredients", label: "উপাদান" },
   { href: "#compare", label: "তুলনা" },
   { href: "#reviews", label: "রিভিউ" },
-  { href: "#pricing", label: "প্যাকেজ" },
   { href: "#faq", label: "প্রশ্নোত্তর" },
 ];
 

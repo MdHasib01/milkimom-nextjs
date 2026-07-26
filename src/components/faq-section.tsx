@@ -34,10 +34,6 @@ export function FaqSection() {
         </Accordion>
       </Reveal>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">
-        এই তথ্যগুলো সাধারণ ধারণা প্রদানের উদ্দেশ্যে দেওয়া, এগুলো কোনো চিকিৎসা পরামর্শ
-        নয়। ব্যবহারের পূর্বে আপনার চিকিৎসকের পরামর্শ নিন।
-      </p>
     </section>
   );
 }

@@ -62,16 +62,6 @@ export function SiteHeader() {
           <Button
             asChild
             variant="outline"
-            size="icon-lg"
-            className="rounded-full border-brand-coral/40 text-brand-crimson hover:bg-brand-coral/10 sm:hidden"
-          >
-            <a href={`tel:${siteConfig.phone}`} aria-label="কল করুন">
-              <Phone className="size-4" />
-            </a>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
             className="hidden h-10 gap-2 rounded-full border-brand-coral/40 px-4 text-brand-crimson hover:bg-brand-coral/10 sm:inline-flex"
           >
             <a href={`tel:${siteConfig.phone}`}>
@@ -79,6 +69,7 @@ export function SiteHeader() {
               {siteConfig.phoneDisplay}
             </a>
           </Button>
+
           <Button
             asChild
             className="cta-shine h-10 gap-1.5 rounded-full bg-brand-cta px-4 text-brand-cta-foreground hover:bg-brand-cta-dark"
@@ -91,7 +82,7 @@ export function SiteHeader() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon-lg" className="lg:hidden" aria-label="মেনু খুলুন">
+              <Button variant="ghost" size="icon-lg" className="hidden sm:inline-flex lg:hidden" aria-label="মেনু খুলুন">
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
