@@ -1,24 +1,10 @@
 import Image from "next/image";
-import {
-  Activity,
-  Brain,
-  Droplets,
-  ShieldPlus,
-  Sprout,
-  type LucideIcon,
-} from "lucide-react";
 
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
 import { benefits } from "@/lib/content";
 
-const iconMap: Record<(typeof benefits)[number]["icon"], LucideIcon> = {
-  sprout: Sprout,
-  droplets: Droplets,
-  brain: Brain,
-  activity: Activity,
-  "shield-plus": ShieldPlus,
-};
+const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
 const RADIUS = 42;
 
@@ -59,7 +45,6 @@ export function HowItWorksSection() {
         </div>
 
         {benefits.map((benefit, index) => {
-          const Icon = iconMap[benefit.icon];
           const position = polarPosition(index, benefits.length);
           return (
             <div
@@ -69,8 +54,8 @@ export function HowItWorksSection() {
             >
               <Reveal delay={0.1 * index} y={12}>
                 <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center shadow-sm">
-                  <span className="flex size-9 items-center justify-center rounded-full bg-brand-crimson/10 text-brand-crimson">
-                    <Icon className="size-5" />
+                  <span className="flex size-9 items-center justify-center rounded-full bg-brand-crimson text-sm font-bold text-white md:size-10 md:text-base">
+                    {bengaliDigits[index + 1]}
                   </span>
                   <p className="text-xs font-semibold leading-snug text-foreground sm:text-sm">
                     {benefit.title}
@@ -84,13 +69,12 @@ export function HowItWorksSection() {
 
       {/* Stacked list — mobile */}
       <RevealGroup className="mt-10 grid grid-cols-1 gap-4 sm:hidden">
-        {benefits.map((benefit) => {
-          const Icon = iconMap[benefit.icon];
+        {benefits.map((benefit, index) => {
           return (
             <RevealItem key={benefit.title}>
               <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-crimson/10 text-brand-crimson">
-                  <Icon className="size-5" />
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-crimson text-sm font-bold text-white">
+                  {bengaliDigits[index + 1]}
                 </span>
                 <div>
                   <p className="font-semibold text-foreground">{benefit.title}</p>
