@@ -38,18 +38,23 @@ export function AnnouncementBar() {
   const countdown = useCountdown();
 
   return (
-    <div className="sticky top-0 z-40 bg-brand-crimson text-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-center text-xs sm:text-sm">
-        <span className="inline-flex items-center gap-1.5 font-medium">
-          <PartyPopper className="size-4 shrink-0" />
-          আজকের স্পেশাল অফার — ৪৪% পর্যন্ত ছাড় + সারাদেশে ফ্রি ডেলিভারি
+    <div className="sticky top-0 z-50 w-full shrink-0 bg-brand-crimson text-white shadow-sm">
+      <div className="mx-auto flex max-w-6xl items-center justify-center gap-1.5 px-2 py-1.5 text-center text-[11px] sm:text-xs md:text-sm whitespace-nowrap overflow-hidden sm:gap-2 sm:px-4 sm:py-2">
+        <span className="inline-flex items-center gap-1 font-medium shrink-0 sm:gap-1.5">
+          <PartyPopper className="size-3.5 shrink-0 sm:size-4" />
+          <span className="hidden sm:inline">
+            আজকের স্পেশাল অফার — ৪৪% পর্যন্ত ছাড় + সারাদেশে ফ্রি ডেলিভারি
+          </span>
+          <span className="inline sm:hidden">
+            আজকের অফার: ৪৪% ছাড় + সারাদেশে ফ্রি ডেলিভারি
+          </span>
         </span>
         {countdown && (
           <span
-            className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 font-mono tabular-nums"
+            className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 font-mono tabular-nums text-[10px] shrink-0 sm:px-2.5 sm:text-xs"
             aria-label={`অফার শেষ হতে বাকি ${countdown.hours} ঘণ্টা ${countdown.minutes} মিনিট`}
           >
-            <Timer className="size-3.5 shrink-0" />
+            <Timer className="size-3 shrink-0 sm:size-3.5" />
             {pad(countdown.hours)}:{pad(countdown.minutes)}:{pad(countdown.seconds)}
           </span>
         )}

@@ -13,7 +13,7 @@ import { StickyMobileBar } from "@/components/sticky-mobile-bar";
 
 export default function Home() {
   return (
-    <>
+    <div className="relative min-h-screen w-full max-w-full overflow-x-hidden">
       <AnnouncementBar />
       <SiteHeader />
       <main className="pb-24 sm:pb-0">
@@ -28,6 +28,6 @@ export default function Home() {
       </main>
       <SiteFooter />
       <StickyMobileBar />
-    </>
+    </div>
   );
 }

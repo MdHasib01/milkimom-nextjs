@@ -37,9 +37,9 @@ export default function RootLayout({
   return (
     <html
       lang="bn"
-      className={`${bodyFont.variable} h-full antialiased scroll-smooth`}
+      className={`${bodyFont.variable} h-full w-full max-w-full overflow-x-hidden antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full w-full max-w-full overflow-x-hidden flex flex-col bg-background text-foreground">
         {children}
       </body>
     </html>
