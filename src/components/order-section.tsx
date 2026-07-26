@@ -308,7 +308,7 @@ export function OrderSection() {
             <Button
               type="submit"
               disabled={status === "submitting"}
-              className="mt-5 h-12 gap-2 rounded-full bg-brand-cta text-base text-brand-cta-foreground hover:bg-brand-cta-dark"
+              className="cta-shine mt-5 h-12 gap-2 rounded-full bg-brand-cta text-base text-brand-cta-foreground hover:bg-brand-cta-dark"
             >
               {status === "submitting" ? (
                 <Loader2 className="size-5 animate-spin" />

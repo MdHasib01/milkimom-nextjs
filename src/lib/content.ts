@@ -22,13 +22,6 @@ export const trustBadges = [
   { title: "পার্শ্বপ্রতিক্রিয়াবিহীন", icon: "heart-pulse" as const },
 ];
 
-export const situationOptions = [
-  "নতুন মা, দুধ কম আসছে",
-  "আগে ভালো ছিল, এখন কমে যাচ্ছে",
-  "ফর্মুলা মিল্ক থেকে মুক্তি চাই",
-  "প্রসবের পর দুর্বলতা অনুভব করছি",
-];
-
 export const benefits = [
   {
     title: "পুষ্টি ঘাটতি পূরণ করে",

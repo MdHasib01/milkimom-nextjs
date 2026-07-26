@@ -161,4 +161,45 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .cta-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .cta-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 45%;
+    background: linear-gradient(
+      75deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.85) 50%,
+      rgba(255, 255, 255, 0) 70%,
+      transparent 100%
+    );
+    transform: translateX(-220%);
+    animation: cta-shine-sweep 2.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cta-shine::after {
+      animation: none;
+      display: none;
+    }
+  }
+}
+
+@keyframes cta-shine-sweep {
+  0% {
+    transform: translateX(-220%);
+  }
+  45%,
+  100% {
+    transform: translateX(220%);
+  }
 }

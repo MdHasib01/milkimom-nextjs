@@ -3,7 +3,6 @@ import { Phone, ShoppingBag, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
-import { SituationSelector } from "@/components/situation-selector";
 import { FloatingBadges } from "@/components/floating-badges";
 import { siteConfig } from "@/lib/content";
 
@@ -48,7 +47,7 @@ export function HeroSection() {
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Button
                 asChild
-                className="h-12 gap-2 rounded-full bg-brand-cta px-6 text-base text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark"
+                className="cta-shine h-12 gap-2 rounded-full bg-brand-cta px-6 text-base text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark"
               >
                 <a href="#pricing">
                   <ShoppingBag className="size-5" />
@@ -65,12 +64,6 @@ export function HeroSection() {
                   কল করুন
                 </a>
               </Button>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.32}>
-            <div className="mt-8">
-              <SituationSelector />
             </div>
           </Reveal>
         </div>

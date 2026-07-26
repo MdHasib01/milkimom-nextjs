@@ -18,7 +18,7 @@ export function StickyMobileBar() {
           কল করুন
         </a>
       </Button>
-      <Button asChild className="h-12 flex-1 gap-2 rounded-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark">
+      <Button asChild className="cta-shine h-12 flex-1 gap-2 rounded-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark">
         <a href="#pricing">
           <ShoppingBag className="size-4" />
           অর্ডার করুন

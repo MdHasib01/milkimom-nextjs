@@ -81,7 +81,7 @@ export function SiteHeader() {
           </Button>
           <Button
             asChild
-            className="h-10 gap-1.5 rounded-full bg-brand-cta px-4 text-brand-cta-foreground hover:bg-brand-cta-dark"
+            className="cta-shine h-10 gap-1.5 rounded-full bg-brand-cta px-4 text-brand-cta-foreground hover:bg-brand-cta-dark"
           >
             <a href="#pricing">
               <ShoppingBag className="size-4" />

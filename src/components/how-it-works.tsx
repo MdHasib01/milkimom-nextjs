@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { RotatingOrbit } from "@/components/rotating-orbit";
 import { benefits } from "@/lib/content";
 
 const iconMap: Record<(typeof benefits)[number]["icon"], LucideIcon> = {
@@ -46,17 +47,15 @@ export function HowItWorksSection() {
 
       {/* Radial layout — desktop/tablet */}
       <div className="relative mx-auto mt-16 hidden aspect-square max-w-xl sm:block">
-        <div className="absolute inset-[12%] rounded-full border border-dashed border-brand-coral/30" />
+        <RotatingOrbit />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative flex size-32 items-center justify-center rounded-full bg-card shadow-xl ring-4 ring-brand-cream lg:size-36">
-            <Image
-              src="/images/product-jar.webp"
-              alt="মিল্কিমম জার"
-              width={612}
-              height={880}
-              className="h-24 w-auto lg:h-28"
-            />
-          </div>
+          <Image
+            src="/images/product-jar.webp"
+            alt="মিল্কিমম জার"
+            width={612}
+            height={880}
+            className="h-40 w-auto drop-shadow-2xl lg:h-48"
+          />
         </div>
 
         {benefits.map((benefit, index) => {
