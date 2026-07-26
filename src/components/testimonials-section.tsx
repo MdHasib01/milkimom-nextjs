@@ -6,6 +6,7 @@ import { Star, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Reveal } from "@/components/motion/reveal";
+import { SectionCta } from "@/components/section-cta";
 import { testimonials } from "@/lib/content";
 
 const carouselItems = [
@@ -225,6 +226,7 @@ export function TestimonialsSection() {
       <Reveal delay={0.15}>
         <CareCarousel />
       </Reveal>
+      <SectionCta />
     </section>
   );
 }

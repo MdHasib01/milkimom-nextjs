@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Check, Crown, X } from "lucide-react";
 
 import { Reveal } from "@/components/motion/reveal";
+import { SectionCta } from "@/components/section-cta";
 import { comparisonRows, siteConfig } from "@/lib/content";
 
 export function ComparisonSection() {
@@ -55,6 +56,7 @@ export function ComparisonSection() {
             </div>
           ))}
         </Reveal>
+        <SectionCta />
       </div>
     </section>
   );

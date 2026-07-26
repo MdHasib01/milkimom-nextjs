@@ -23,8 +23,8 @@ export default function Home() {
         <ComparisonSection />
         <DoctorSection />
         <TestimonialsSection />
-        <OrderSection />
         <FaqSection />
+        <OrderSection />
       </main>
       <SiteFooter />
       <StickyMobileBar />

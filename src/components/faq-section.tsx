@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Reveal } from "@/components/motion/reveal";
+import { SectionCta } from "@/components/section-cta";
 import { faqs } from "@/lib/content";
 
 export function FaqSection() {
@@ -34,6 +35,7 @@ export function FaqSection() {
         </Accordion>
       </Reveal>
 
+      <SectionCta />
     </section>
   );
 }

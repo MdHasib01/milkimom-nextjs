@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import { Float, Reveal } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
+import { SectionCta } from "@/components/section-cta";
 import { benefits } from "@/lib/content";
 
 const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
@@ -70,6 +71,7 @@ export function HowItWorksSection() {
           );
         })}
       </div>
+      <SectionCta />
     </section>
   );
 }

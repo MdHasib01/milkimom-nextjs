@@ -1,6 +1,7 @@
 import { HeartPulse, Leaf, ShieldCheck, Stethoscope, type LucideIcon } from "lucide-react";
 
 import { Reveal } from "@/components/motion/reveal";
+import { SectionCta } from "@/components/section-cta";
 import { trustBadges } from "@/lib/content";
 
 const iconMap: Record<(typeof trustBadges)[number]["icon"], LucideIcon> = {
@@ -34,6 +35,7 @@ export function TrustBadgesBar() {
             })}
           </div>
         </Reveal>
+        <SectionCta className="mt-6" />
       </div>
     </section>
   );

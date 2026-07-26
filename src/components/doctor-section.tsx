@@ -6,6 +6,7 @@ import { BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Reveal } from "@/components/motion/reveal";
+import { SectionCta } from "@/components/section-cta";
 
 const doctors = [
   {
@@ -155,6 +156,7 @@ export function DoctorSection() {
           />
         ))}
       </div>
+      <SectionCta />
     </section>
   );
 }
