@@ -48,17 +48,18 @@ export function HowItWorksSection() {
           const position = polarPosition(index, benefits.length);
           return (
             <div
-              key={benefit.title}
+              key={benefit.accent + benefit.rest}
               style={position}
-              className="absolute w-36 -translate-x-1/2 -translate-y-1/2 md:w-40 lg:w-44 xl:w-52"
+              className="absolute w-40 -translate-x-1/2 -translate-y-1/2 md:w-44 lg:w-48 xl:w-56"
             >
               <Reveal delay={0.1 * index} y={12}>
                 <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center shadow-sm">
                   <span className="flex size-9 items-center justify-center rounded-full bg-brand-crimson text-sm font-bold text-white md:size-10 md:text-base">
                     {bengaliDigits[index + 1]}
                   </span>
-                  <p className="text-xs font-semibold leading-snug text-foreground sm:text-sm">
-                    {benefit.title}
+                  <p className="text-sm font-semibold leading-snug sm:text-base lg:text-lg">
+                    <span className="text-brand-crimson">{benefit.accent}</span>{" "}
+                    <span className="text-foreground">{benefit.rest}</span>
                   </p>
                 </div>
               </Reveal>
@@ -71,17 +72,15 @@ export function HowItWorksSection() {
       <RevealGroup className="mt-10 grid grid-cols-1 gap-4 sm:hidden">
         {benefits.map((benefit, index) => {
           return (
-            <RevealItem key={benefit.title}>
-              <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
+            <RevealItem key={benefit.accent + benefit.rest}>
+              <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-crimson text-sm font-bold text-white">
                   {bengaliDigits[index + 1]}
                 </span>
-                <div>
-                  <p className="font-semibold text-foreground">{benefit.title}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    {benefit.description}
-                  </p>
-                </div>
+                <p className="text-lg font-semibold leading-snug">
+                  <span className="text-brand-crimson">{benefit.accent}</span>{" "}
+                  <span className="text-foreground">{benefit.rest}</span>
+                </p>
               </div>
             </RevealItem>
           );
