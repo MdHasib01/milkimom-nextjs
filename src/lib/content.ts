@@ -57,6 +57,7 @@ export const flavors = [
     icon: "cookie" as const,
     tag: "সবচেয়ে জনপ্রিয়",
     description: "গাঢ় চকলেটের সমৃদ্ধ স্বাদ, প্রতিদিনের ডোজ হয়ে উঠুক আনন্দের।",
+    popular: true,
   },
   {
     id: "vanilla",
@@ -64,6 +65,7 @@ export const flavors = [
     icon: "ice-cream-cone" as const,
     tag: "মৃদু ও সুবাসিত",
     description: "হালকা মিষ্টি ভ্যানিলার স্বাদ, যাদের হালকা স্বাদ পছন্দ তাদের জন্য।",
+    popular: false,
   },
   {
     id: "cardamom",
@@ -71,6 +73,7 @@ export const flavors = [
     icon: "leaf" as const,
     tag: "ঐতিহ্যবাহী",
     description: "দেশীয় এলাচের ঘ্রাণ ও স্বাদ, ঐতিহ্যবাহী রেসিপির ছোঁয়ায়।",
+    popular: false,
   },
   {
     id: "cinnamon",
@@ -78,6 +81,7 @@ export const flavors = [
     icon: "flame" as const,
     tag: "উষ্ণ স্বাদ",
     description: "দারুচিনির উষ্ণ স্বাদ, শীতের দিনে আরামদায়ক এক কাপ উষ্ণতা।",
+    popular: false,
   },
 ];
 
@@ -167,44 +171,9 @@ export const faqs = [
   },
 ];
 
-export type PricingTier = {
-  id: string;
-  jars: number;
-  label: string;
-  tag: string;
-  regularPrice: number;
-  salePrice: number;
-  popular?: boolean;
-  perJarDays: number;
+export const singleJarPrice = {
+  label: "১ জার",
+  regularPrice: 8990,
+  salePrice: 4990,
+  perJarDays: 15,
 };
-
-export const pricingTiers: PricingTier[] = [
-  {
-    id: "1-jar",
-    jars: 1,
-    label: "১ জার",
-    tag: "১৫ দিনের ডোজ",
-    regularPrice: 8990,
-    salePrice: 4990,
-    perJarDays: 15,
-  },
-  {
-    id: "2-jar",
-    jars: 2,
-    label: "২ জার",
-    tag: "সবচেয়ে জনপ্রিয়",
-    regularPrice: 17980,
-    salePrice: 8990,
-    popular: true,
-    perJarDays: 30,
-  },
-  {
-    id: "3-jar",
-    jars: 3,
-    label: "৩ জার",
-    tag: "সর্বোচ্চ সাশ্রয়",
-    regularPrice: 26970,
-    salePrice: 12490,
-    perJarDays: 45,
-  },
-];

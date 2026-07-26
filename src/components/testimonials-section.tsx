@@ -47,60 +47,51 @@ export function TestimonialsSection() {
         </div>
       </Reveal>
 
-      <div className="relative">
-        <RevealGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          {displayedTestimonials.map((testimonial) => (
-            <RevealItem key={testimonial.name}>
-              <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex items-center gap-1 text-brand-gold">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <Star
-                      key={index}
-                      className="size-4 fill-current text-brand-gold"
-                    />
-                  ))}
-                </div>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
-                  &ldquo;{testimonial.text}&rdquo;
+      <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {displayedTestimonials.map((testimonial) => (
+          <div
+            key={testimonial.name}
+            className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
+          >
+            <div className="flex items-center gap-1 text-brand-gold">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star
+                  key={index}
+                  className="size-4 fill-current text-brand-gold"
+                />
+              ))}
+            </div>
+            <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
+              &ldquo;{testimonial.text}&rdquo;
+            </p>
+            <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
+              <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
+                {testimonial.name.charAt(0)}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {testimonial.name}
                 </p>
-                <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
-                  {testimonial.avatar ? (
-                    <Image
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      width={36}
-                      height={36}
-                      className="size-9 rounded-full object-cover border border-border shadow-xs"
-                    />
-                  ) : (
-                    <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  )}
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {testimonial.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
-                  </div>
-                </div>
+                <p className="text-xs text-muted-foreground">{testimonial.location}</p>
               </div>
-            </RevealItem>
-          ))}
-        </RevealGroup>
-
-        {!showAll && (
-          <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end bg-gradient-to-t from-background via-background/80 to-transparent pt-28 pb-3 text-center pointer-events-none rounded-b-2xl">
-            <button
-              onClick={() => setShowAll(true)}
-              className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-brand-crimson/30 bg-card px-6 py-2.5 text-sm font-bold text-brand-crimson shadow-md backdrop-blur-md transition-all hover:bg-brand-crimson hover:text-white hover:shadow-lg cursor-pointer"
-            >
-              <span>আরও রিভিউ দেখুন</span>
-              <ChevronDown className="size-4 animate-bounce" />
-            </button>
+            </div>
           </div>
-        )}
+        ))}
       </div>
+
+      {/* Button for See More */}
+      {!showAll && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShowAll(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-brand-crimson/30 bg-card px-8 py-3 text-sm font-bold text-brand-crimson shadow-md transition-all hover:bg-brand-crimson hover:text-white hover:shadow-lg cursor-pointer"
+          >
+            <span>আরও রিভিউ দেখুন</span>
+            <ChevronDown className="size-4 animate-bounce" />
+          </button>
+        </div>
+      )}
 
       <Reveal delay={0.15} className="mt-10 overflow-hidden rounded-3xl">
         <div className="relative flex items-center justify-center overflow-hidden rounded-3xl">

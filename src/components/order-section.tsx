@@ -1,7 +1,17 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { CheckCircle2, Loader2, ShieldCheck, Truck } from "lucide-react";
+import {
+  CheckCircle2,
+  Cookie,
+  Flame,
+  IceCreamCone,
+  Leaf,
+  Loader2,
+  ShieldCheck,
+  Truck,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +25,15 @@ import {
 } from "@/components/ui/select";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { bangladeshDistricts } from "@/lib/districts";
-import { pricingTiers } from "@/lib/content";
+import { flavors, singleJarPrice } from "@/lib/content";
 import { cn } from "@/lib/utils";
+
+const iconMap: Record<(typeof flavors)[number]["icon"], LucideIcon> = {
+  cookie: Cookie,
+  "ice-cream-cone": IceCreamCone,
+  leaf: Leaf,
+  flame: Flame,
+};
 
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -37,16 +54,16 @@ const initialForm: FormState = {
 };
 
 export function OrderSection() {
-  const [selectedTierId, setSelectedTierId] = useState(
-    pricingTiers.find((tier) => tier.popular)?.id ?? pricingTiers[0].id
+  const [selectedFlavorId, setSelectedFlavorId] = useState(
+    flavors.find((flavor) => flavor.popular)?.id ?? flavors[0].id
   );
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
 
-  const selectedTier = useMemo(
-    () => pricingTiers.find((tier) => tier.id === selectedTierId) ?? pricingTiers[0],
-    [selectedTierId]
+  const selectedFlavor = useMemo(
+    () => flavors.find((flavor) => flavor.id === selectedFlavorId) ?? flavors[0],
+    [selectedFlavorId]
   );
 
   function validate(): boolean {
@@ -80,7 +97,7 @@ export function OrderSection() {
             ধন্যবাদ, {form.name}! আপনার অর্ডারটি রেকর্ড করা হয়েছে।
           </h2>
           <p className="mt-2 text-muted-foreground">
-            {selectedTier.label} ({selectedTier.tag}) — মোট ৳{selectedTier.salePrice}
+            {singleJarPrice.label} মিল্কিমম ({selectedFlavor.name}) — মোট ৳{singleJarPrice.salePrice}
             {form.payment === "cod" ? " (ক্যাশ অন ডেলিভারি)" : " (বিকাশ পেমেন্ট)"}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -95,80 +112,10 @@ export function OrderSection() {
   return (
     <section id="pricing" className="mx-auto max-w-5xl px-4 py-16 sm:py-24">
       <Reveal className="mx-auto max-w-2xl text-center">
-        <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
-          প্যাকেজ বেছে নিন
-        </span>
-        <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
+        <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
           আজই অর্ডার করুন, বাড়িতে বসেই পেয়ে যান
         </h2>
-        <p className="mt-3 text-balance text-muted-foreground">
-          যত বেশি জার, তত বেশি সাশ্রয়। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।
-        </p>
       </Reveal>
-
-      <RevealGroup className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {pricingTiers.map((tier) => {
-          const isSelected = tier.id === selectedTierId;
-          const savings = tier.regularPrice - tier.salePrice;
-          const savingsPercent = Math.round((savings / tier.regularPrice) * 100);
-          return (
-            <RevealItem key={tier.id}>
-              <button
-                type="button"
-                onClick={() => setSelectedTierId(tier.id)}
-                aria-pressed={isSelected}
-                className={cn(
-                  "relative flex h-full w-full flex-col rounded-2xl border-2 bg-card p-5 text-left transition-all",
-                  isSelected
-                    ? "border-primary shadow-lg shadow-brand-crimson/10"
-                    : "border-border hover:border-brand-coral/40"
-                )}
-              >
-                {tier.popular && (
-                  <span className="absolute -top-3 left-4 rounded-full bg-brand-crimson px-3 py-1 text-xs font-bold text-white">
-                    {tier.tag}
-                  </span>
-                )}
-                <span
-                  className={cn(
-                    "text-sm font-semibold",
-                    !tier.popular && "text-muted-foreground"
-                  )}
-                >
-                  {!tier.popular && tier.tag}
-                </span>
-                <span className="mt-1 font-heading text-xl font-bold text-foreground">
-                  {tier.label}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {tier.perJarDays} দিনের ডোজ
-                </span>
-
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="font-heading text-2xl font-extrabold text-primary">
-                    ৳{tier.salePrice.toLocaleString("bn-BD")}
-                  </span>
-                  <span className="text-sm text-muted-foreground line-through">
-                    ৳{tier.regularPrice.toLocaleString("bn-BD")}
-                  </span>
-                </div>
-                <span className="mt-1 inline-flex w-fit items-center rounded-full bg-brand-green-light px-2 py-0.5 text-xs font-semibold text-brand-green">
-                  {savingsPercent}% সাশ্রয়
-                </span>
-
-                <span
-                  className={cn(
-                    "mt-4 flex size-5 items-center justify-center rounded-full border-2",
-                    isSelected ? "border-primary bg-primary" : "border-border"
-                  )}
-                >
-                  {isSelected && <CheckCircle2 className="size-4 text-primary-foreground" />}
-                </span>
-              </button>
-            </RevealItem>
-          );
-        })}
-      </RevealGroup>
 
       <Reveal delay={0.15} className="mt-10">
         <form
@@ -177,7 +124,69 @@ export function OrderSection() {
           noValidate
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <h3 className="col-span-full font-heading text-lg font-bold text-foreground">
+            <div className="col-span-full">
+              <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
+                স্বাদ বেছে নিন
+              </span>
+              <h3 className="mt-1 font-heading text-lg font-bold text-foreground">
+                ৪টি সুস্বাদু ফ্লেভারে পাওয়া যাচ্ছে
+              </h3>
+            </div>
+
+            <RevealGroup className="col-span-full grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {flavors.map((flavor) => {
+                const isSelected = flavor.id === selectedFlavorId;
+                const Icon = iconMap[flavor.icon];
+                return (
+                  <RevealItem key={flavor.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFlavorId(flavor.id)}
+                      aria-pressed={isSelected}
+                      className={cn(
+                        "relative flex h-full w-full flex-col items-center gap-2 rounded-2xl border-2 bg-card p-4 text-center transition-all",
+                        isSelected
+                          ? "border-primary shadow-lg shadow-brand-crimson/10"
+                          : "border-border hover:border-brand-coral/40"
+                      )}
+                    >
+                      {flavor.popular && (
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-crimson px-3 py-1 text-xs font-bold whitespace-nowrap text-white">
+                          {flavor.tag}
+                        </span>
+                      )}
+                      <span
+                        className={cn(
+                          "flex size-12 items-center justify-center rounded-full bg-brand-cream",
+                          isSelected && "bg-primary/10"
+                        )}
+                      >
+                        <Icon className="size-6 text-brand-crimson" />
+                      </span>
+                      <span className="font-heading text-base font-bold text-foreground">
+                        {flavor.name}
+                      </span>
+                      {!flavor.popular && (
+                        <span className="text-xs text-muted-foreground">{flavor.tag}</span>
+                      )}
+
+                      <span
+                        className={cn(
+                          "absolute right-2 top-2 flex size-5 items-center justify-center rounded-full border-2",
+                          isSelected ? "border-primary bg-primary" : "border-border"
+                        )}
+                      >
+                        {isSelected && (
+                          <CheckCircle2 className="size-4 text-primary-foreground" />
+                        )}
+                      </span>
+                    </button>
+                  </RevealItem>
+                );
+              })}
+            </RevealGroup>
+
+            <h3 className="col-span-full mt-2 font-heading text-lg font-bold text-foreground">
               ডেলিভারি তথ্য
             </h3>
 
@@ -288,11 +297,17 @@ export function OrderSection() {
             <h3 className="font-heading text-lg font-bold text-foreground">আপনার অর্ডার</h3>
             <div className="mt-3 flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {selectedTier.label} ({selectedTier.perJarDays} দিনের ডোজ)
+                {singleJarPrice.label} মিল্কিমম ({selectedFlavor.name}) ·{" "}
+                {singleJarPrice.perJarDays} দিনের ডোজ
               </span>
-              <span className="font-semibold text-foreground">
-                ৳{selectedTier.salePrice.toLocaleString("bn-BD")}
-              </span>
+              <div className="text-right">
+                <span className="block font-semibold text-foreground">
+                  ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
+                </span>
+                <span className="block text-xs text-muted-foreground line-through">
+                  ৳{singleJarPrice.regularPrice.toLocaleString("bn-BD")}
+                </span>
+              </div>
             </div>
             <div className="mt-1 flex items-center justify-between text-sm text-muted-foreground">
               <span>ডেলিভারি চার্জ</span>
@@ -301,7 +316,7 @@ export function OrderSection() {
             <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
               <span className="font-semibold text-foreground">সর্বমোট</span>
               <span className="font-heading text-xl font-extrabold text-primary">
-                ৳{selectedTier.salePrice.toLocaleString("bn-BD")}
+                ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
               </span>
             </div>
 
