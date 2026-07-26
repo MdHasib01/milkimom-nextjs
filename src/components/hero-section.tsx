@@ -18,7 +18,7 @@ export function HeroSection() {
         }}
       />
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-2 lg:gap-8">
-        <div className="order-2 lg:order-1">
+        <div className="text-center lg:order-1 lg:text-left">
           <Reveal>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-semibold text-brand-green sm:text-sm">
               <Star className="size-3.5 fill-brand-green text-brand-green" />
@@ -37,14 +37,14 @@ export function HeroSection() {
           </Reveal>
 
           <Reveal delay={0.16}>
-            <p className="mt-4 max-w-xl text-balance text-base text-muted-foreground sm:text-lg">
-              মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর
-              শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।
+            <p className="mx-auto mt-4 max-w-xl text-balance text-base text-muted-foreground sm:text-lg lg:mx-0">
+              মিল্কিমম খেলে <span className="font-bold text-primary">মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে</span>, এবং ব্রেস্ট ফিডিং এর
+              শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।
             </p>
           </Reveal>
 
           <Reveal delay={0.24}>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
               <Button
                 asChild
                 className="cta-shine h-12 gap-2 rounded-full bg-brand-cta px-6 text-base text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark"
@@ -68,7 +68,7 @@ export function HeroSection() {
           </Reveal>
         </div>
 
-        <div className="order-1 lg:order-2">
+        <div className="lg:order-2">
           <Reveal delay={0.1} y={32}>
             <div className="relative mx-auto flex aspect-square max-w-md items-center justify-center">
               <div
