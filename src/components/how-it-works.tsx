@@ -1,17 +1,18 @@
 import Image from "next/image";
 
-import { Float, Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { Float, Reveal } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
 import { benefits } from "@/lib/content";
 
 const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
-const RADIUS = 42;
+const RADIUS_X = 42;
+const RADIUS_Y = 36;
 
 function polarPosition(index: number, total: number) {
   const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
-  const x = 50 + RADIUS * Math.cos(angle);
-  const y = 50 + RADIUS * Math.sin(angle);
+  const x = 50 + RADIUS_X * Math.cos(angle);
+  const y = 50 + RADIUS_Y * Math.sin(angle);
   return { left: `${x}%`, top: `${y}%` };
 }
 
@@ -31,8 +32,8 @@ export function HowItWorksSection() {
         </p>
       </Reveal>
 
-      {/* Radial layout — desktop/tablet */}
-      <div className="relative mx-auto mt-16 hidden aspect-square max-w-md sm:block md:max-w-lg lg:max-w-xl xl:max-w-2xl">
+      {/* Radial layout */}
+      <div className="relative mx-auto mt-8 aspect-square w-full max-w-[420px] sm:mt-16 sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
         <RotatingOrbit />
         <div className="absolute inset-0 flex items-center justify-center">
           <Float distance={8} duration={3.5}>
@@ -41,7 +42,7 @@ export function HowItWorksSection() {
               alt="মিল্কিমম জার"
               width={612}
               height={880}
-              className="h-44 w-auto drop-shadow-2xl md:h-[228px] lg:h-64 xl:h-[300px]"
+              className="h-28 w-auto drop-shadow-2xl sm:h-44 md:h-[228px] lg:h-64 xl:h-[300px]"
             />
           </Float>
         </div>
@@ -52,14 +53,14 @@ export function HowItWorksSection() {
             <div
               key={benefit.accent + benefit.rest}
               style={position}
-              className="absolute w-40 -translate-x-1/2 -translate-y-1/2 md:w-44 lg:w-48 xl:w-56"
+              className="absolute w-24 -translate-x-1/2 -translate-y-1/2 sm:w-40 md:w-44 lg:w-48 xl:w-56"
             >
               <Reveal delay={0.1 * index} y={12}>
-                <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center shadow-sm">
-                  <span className="flex size-9 items-center justify-center rounded-full bg-brand-crimson text-sm font-bold text-white md:size-10 md:text-base">
+                <div className="flex flex-col items-center gap-1 rounded-xl border border-border bg-card p-2 text-center shadow-sm sm:gap-2 sm:rounded-2xl sm:p-3">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-brand-crimson text-xs font-bold text-white sm:size-9 sm:text-sm md:size-10 md:text-base">
                     {bengaliDigits[index + 1]}
                   </span>
-                  <p className="text-sm font-semibold leading-snug sm:text-base lg:text-lg">
+                  <p className="text-[11px] font-semibold leading-tight sm:text-sm sm:leading-snug md:text-base lg:text-lg">
                     <span className="text-brand-crimson">{benefit.accent}</span>{" "}
                     <span className="text-foreground">{benefit.rest}</span>
                   </p>
@@ -69,25 +70,6 @@ export function HowItWorksSection() {
           );
         })}
       </div>
-
-      {/* Stacked list — mobile */}
-      <RevealGroup className="mt-10 grid grid-cols-1 gap-4 sm:hidden">
-        {benefits.map((benefit, index) => {
-          return (
-            <RevealItem key={benefit.accent + benefit.rest}>
-              <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-crimson text-sm font-bold text-white">
-                  {bengaliDigits[index + 1]}
-                </span>
-                <p className="text-lg font-semibold leading-snug">
-                  <span className="text-brand-crimson">{benefit.accent}</span>{" "}
-                  <span className="text-foreground">{benefit.rest}</span>
-                </p>
-              </div>
-            </RevealItem>
-          );
-        })}
-      </RevealGroup>
     </section>
   );
 }
