@@ -46,7 +46,7 @@ export function HowItWorksSection() {
       </Reveal>
 
       {/* Radial layout — desktop/tablet */}
-      <div className="relative mx-auto mt-16 hidden aspect-square max-w-xl sm:block">
+      <div className="relative mx-auto mt-16 hidden aspect-square max-w-md sm:block md:max-w-lg lg:max-w-xl xl:max-w-2xl">
         <RotatingOrbit />
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
@@ -54,7 +54,7 @@ export function HowItWorksSection() {
             alt="মিল্কিমম জার"
             width={612}
             height={880}
-            className="h-40 w-auto drop-shadow-2xl lg:h-48"
+            className="h-44 w-auto drop-shadow-2xl md:h-[228px] lg:h-64 xl:h-[300px]"
           />
         </div>
 
@@ -65,7 +65,7 @@ export function HowItWorksSection() {
             <div
               key={benefit.title}
               style={position}
-              className="absolute w-40 -translate-x-1/2 -translate-y-1/2 lg:w-44"
+              className="absolute w-36 -translate-x-1/2 -translate-y-1/2 md:w-40 lg:w-44 xl:w-52"
             >
               <Reveal delay={0.1 * index} y={12}>
                 <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center shadow-sm">
