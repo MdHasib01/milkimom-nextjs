@@ -30,7 +30,7 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full border-b border-transparent bg-background/80 backdrop-blur-md transition-shadow",
+        "relative w-full border-b border-transparent bg-background/80 backdrop-blur-md transition-shadow",
         scrolled && "border-border shadow-sm"
       )}
     >
@@ -41,7 +41,7 @@ export function SiteHeader() {
             alt={siteConfig.name}
             width={140}
             height={92}
-            className="h-9 w-auto"
+            className="h-14 w-auto sm:h-16"
             priority
           />
         </Link>

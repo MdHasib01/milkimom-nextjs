@@ -20,13 +20,7 @@ export function HeroSection() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-2 lg:gap-8">
         <div className="text-center lg:order-1 lg:text-left">
           <Reveal>
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-green-light px-3 py-1 text-xs font-semibold text-brand-green sm:text-sm">
-              <span className="-space-x-1.5 inline-flex">
-                <img src="/assets/reviewer/girl1.jpeg" alt="Reviewer 1" className="h-5 w-5 rounded-full border border-white object-cover" />
-                <img src="/assets/reviewer/girl2.jpeg" alt="Reviewer 2" className="h-5 w-5 rounded-full border border-white object-cover" />
-                <img src="/assets/reviewer/girl3.jpeg" alt="Reviewer 3" className="h-5 w-5 rounded-full border border-white object-cover" />
-                <img src="/assets/reviewer/girl4.jpeg" alt="Reviewer 4" className="h-5 w-5 rounded-full border border-white object-cover" />
-              </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-semibold text-brand-green sm:text-sm">
               <Star className="size-3.5 fill-brand-green text-brand-green" />
               ৩০,০০০+ জন মা ইতিমধ্যেই মিল্কিমম খেয়ে উপকৃত হয়েছেন
             </span>

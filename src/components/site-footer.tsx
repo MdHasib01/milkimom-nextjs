@@ -17,7 +17,7 @@ export function SiteFooter() {
               alt={siteConfig.name}
               width={140}
               height={92}
-              className="h-9 w-auto"
+              className="h-14 w-auto"
             />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               {siteConfig.tagline} — মা ও শিশুর সুস্থতায় প্রকৃতির শক্তি।

@@ -38,7 +38,7 @@ export function AnnouncementBar() {
   const countdown = useCountdown();
 
   return (
-    <div className="bg-brand-crimson text-white">
+    <div className="sticky top-0 z-40 bg-brand-crimson text-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-center text-xs sm:text-sm">
         <span className="inline-flex items-center gap-1.5 font-medium">
           <PartyPopper className="size-4 shrink-0" />

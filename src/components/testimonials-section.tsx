@@ -1,10 +1,16 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, ChevronDown } from "lucide-react";
 
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { testimonials } from "@/lib/content";
 
 export function TestimonialsSection() {
+  const [showAll, setShowAll] = useState(false);
+  const displayedTestimonials = showAll ? testimonials : testimonials.slice(0, 4);
+
   return (
     <section id="reviews" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
       <Reveal className="mx-auto max-w-2xl text-center">
@@ -18,14 +24,21 @@ export function TestimonialsSection() {
 
       <Reveal delay={0.1}>
         <div className="mx-auto mt-6 flex w-fit items-center gap-3 rounded-full border border-border bg-card px-4 py-2 shadow-sm">
-          <div className="flex -space-x-2">
-            {["সু", "না", "ফা", "তা"].map((initial) => (
-              <span
-                key={initial}
-                className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-brand-coral/20 text-xs font-bold text-brand-crimson"
-              >
-                {initial}
-              </span>
+          <div className="flex -space-x-2 shrink-0">
+            {[
+              "/assets/reviewer/girl1.jpeg",
+              "/assets/reviewer/girl2.jpeg",
+              "/assets/reviewer/girl3.jpeg",
+              "/assets/reviewer/girl4.jpeg",
+            ].map((imgSrc, index) => (
+              <Image
+                key={index}
+                src={imgSrc}
+                alt={`রিভিউয়ার ${index + 1}`}
+                width={36}
+                height={36}
+                className="size-8 rounded-full border-2 border-card object-cover shadow-sm"
+              />
             ))}
           </div>
           <span className="text-sm font-semibold text-foreground">
@@ -34,37 +47,60 @@ export function TestimonialsSection() {
         </div>
       </Reveal>
 
-      <RevealGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {testimonials.map((testimonial) => (
-          <RevealItem key={testimonial.name}>
-            <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <div className="flex items-center gap-1 text-brand-gold">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star
-                    key={index}
-                    className="size-4"
-                    fill={index < testimonial.rating ? "currentColor" : "none"}
-                  />
-                ))}
-              </div>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
-                &ldquo;{testimonial.text}&rdquo;
-              </p>
-              <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
-                <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
-                  {testimonial.name.charAt(0)}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+      <div className="relative">
+        <RevealGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {displayedTestimonials.map((testimonial) => (
+            <RevealItem key={testimonial.name}>
+              <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center gap-1 text-brand-gold">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star
+                      key={index}
+                      className="size-4 fill-current text-brand-gold"
+                    />
+                  ))}
+                </div>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
+                  &ldquo;{testimonial.text}&rdquo;
+                </p>
+                <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
+                  {testimonial.avatar ? (
+                    <Image
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      width={36}
+                      height={36}
+                      className="size-9 rounded-full object-cover border border-border shadow-xs"
+                    />
+                  ) : (
+                    <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
+                      {testimonial.name.charAt(0)}
+                    </span>
+                  )}
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </RevealItem>
-        ))}
-      </RevealGroup>
+            </RevealItem>
+          ))}
+        </RevealGroup>
+
+        {!showAll && (
+          <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end bg-gradient-to-t from-background via-background/80 to-transparent pt-28 pb-3 text-center pointer-events-none rounded-b-2xl">
+            <button
+              onClick={() => setShowAll(true)}
+              className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-brand-crimson/30 bg-card px-6 py-2.5 text-sm font-bold text-brand-crimson shadow-md backdrop-blur-md transition-all hover:bg-brand-crimson hover:text-white hover:shadow-lg cursor-pointer"
+            >
+              <span>আরও রিভিউ দেখুন</span>
+              <ChevronDown className="size-4 animate-bounce" />
+            </button>
+          </div>
+        )}
+      </div>
 
       <Reveal delay={0.15} className="mt-10 overflow-hidden rounded-3xl">
         <div className="relative flex items-center justify-center overflow-hidden rounded-3xl">
