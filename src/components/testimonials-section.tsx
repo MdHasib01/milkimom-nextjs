@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Star, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Reveal } from "@/components/motion/reveal";
@@ -139,7 +139,6 @@ function CareCarousel() {
 
 export function TestimonialsSection() {
   const [showAll, setShowAll] = useState(false);
-  const displayedTestimonials = showAll ? testimonials : testimonials.slice(0, 4);
 
   return (
     <section id="reviews" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
@@ -177,48 +176,67 @@ export function TestimonialsSection() {
         </div>
       </Reveal>
 
-      <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {displayedTestimonials.map((testimonial) => (
-          <div
-            key={testimonial.name}
-            className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
-          >
-            <div className="flex items-center gap-1 text-brand-gold">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <Star
-                  key={index}
-                  className="size-4 fill-current text-brand-gold"
-                />
-              ))}
-            </div>
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
-              &ldquo;{testimonial.text}&rdquo;
-            </p>
-            <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
-              <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
-                {testimonial.name.charAt(0)}
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  {testimonial.name}
-                </p>
-                <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+      <div className="relative mt-10">
+        <div
+          className={`grid grid-cols-1 gap-5 sm:grid-cols-2 transition-all duration-500 ease-in-out ${
+            !showAll ? "max-h-[460px] sm:max-h-[480px] overflow-hidden" : ""
+          }`}
+        >
+          {testimonials.map((testimonial) => (
+            <div
+              key={testimonial.name}
+              className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
+            >
+              <div className="flex items-center gap-1 text-brand-gold">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star
+                    key={index}
+                    className="size-4 fill-current text-brand-gold"
+                  />
+                ))}
+              </div>
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
+                &ldquo;{testimonial.text}&rdquo;
+              </p>
+              <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
+                <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
+                  {testimonial.name.charAt(0)}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Gradient Overlay & Blended See More Button */}
+        {!showAll && (
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background via-background/90 to-transparent z-10 flex items-end justify-center pb-4 pointer-events-none">
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="pointer-events-auto inline-flex items-center gap-2.5 rounded-full border border-brand-crimson/30 bg-card/90 backdrop-blur-md px-8 py-3 text-sm font-bold text-brand-crimson shadow-xl transition-all hover:scale-105 hover:bg-brand-crimson hover:text-white hover:shadow-2xl cursor-pointer"
+            >
+              <span>আরও রিভিউ দেখুন</span>
+              <ChevronDown className="size-4 animate-bounce" />
+            </button>
           </div>
-        ))}
+        )}
       </div>
 
-      {/* Button for See More */}
-      {!showAll && (
+      {showAll && (
         <div className="mt-8 flex justify-center">
           <button
             type="button"
-            onClick={() => setShowAll(true)}
-            className="inline-flex items-center gap-2 rounded-full border border-brand-crimson/30 bg-card px-8 py-3 text-sm font-bold text-brand-crimson shadow-md transition-all hover:bg-brand-crimson hover:text-white hover:shadow-lg cursor-pointer"
+            onClick={() => setShowAll(false)}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-2.5 text-xs font-semibold text-muted-foreground shadow-sm transition-all hover:bg-card hover:text-foreground cursor-pointer"
           >
-            <span>আরও রিভিউ দেখুন</span>
-            <ChevronDown className="size-4 animate-bounce" />
+            <span>কম রিভিউ দেখুন</span>
+            <ChevronUp className="size-4" />
           </button>
         </div>
       )}
