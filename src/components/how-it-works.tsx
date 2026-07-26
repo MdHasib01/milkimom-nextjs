@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { Float, Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
 import { benefits } from "@/lib/content";
 
@@ -35,13 +35,15 @@ export function HowItWorksSection() {
       <div className="relative mx-auto mt-16 hidden aspect-square max-w-md sm:block md:max-w-lg lg:max-w-xl xl:max-w-2xl">
         <RotatingOrbit />
         <div className="absolute inset-0 flex items-center justify-center">
-          <Image
-            src="/images/product-jar.webp"
-            alt="মিল্কিমম জার"
-            width={612}
-            height={880}
-            className="h-44 w-auto drop-shadow-2xl md:h-[228px] lg:h-64 xl:h-[300px]"
-          />
+          <Float distance={8} duration={3.5}>
+            <Image
+              src="/images/product-jar.webp"
+              alt="মিল্কিমম জার"
+              width={612}
+              height={880}
+              className="h-44 w-auto drop-shadow-2xl md:h-[228px] lg:h-64 xl:h-[300px]"
+            />
+          </Float>
         </div>
 
         {benefits.map((benefit, index) => {

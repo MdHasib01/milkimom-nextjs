@@ -51,6 +51,28 @@ export function RevealGroup({
   );
 }
 
+export function Float({
+  children,
+  className,
+  distance = 10,
+  duration = 3,
+}: {
+  children: ReactNode;
+  className?: string;
+  distance?: number;
+  duration?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      animate={{ y: [0, -distance, 0] }}
+      transition={{ duration, repeat: Infinity, ease: "easeInOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function RevealItem({
   children,
   className,
