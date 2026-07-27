@@ -17,13 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { bdLocations } from "@/lib/bdLocations";
 import { flavors, singleJarPrice } from "@/lib/content";
@@ -265,56 +259,42 @@ export function OrderSection() {
               {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
             </div>
 
-            {/* Field 3: District Dropdown */}
+            {/* Field 3: District Searchable Dropdown */}
             <div className="grid gap-1.5">
               <Label htmlFor="district">জেলা *</Label>
-              <Select
+              <SearchableSelect
+                id="district"
                 value={form.district}
                 onValueChange={(value) =>
                   setForm((f) => ({ ...f, district: value, thana: "" }))
                 }
-              >
-                <SelectTrigger id="district" className="h-11 w-full bg-background">
-                  <SelectValue placeholder="জেলা নির্বাচন করুন" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60 overflow-y-auto">
-                  {districtOptions.map((dist) => (
-                    <SelectItem key={dist} value={dist}>
-                      {dist}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={districtOptions}
+                placeholder="জেলা নির্বাচন করুন"
+                searchPlaceholder="জেলা খুঁজুন..."
+                error={Boolean(errors.district)}
+              />
               {errors.district && (
                 <p className="text-xs text-destructive">{errors.district}</p>
               )}
             </div>
 
-            {/* Field 4: Subdistrict / Thana Dropdown */}
+            {/* Field 4: Subdistrict / Thana Searchable Dropdown */}
             <div className="grid gap-1.5">
               <Label htmlFor="thana">থানা/উপজেলা *</Label>
-              <Select
+              <SearchableSelect
+                id="thana"
                 value={form.thana}
                 onValueChange={(value) => setForm((f) => ({ ...f, thana: value }))}
+                options={thanaOptions}
+                placeholder={
+                  form.district
+                    ? "থানা/উপজেলা নির্বাচন করুন"
+                    : "প্রথমে জেলা নির্বাচন করুন"
+                }
+                searchPlaceholder="থানা/উপজেলা খুঁজুন..."
                 disabled={!form.district}
-              >
-                <SelectTrigger id="thana" className="h-11 w-full bg-background">
-                  <SelectValue
-                    placeholder={
-                      form.district
-                        ? "থানা/উপজেলা নির্বাচন করুন"
-                        : "প্রথমে জেলা নির্বাচন করুন"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent className="max-h-60 overflow-y-auto">
-                  {thanaOptions.map((th) => (
-                    <SelectItem key={th} value={th}>
-                      {th}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                error={Boolean(errors.thana)}
+              />
               {errors.thana && <p className="text-xs text-destructive">{errors.thana}</p>}
             </div>
 
