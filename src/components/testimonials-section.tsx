@@ -233,10 +233,10 @@ export function TestimonialsSection() {
           <button
             type="button"
             onClick={() => setShowAll(false)}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-2.5 text-xs font-semibold text-muted-foreground shadow-sm transition-all hover:bg-card hover:text-foreground cursor-pointer"
+            aria-label="কম রিভিউ দেখুন"
+            className="inline-flex items-center justify-center rounded-full border border-border bg-card p-3 text-muted-foreground shadow-md transition-all hover:bg-muted hover:text-foreground hover:scale-110 cursor-pointer"
           >
-            <span>কম রিভিউ দেখুন</span>
-            <ChevronUp className="size-4" />
+            <ChevronUp className="size-5" />
           </button>
         </div>
       )}

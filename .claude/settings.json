@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes shadcn@latest add button badge card accordion tabs separator input label select sheet -y)",
+      "Bash(node -e ' *)",
+      "Bash(npm run *)",
+      "Bash(xargs du -h)"
+    ]
+  }
+}

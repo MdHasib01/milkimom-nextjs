@@ -27,6 +27,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { bangladeshDistricts } from "@/lib/districts";
 import { flavors, singleJarPrice } from "@/lib/content";
 import { cn } from "@/lib/utils";
+import { saveOrder } from "@/lib/api";
 
 const iconMap: Record<(typeof flavors)[number]["icon"], LucideIcon> = {
   cookie: Cookie,
@@ -42,6 +43,7 @@ type FormState = {
   phone: string;
   address: string;
   district: string;
+  thana: string;
   payment: "cod" | "bkash";
 };
 
@@ -50,6 +52,7 @@ const initialForm: FormState = {
   phone: "",
   address: "",
   district: "",
+  thana: "",
   payment: "cod",
 };
 
@@ -60,6 +63,7 @@ export function OrderSection() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+  const [submitError, setSubmitError] = useState("");
 
   const selectedFlavor = useMemo(
     () => flavors.find((flavor) => flavor.id === selectedFlavorId) ?? flavors[0],
@@ -73,19 +77,42 @@ export function OrderSection() {
       nextErrors.phone = "সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন";
     if (form.address.trim().length < 8) nextErrors.address = "বিস্তারিত ঠিকানা লিখুন";
     if (!form.district) nextErrors.district = "জেলা নির্বাচন করুন";
+    if (form.thana.trim().length < 2) nextErrors.thana = "থানা/উপজেলা লিখুন";
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    setSubmitError("");
     if (!validate()) return;
 
     setStatus("submitting");
-    // NOTE: no backend wired up yet — replace with a real order/payment API call.
-    window.setTimeout(() => {
+    // Order is placed directly — no mobile/OTP verification step in v2.0.
+    const result = await saveOrder({
+      product: "Milkimom Complete Dose",
+      customerName: form.name.trim(),
+      phone: form.phone.trim(),
+      district: form.district,
+      thana: form.thana.trim(),
+      address: form.address.trim(),
+      flavour: selectedFlavor.name,
+      paymentMethod: form.payment === "bkash" ? "bKash" : "COD",
+      price: singleJarPrice.salePrice,
+      pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
+      orderTime: new Date().toISOString(),
+    });
+
+    if (result.success) {
       setStatus("success");
-    }, 700);
+    } else {
+      setStatus("idle");
+      setSubmitError(
+        typeof result.error === "string"
+          ? result.error
+          : "অর্ডারটি সাবমিট করা যায়নি। আবার চেষ্টা করুন।"
+      );
+    }
   }
 
   if (status === "success") {
@@ -259,6 +286,20 @@ export function OrderSection() {
             </div>
 
             <div className="grid gap-1.5">
+              <Label htmlFor="thana">থানা/উপজেলা</Label>
+              <Input
+                id="thana"
+                autoComplete="address-level2"
+                value={form.thana}
+                onChange={(e) => setForm((f) => ({ ...f, thana: e.target.value }))}
+                aria-invalid={Boolean(errors.thana)}
+                placeholder="থানা বা উপজেলার নাম লিখুন"
+                className="h-11"
+              />
+              {errors.thana && <p className="text-xs text-destructive">{errors.thana}</p>}
+            </div>
+
+            <div className="grid gap-1.5">
               <span className="text-sm font-medium">পেমেন্ট পদ্ধতি</span>
               <div className="flex gap-2">
                 {(
@@ -319,6 +360,12 @@ export function OrderSection() {
                 ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
               </span>
             </div>
+
+            {submitError && (
+              <p className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+                {submitError}
+              </p>
+            )}
 
             <Button
               type="submit"
