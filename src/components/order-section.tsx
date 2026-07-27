@@ -156,11 +156,11 @@ export function OrderSection() {
       <Reveal delay={0.15} className="mt-10">
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-6 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8 lg:grid-cols-[1.2fr_0.8fr]"
+          className="grid grid-cols-1 gap-6 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start"
           noValidate
         >
           {/* Left Column: Product Flavors & Delivery Form */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 min-w-0">
             <div className="col-span-full">
               <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
                 স্বাদ বেছে নিন
@@ -317,7 +317,7 @@ export function OrderSection() {
           </div>
 
           {/* Right Column: Order Summary + Payment Method + bKash Details + Confirm Button */}
-          <div className="flex flex-col justify-between rounded-2xl bg-muted p-5 sm:p-6">
+          <div className="flex flex-col rounded-2xl bg-muted p-5 sm:p-6 min-w-0">
             <div>
               <h3 className="font-heading text-lg font-bold text-foreground">আপনার অর্ডার</h3>
               
@@ -361,7 +361,7 @@ export function OrderSection() {
                     <label
                       key={option.id}
                       className={cn(
-                        "flex flex-1 cursor-pointer items-center justify-center rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+                        "flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
                         form.payment === option.id
                           ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs"
                           : "border-border bg-card text-foreground/80 hover:border-brand-coral/40"
@@ -377,7 +377,14 @@ export function OrderSection() {
                         }
                         className="sr-only"
                       />
-                      {option.label}
+                      {option.id === "bkash" && (
+                        <img
+                          src="/assets/bkash-logo.png"
+                          alt="bKash"
+                          className="h-5 w-auto object-contain shrink-0"
+                        />
+                      )}
+                      <span>{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -407,7 +414,12 @@ export function OrderSection() {
                     {/* Bangla Instructions */}
                     <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
                       <p className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 sm:text-sm">
-                        <span>📌</span> বিকাশ পেমেন্ট করার নির্দেশাবলী:
+                        <img
+                          src="/assets/bkash-logo.png"
+                          alt="bKash"
+                          className="h-4.5 w-auto object-contain shrink-0 inline-block"
+                        />
+                        <span>বিকাশ পেমেন্ট করার নির্দেশাবলী:</span>
                       </p>
                       <ol className="mt-1.5 list-decimal list-inside space-y-1.5 pl-1 text-xs font-medium leading-relaxed text-muted-foreground">
                         <li>
@@ -424,7 +436,7 @@ export function OrderSection() {
                         <li>
                           মোট পরিমাণ:{" "}
                           <strong className="font-bold text-brand-crimson">
-                            ৳{singleJarPrice.salePrice}/=
+                            {singleJarPrice.salePrice}/=
                           </strong>{" "}
                           টাকা দিয়ে পিন দিন।
                         </li>
