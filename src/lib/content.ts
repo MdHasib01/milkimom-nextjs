@@ -51,6 +51,9 @@ export const flavors = [
     tag: "সবচেয়ে জনপ্রিয়",
     description: "গাঢ় চকলেটের সমৃদ্ধ স্বাদ, প্রতিদিনের ডোজ হয়ে উঠুক আনন্দের।",
     popular: true,
+    image: "/images/product-jar.webp",
+    accentBg: "bg-[#4A261D]/10 border-[#4A261D]/25",
+    accentGradient: "from-[#4A261D]/20 to-[#8D493A]/30",
   },
   {
     id: "vanilla",
@@ -59,6 +62,9 @@ export const flavors = [
     tag: "মৃদু ও সুবাসিত",
     description: "হালকা মিষ্টি ভ্যানিলার স্বাদ, যাদের হালকা স্বাদ পছন্দ তাদের জন্য।",
     popular: false,
+    image: "/images/product-jar.webp",
+    accentBg: "bg-amber-500/10 border-amber-500/25",
+    accentGradient: "from-[#F59E0B]/20 to-[#FBBF24]/30",
   },
   {
     id: "cardamom",
@@ -67,6 +73,9 @@ export const flavors = [
     tag: "ঐতিহ্যবাহী",
     description: "দেশীয় এলাচের ঘ্রাণ ও স্বাদ, ঐতিহ্যবাহী রেসিপির ছোঁয়ায়।",
     popular: false,
+    image: "/images/product-jar.webp",
+    accentBg: "bg-emerald-500/10 border-emerald-500/25",
+    accentGradient: "from-[#059669]/20 to-[#34D399]/30",
   },
   {
     id: "cinnamon",
@@ -75,6 +84,9 @@ export const flavors = [
     tag: "উষ্ণ স্বাদ",
     description: "দারুচিনির উষ্ণ স্বাদ, শীতের দিনে আরামদায়ক এক কাপ উষ্ণতা।",
     popular: false,
+    image: "/images/product-jar.webp",
+    accentBg: "bg-orange-500/10 border-orange-500/25",
+    accentGradient: "from-[#EA580C]/20 to-[#FB923C]/30",
   },
 ];
 

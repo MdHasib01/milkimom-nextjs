@@ -4,32 +4,10 @@ import { useMemo, useState, type FormEvent } from "react";
 import {
   AlertCircle,
   CheckCircle2,
-  Cookie,
-  Flame,
-  IceCreamCone,
-  Leaf,
   Loader2,
   ShieldCheck,
   Truck,
-  type LucideIcon,
 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { SearchableSelect } from "@/components/ui/searchable-select";
-import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
-import { bdLocations } from "@/lib/bdLocations";
-import { flavors, singleJarPrice } from "@/lib/content";
-import { cn } from "@/lib/utils";
-import { saveOrder } from "@/lib/api";
-
-const iconMap: Record<(typeof flavors)[number]["icon"], LucideIcon> = {
-  cookie: Cookie,
-  "ice-cream-cone": IceCreamCone,
-  leaf: Leaf,
-  flame: Flame,
-};
 
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -170,10 +148,9 @@ export function OrderSection() {
               </h3>
             </div>
 
-            <RevealGroup className="col-span-full grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <RevealGroup className="col-span-full grid grid-cols-1 gap-3.5 sm:grid-cols-2">
               {flavors.map((flavor) => {
                 const isSelected = flavor.id === selectedFlavorId;
-                const Icon = iconMap[flavor.icon];
                 return (
                   <RevealItem key={flavor.id}>
                     <button
@@ -181,41 +158,58 @@ export function OrderSection() {
                       onClick={() => setSelectedFlavorId(flavor.id)}
                       aria-pressed={isSelected}
                       className={cn(
-                        "relative flex h-full w-full flex-col items-center gap-2 rounded-2xl border-2 bg-card p-4 text-center transition-all",
+                        "group relative flex w-full items-center gap-3.5 rounded-2xl border-2 p-3 text-left transition-all duration-200 min-h-[92px]",
                         isSelected
-                          ? "border-primary shadow-lg shadow-brand-crimson/10"
-                          : "border-border hover:border-brand-coral/40"
+                          ? "border-primary bg-primary/[0.03] shadow-md shadow-brand-crimson/10 ring-1 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
                       )}
                     >
                       {flavor.popular && (
-                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-crimson px-3 py-1 text-xs font-bold whitespace-nowrap text-white">
+                        <span className="absolute -top-2.5 right-3.5 rounded-full bg-brand-crimson px-2.5 py-0.5 text-[11px] font-bold text-white shadow-xs z-10">
                           {flavor.tag}
                         </span>
                       )}
-                      <span
-                        className={cn(
-                          "flex size-12 items-center justify-center rounded-full bg-brand-cream",
-                          isSelected && "bg-primary/10"
-                        )}
-                      >
-                        <Icon className="size-6 text-brand-crimson" />
-                      </span>
-                      <span className="font-heading text-base font-bold text-foreground">
-                        {flavor.name}
-                      </span>
-                      {!flavor.popular && (
-                        <span className="text-xs text-muted-foreground">{flavor.tag}</span>
-                      )}
 
-                      <span
+                      {/* Product Image with Flavor-Specific Accent Color Background */}
+                      <div
                         className={cn(
-                          "absolute right-2 top-2 flex size-5 items-center justify-center rounded-full border-2",
-                          isSelected ? "border-primary bg-primary" : "border-border"
+                          "relative flex size-16 sm:size-20 shrink-0 items-center justify-center rounded-xl p-1 border transition-transform duration-200 group-hover:scale-105 overflow-hidden",
+                          flavor.accentBg,
+                          `bg-gradient-to-br ${flavor.accentGradient}`
                         )}
                       >
-                        {isSelected && (
-                          <CheckCircle2 className="size-4 text-primary-foreground" />
+                        <img
+                          src={flavor.image || "/images/product-jar.webp"}
+                          alt={flavor.name}
+                          className="h-full w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-110"
+                        />
+                      </div>
+
+                      {/* Text Content Beside Product Image */}
+                      <div className="flex flex-1 flex-col justify-center min-w-0 pr-6">
+                        <span className="font-heading text-base font-bold text-foreground leading-tight">
+                          {flavor.name}
+                        </span>
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {flavor.description}
+                        </p>
+                        {!flavor.popular && flavor.tag && (
+                          <span className="mt-1 text-[11px] font-semibold text-brand-crimson/90">
+                            {flavor.tag}
+                          </span>
                         )}
+                      </div>
+
+                      {/* Radio / Selection Checkbox Indicator */}
+                      <span
+                        className={cn(
+                          "absolute right-3 bottom-3 flex size-5 items-center justify-center rounded-full border-2 transition-all",
+                          isSelected
+                            ? "border-primary bg-primary text-primary-foreground scale-105"
+                            : "border-muted-foreground/30 bg-background"
+                        )}
+                      >
+                        {isSelected && <CheckCircle2 className="size-3.5 text-white" />}
                       </span>
                     </button>
                   </RevealItem>
