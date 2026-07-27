@@ -150,6 +150,7 @@
     @apply bg-background text-foreground;
   }
   html {
+    scroll-behavior: smooth;
     @apply font-sans;
   }
   h1, h2, h3, h4 {
