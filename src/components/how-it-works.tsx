@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Float, Reveal } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
 import { SectionCta } from "@/components/section-cta";
+import { GridPattern } from "@/components/grid-pattern";
 import { benefits } from "@/lib/content";
 
 const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
@@ -19,7 +20,8 @@ function polarPosition(index: number, total: number) {
 
 export function HowItWorksSection() {
   return (
-    <section id="benefits" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+    <section id="benefits" className="relative overflow-hidden mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <GridPattern patternType="dots" size={24} className="opacity-40" />
       <Reveal className="mx-auto max-w-2xl text-center">
         <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
           কি কাজ করে?

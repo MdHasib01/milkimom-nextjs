@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Reveal } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
+import { GridPattern } from "@/components/grid-pattern";
 
 const doctors = [
   {
@@ -70,7 +71,8 @@ export function DoctorSection() {
   const activeDoctor = doctors[currentIndex];
 
   return (
-    <section id="ingredients" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+    <section id="ingredients" className="relative overflow-hidden mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <GridPattern patternType="cross" size={32} className="opacity-45" />
       <Reveal className="mx-auto mb-10 max-w-3xl text-center">
         <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">
           মিল্কিমমের উপর আস্থা রেখেছেন দেশের স্বনামধন্য হসপিটাল এবং{" "}

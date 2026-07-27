@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { GridPattern } from "@/components/grid-pattern";
 
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -133,7 +134,8 @@ export function OrderSection() {
   }
 
   return (
-    <section id="pricing" className="mx-auto max-w-5xl px-4 py-16 sm:py-24">
+    <section id="pricing" className="relative overflow-hidden mx-auto max-w-5xl px-4 py-16 sm:py-24">
+      <GridPattern patternType="lines" size={32} className="opacity-40" />
       <Reveal className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
           আজই অর্ডার করুন, বাড়িতে বসেই পেয়ে যান

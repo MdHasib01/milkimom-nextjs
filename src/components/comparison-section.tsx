@@ -3,11 +3,13 @@ import { Check, Crown, X } from "lucide-react";
 
 import { Reveal } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
+import { GridPattern } from "@/components/grid-pattern";
 import { comparisonRows, siteConfig } from "@/lib/content";
 
 export function ComparisonSection() {
   return (
     <section id="compare" className="relative overflow-hidden py-16 sm:py-24">
+      <GridPattern size={28} className="opacity-50" />
       <Image
         src="/images/lifestyle-window.webp"
         alt=""

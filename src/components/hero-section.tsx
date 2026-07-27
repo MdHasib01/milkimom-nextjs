@@ -4,11 +4,13 @@ import { Phone, ShoppingBag, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { FloatingBadges } from "@/components/floating-badges";
+import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
 
 export function HeroSection() {
   return (
     <section id="top" className="relative overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-24">
+      <GridPattern size={36} className="opacity-50" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 -top-32 -z-10 h-[32rem]"
