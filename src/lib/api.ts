@@ -10,6 +10,7 @@ export interface OrderPayload {
   flavour: string;
   paymentMethod: "COD" | "bKash";
   price: number;
+  transactionId?: string;
   pageUrl?: string;
   orderTime?: string;
 }
