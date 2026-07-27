@@ -10,6 +10,7 @@ import { OrderSection } from "@/components/order-section";
 import { FaqSection } from "@/components/faq-section";
 import { SiteFooter } from "@/components/site-footer";
 import { StickyMobileBar } from "@/components/sticky-mobile-bar";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
       </main>
       <SiteFooter />
       <StickyMobileBar />
+      <WhatsAppButton />
     </div>
   );
 }
