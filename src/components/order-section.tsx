@@ -6,9 +6,11 @@ import {
   ArrowDown,
   CheckCircle2,
   Loader2,
+  PhoneCall,
   ShieldCheck,
   ShoppingCart,
   Truck,
+  X,
 } from "lucide-react";
 import { flavors, singleJarPrice } from "@/lib/content";
 import { bdLocations } from "@/lib/bdLocations";
@@ -52,6 +54,8 @@ export function OrderSection() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [submitError, setSubmitError] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [modalErrorMessage, setModalErrorMessage] = useState("");
   const purchaseTracked = useRef(false);
 
   const selectedFlavor = useMemo(
@@ -68,6 +72,7 @@ export function OrderSection() {
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
     setForm((f) => ({ ...f, phone: val }));
+    if (submitError) setSubmitError("");
 
     if (val.startsWith("+") || val.startsWith("88")) {
       setErrors((prev) => ({
@@ -91,7 +96,6 @@ export function OrderSection() {
 
   function validate(): boolean {
     const nextErrors: Partial<Record<keyof FormState, string>> = {};
-    if (form.name.trim().length < 2) nextErrors.name = "পূর্ণ নাম লিখুন";
 
     const phoneTrimmed = form.phone.trim();
     if (!phoneTrimmed) {
@@ -104,14 +108,6 @@ export function OrderSection() {
       nextErrors.phone = "সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন";
     }
 
-    if (!form.district) nextErrors.district = "জেলা নির্বাচন করুন";
-    if (!form.thana.trim()) nextErrors.thana = "থানা/উপজেলা নির্বাচন করুন";
-    if (form.address.trim().length < 5) nextErrors.address = "বাসার বিস্তারিত ঠিকানা লিখুন";
-
-    if (form.payment === "bkash" && form.trxId.trim().length < 4) {
-      nextErrors.trxId = "সঠিক বিকাশ ট্রানজেকশন আইডি (TrxID) লিখুন";
-    }
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
@@ -119,17 +115,28 @@ export function OrderSection() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setSubmitError("");
-    if (!validate()) return;
+
+    const isValid = validate();
+    if (!isValid) {
+      const phoneVal = form.phone.trim();
+      if (!phoneVal || !PHONE_REGEX.test(phoneVal)) {
+        setModalErrorMessage(!phoneVal ? "empty" : "invalid");
+        setShowErrorModal(true);
+      } else {
+        setSubmitError("অর্ডার সম্পূর্ণ করতে অনুগ্রহ করে সব প্রয়োজনীয় তথ্য সঠিকভাবে দিন।");
+      }
+      return;
+    }
 
     setStatus("submitting");
 
     const result = await saveOrder({
       product: "Milkimom Complete Dose",
-      customerName: form.name.trim(),
+      customerName: form.name.trim() || "গ্রাহক",
       phone: form.phone.trim(),
-      district: form.district,
-      thana: form.thana.trim(),
-      address: form.address.trim(),
+      district: form.district || "",
+      thana: form.thana.trim() || "",
+      address: form.address.trim() || "",
       flavour: selectedFlavor.nameEn || selectedFlavor.name,
       paymentMethod: form.payment === "bkash" ? "bKash" : "COD",
       price: singleJarPrice.salePrice,
@@ -162,7 +169,7 @@ export function OrderSection() {
         <Reveal className="rounded-3xl border border-brand-green/30 bg-brand-green-light p-8 text-center sm:p-12">
           <CheckCircle2 className="mx-auto size-12 text-brand-green" />
           <h2 className="mt-4 font-heading text-2xl font-bold text-foreground">
-            ধন্যবাদ, {form.name}! আপনার অর্ডারটি রেকর্ড করা হয়েছে।
+            ধন্যবাদ{form.name.trim() ? `, ${form.name.trim()}` : ""}! আপনার অর্ডারটি রেকর্ড করা হয়েছে।
           </h2>
           <p className="mt-2 text-muted-foreground">
             {singleJarPrice.label} মিল্কিমম ({selectedFlavor.name}) — মোট ৳{singleJarPrice.salePrice}
@@ -297,17 +304,15 @@ export function OrderSection() {
 
             {/* Field 1: Full Name */}
             <div className="grid gap-1.5">
-              <Label htmlFor="name">পূর্ণ নাম *</Label>
+              <Label htmlFor="name">পূর্ণ নাম</Label>
               <Input
                 id="name"
                 autoComplete="name"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                aria-invalid={Boolean(errors.name)}
                 placeholder="আপনার নাম লিখুন"
                 className="h-11"
               />
-              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
 
             {/* Field 2: Phone */}
@@ -334,7 +339,7 @@ export function OrderSection() {
 
             {/* Field 3: District Searchable Dropdown */}
             <div className="grid gap-1.5">
-              <Label htmlFor="district">জেলা *</Label>
+              <Label htmlFor="district">জেলা</Label>
               <SearchableSelect
                 id="district"
                 value={form.district}
@@ -344,16 +349,12 @@ export function OrderSection() {
                 options={districtOptions}
                 placeholder="জেলা নির্বাচন করুন"
                 searchPlaceholder="জেলা খুঁজুন..."
-                error={Boolean(errors.district)}
               />
-              {errors.district && (
-                <p className="text-xs text-destructive">{errors.district}</p>
-              )}
             </div>
 
             {/* Field 4: Subdistrict / Thana Searchable Dropdown */}
             <div className="grid gap-1.5">
-              <Label htmlFor="thana">থানা/উপজেলা *</Label>
+              <Label htmlFor="thana">থানা/উপজেলা</Label>
               <SearchableSelect
                 id="thana"
                 value={form.thana}
@@ -366,26 +367,20 @@ export function OrderSection() {
                 }
                 searchPlaceholder="থানা/উপজেলা খুঁজুন..."
                 disabled={!form.district}
-                error={Boolean(errors.thana)}
               />
-              {errors.thana && <p className="text-xs text-destructive">{errors.thana}</p>}
             </div>
 
-            {/* Field 5: Full Address (MUST BE LAST) */}
+            {/* Field 5: Full Address */}
             <div className="grid gap-1.5 sm:col-span-2">
-              <Label htmlFor="address">বাসার পূর্ণ ঠিকানা *</Label>
+              <Label htmlFor="address">বাসার পূর্ণ ঠিকানা</Label>
               <Input
                 id="address"
                 autoComplete="street-address"
                 value={form.address}
                 onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                aria-invalid={Boolean(errors.address)}
                 placeholder="বাসা/হোল্ডিং নং, রোড, এলাকা"
                 className="h-11"
               />
-              {errors.address && (
-                <p className="text-xs text-destructive">{errors.address}</p>
-              )}
             </div>
           </div>
 
@@ -563,9 +558,10 @@ export function OrderSection() {
 
             <div className="mt-5">
               {submitError && (
-                <p className="mb-3 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
-                  {submitError}
-                </p>
+                <div className="mb-3 flex items-center gap-2.5 rounded-2xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs sm:text-sm font-bold text-destructive shadow-xs">
+                  <AlertCircle className="size-5 shrink-0 text-destructive" />
+                  <span>{submitError}</span>
+                </div>
               )}
 
               <Button
@@ -592,6 +588,88 @@ export function OrderSection() {
           </div>
         </form>
       </Reveal>
+
+      {/* Error Popup Modal */}
+      {showErrorModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => {
+            setShowErrorModal(false);
+            const phoneElem = document.getElementById("phone");
+            if (phoneElem) {
+              phoneElem.scrollIntoView({ behavior: "smooth", block: "center" });
+              phoneElem.focus({ preventScroll: true });
+            }
+          }}
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl border border-brand-crimson/30 bg-card p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setShowErrorModal(false);
+                const phoneElem = document.getElementById("phone");
+                if (phoneElem) {
+                  phoneElem.scrollIntoView({ behavior: "smooth", block: "center" });
+                  phoneElem.focus({ preventScroll: true });
+                }
+              }}
+              className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+
+            <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-brand-crimson/10 text-brand-crimson">
+              <PhoneCall className="size-8 animate-bounce" />
+            </div>
+
+            <h3 className="mt-4 font-heading text-xl font-bold text-foreground">
+              মোবাইল নম্বর প্রয়োজন
+            </h3>
+
+            <p className="mt-2.5 text-sm font-medium text-foreground leading-relaxed">
+              {modalErrorMessage === "invalid" ? (
+                <span>
+                  অনুগ্রহ করে{" "}
+                  <strong className="font-extrabold text-foreground">
+                    ১১ ডিজিটের
+                  </strong>{" "}
+                  সঠিক মোবাইল নম্বর প্রদান করুন (যেমন: 017XXXXXXXX)।
+                </span>
+              ) : (
+                <span>
+                  অর্ডারটি সম্পূর্ণ করতে অনুগ্রহ করে আপনার{" "}
+                  <strong className="font-extrabold text-foreground">
+                    ১১ ডিজিটের
+                  </strong>{" "}
+                  মোবাইল নম্বর প্রদান করুন।
+                </span>
+              )}
+            </p>
+
+            <div className="mt-6">
+              <Button
+                type="button"
+                onClick={() => {
+                  setShowErrorModal(false);
+                  const phoneElem = document.getElementById("phone");
+                  if (phoneElem) {
+                    phoneElem.scrollIntoView({ behavior: "smooth", block: "center" });
+                    phoneElem.focus({ preventScroll: true });
+                  }
+                }}
+                className="w-full rounded-full bg-brand-crimson text-white hover:bg-brand-crimson/90 font-bold h-11 text-sm shadow-md"
+              >
+                ঠিক আছে, নম্বর দিচ্ছি
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
