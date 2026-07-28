@@ -69,13 +69,13 @@ export function SiteFooter() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="size-4 shrink-0" />
-                <a href="mailto:support@milkimom.com" className="hover:text-primary">
-                  support@milkimom.com
+                <a href={`mailto:${siteConfig.email}`} className="hover:text-primary">
+                  {siteConfig.email}
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
-                <span>ঢাকা, বাংলাদেশ</span>
+                <span>{siteConfig.address}</span>
               </li>
             </ul>
           </div>

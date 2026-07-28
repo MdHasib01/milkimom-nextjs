@@ -5,6 +5,8 @@ export const siteConfig = {
   phone: "+8801517102603",
   phoneDisplay: "01517-102603",
   messenger: "https://www.facebook.com/milkimom?_rdr",
+  email: "milkimominfo@gmail.com",
+  address: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
 };
 
 export const navLinks = [
