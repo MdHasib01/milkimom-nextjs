@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import {
   AlertCircle,
+  ArrowDown,
   CheckCircle2,
   Loader2,
   ShieldCheck,
@@ -170,6 +171,10 @@ export function OrderSection() {
               <h3 className="mt-1 font-heading text-lg font-bold text-foreground">
                 ৪টি সুস্বাদু ফ্লেভারে পাওয়া যাচ্ছে
               </h3>
+              <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-crimson flex items-start gap-1 lg:hidden">
+                <span>পছন্দসই স্বাদ নির্বাচন করে নিচে আপনার ডেলিভারি তথ্য পূরণ করুন</span>
+                <ArrowDown className="size-4 shrink-0 text-brand-crimson animate-bounce mt-0.5" />
+              </p>
             </div>
 
             <RevealGroup className="col-span-full grid grid-cols-1 gap-3.5 sm:grid-cols-2">
@@ -251,8 +256,9 @@ export function OrderSection() {
               })}
             </RevealGroup>
 
-            <h3 className="col-span-full mt-2 font-heading text-lg font-bold text-foreground">
-              ডেলিভারি তথ্য
+            <h3 className="col-span-full mt-2 font-heading text-lg font-bold text-foreground flex items-center gap-2">
+              <Truck className="size-5 text-primary shrink-0" />
+              <span>ডেলিভারি তথ্য</span>
             </h3>
 
             {/* Field 1: Full Name */}
