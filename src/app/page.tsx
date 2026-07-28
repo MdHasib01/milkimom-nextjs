@@ -15,7 +15,7 @@ import { BackToTop } from "@/components/back-to-top";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen w-full max-w-full overflow-x-hidden">
+    <div className="relative min-h-screen w-full max-w-full overflow-x-clip">
       <AnnouncementBar />
       <SiteHeader />
       <main className="pb-24 sm:pb-0">
