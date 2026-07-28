@@ -830,7 +830,7 @@ export function OrderSection() {
 
       {/* Small Alert Toast Popup at Bottom */}
       {showCheckingPopup && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto">
+        <div className="fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-[70] animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto">
           <div className="bg-slate-900/95 text-white backdrop-blur-md border border-slate-700/60 rounded-full shadow-2xl px-4 py-2.5 flex items-center gap-3 max-w-sm">
             {popupType === "checking" && (
               <div className="relative flex items-center justify-center size-6 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">

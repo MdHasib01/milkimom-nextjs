@@ -158,3 +158,54 @@ export function updateAdminUser(id: string, data: { name?: string; password?: st
 export function deleteAdminUser(id: string) {
   return authRequest(API_ENDPOINTS.adminUserById(id), { method: "DELETE" });
 }
+
+export interface UnfinishedOrder {
+  _id: string;
+  customerName: string;
+  phone: string;
+  address?: string;
+  district?: string;
+  thana?: string;
+  flavour?: string;
+  price?: number;
+  ipAddress?: string;
+  status: "Pending" | "Called User" | "Cancelled" | "Spam";
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function fetchUnfinishedOrders(params?: {
+  status?: string;
+  phone?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const query = new URLSearchParams();
+  if (params?.status) query.set("status", params.status);
+  if (params?.phone) query.set("phone", params.phone);
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.limit) query.set("limit", String(params.limit));
+  const qs = query.toString();
+  return authRequest(`${API_ENDPOINTS.unfinishedOrders}${qs ? `?${qs}` : ""}`);
+}
+
+export function changeUnfinishedOrderStatus(id: string, status: string) {
+  return authRequest(API_ENDPOINTS.unfinishedOrderStatus(id), {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function deleteUnfinishedOrder(id: string) {
+  return authRequest(API_ENDPOINTS.unfinishedOrderById(id), {
+    method: "DELETE",
+  });
+}
+
+export function bulkDeleteUnfinishedOrders(ids: string[]) {
+  return authRequest(API_ENDPOINTS.unfinishedOrdersBulkDelete, {
+    method: "POST",
+    body: JSON.stringify({ ids }),
+  });
+}

@@ -20,4 +20,9 @@ export const API_ENDPOINTS = {
   fraudCheckIp: `${API_BASE_URL}/api/fraud/check-ip`,
   fraudSendOtp: `${API_BASE_URL}/api/fraud/send-otp`,
   fraudVerifyOtp: `${API_BASE_URL}/api/fraud/verify-otp`,
+  unfinishedOrders: `${API_BASE_URL}/api/unfinished-orders`,
+  unfinishedOrderStatus: (id: string) => `${API_BASE_URL}/api/unfinished-orders/${id}/status`,
+  unfinishedOrderById: (id: string) => `${API_BASE_URL}/api/unfinished-orders/${id}`,
+  unfinishedOrdersBulkDelete: `${API_BASE_URL}/api/unfinished-orders/bulk-delete`,
+  unfinishedOrdersSave: `${API_BASE_URL}/api/unfinished-orders/save`,
 } as const;

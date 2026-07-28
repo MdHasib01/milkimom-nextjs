@@ -4,15 +4,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
+  AlertCircle,
   ChevronLeft,
   ChevronRight,
   Download,
   ExternalLink,
   Loader2,
   Pencil,
+  PhoneCall,
   Printer,
   RefreshCw,
   Search,
+  ShoppingCart,
+  ShieldAlert,
   Trash2,
   X,
 } from "lucide-react";
@@ -23,10 +27,16 @@ import {
   updateOrderDetails,
   deleteOrder,
   bulkDeleteOrders,
+  fetchUnfinishedOrders,
+  changeUnfinishedOrderStatus,
+  deleteUnfinishedOrder,
+  bulkDeleteUnfinishedOrders,
+  type UnfinishedOrder,
 } from "@/lib/admin-api";
 import { flavors, siteConfig } from "@/lib/content";
 import { bdLocations } from "@/lib/bdLocations";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
 
@@ -102,7 +112,23 @@ export default function AdminOrdersPage() {
     [editForm.district]
   );
 
-  const load = useCallback(async () => {
+  // Active Tab: "orders" | "unfinished"
+  const [activeTab, setActiveTab] = useState<"orders" | "unfinished">("orders");
+
+  // Unfinished Orders State
+  const [unfinishedOrders, setUnfinishedOrders] = useState<UnfinishedOrder[]>([]);
+  const [unfinishedPagination, setUnfinishedPagination] = useState<Pagination | null>(null);
+  const [unfinishedStatusFilter, setUnfinishedStatusFilter] = useState("");
+
+  const UNFINISHED_STATUSES = ["Pending", "Called User", "Cancelled", "Spam"] as const;
+  const UNFINISHED_STATUS_COLORS: Record<string, string> = {
+    Pending: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300",
+    "Called User": "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300",
+    Cancelled: "bg-red-100 text-red-800 border-red-200 dark:bg-red-950/60 dark:text-red-300",
+    Spam: "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300",
+  };
+
+  const loadOrders = useCallback(async () => {
     setLoading(true);
     setError("");
     const result = await fetchOrders({
@@ -120,14 +146,67 @@ export default function AdminOrdersPage() {
     setLoading(false);
   }, [statusFilter, phoneSearch, page, limit]);
 
+  const loadUnfinished = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    const result = await fetchUnfinishedOrders({
+      status: unfinishedStatusFilter || undefined,
+      phone: phoneSearch.trim() || undefined,
+      page,
+      limit,
+    });
+    if (result.success && result.data) {
+      setUnfinishedOrders((result.data as UnfinishedOrder[]) || []);
+      setUnfinishedPagination((result as { pagination?: Pagination }).pagination || null);
+    } else {
+      setError(typeof result.error === "string" ? result.error : "Failed to load unfinished orders");
+    }
+    setLoading(false);
+  }, [unfinishedStatusFilter, phoneSearch, page, limit]);
+
+  const load = useCallback(() => {
+    if (activeTab === "orders") {
+      loadOrders();
+    } else {
+      loadUnfinished();
+    }
+  }, [activeTab, loadOrders, loadUnfinished]);
+
   useEffect(() => {
     load();
   }, [load]);
 
-  // Automatically reset selection when page or filters change
+  // Reset selection when switching tabs/pages/filters
   useEffect(() => {
     setSelectedIds([]);
-  }, [page, limit, statusFilter, phoneSearch]);
+  }, [activeTab, page, limit, statusFilter, unfinishedStatusFilter, phoneSearch]);
+
+  async function handleUnfinishedStatusChange(id: string, status: string) {
+    setUpdatingId(id);
+    const result = await changeUnfinishedOrderStatus(id, status);
+    if (result.success) {
+      setUnfinishedOrders((prev) =>
+        prev.map((o) => (o._id === id ? { ...o, status: status as UnfinishedOrder["status"] } : o))
+      );
+      setSuccessMsg("Unfinished order status updated");
+    } else {
+      alert(typeof result.error === "string" ? result.error : "Failed to update status");
+    }
+    setUpdatingId(null);
+  }
+
+  async function handleDeleteUnfinished(id: string) {
+    if (!confirm("Are you sure you want to delete this unfinished order record?")) return;
+    setUpdatingId(id);
+    const result = await deleteUnfinishedOrder(id);
+    if (result.success) {
+      setUnfinishedOrders((prev) => prev.filter((o) => o._id !== id));
+      setSuccessMsg("Unfinished order deleted");
+    } else {
+      alert(typeof result.error === "string" ? result.error : "Failed to delete record");
+    }
+    setUpdatingId(null);
+  }
 
   // Clear success notification after 4 seconds
   useEffect(() => {
@@ -350,19 +429,73 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Tab Navigation: Regular Orders vs Unfinished Orders */}
+      <div className="flex items-center gap-2 border-b border-border pb-3">
+        <button
+          onClick={() => {
+            setActiveTab("orders");
+            setPage(1);
+          }}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer",
+            activeTab === "orders"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+          )}
+        >
+          <ShoppingCart className="size-4" />
+          <span>অর্ডার সমূহ (Orders)</span>
+          {pagination !== null && (
+            <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs font-extrabold">
+              {pagination.total}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("unfinished");
+            setPage(1);
+          }}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer",
+            activeTab === "unfinished"
+              ? "bg-amber-600 text-white shadow-md"
+              : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+          )}
+        >
+          <AlertCircle className="size-4 text-amber-500 fill-amber-500/20" />
+          <span>অসম্পূর্ণ অর্ডার (Unfinished Orders)</span>
+          {unfinishedPagination !== null && (
+            <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs font-extrabold">
+              {unfinishedPagination.total}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* Top Header & Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-bold text-foreground">Orders</h1>
-            {pagination !== null && (
+            <h1 className="text-2xl font-bold text-foreground">
+              {activeTab === "orders" ? "Orders" : "Unfinished Orders"}
+            </h1>
+            {activeTab === "orders" && pagination !== null && (
               <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary border border-primary/20">
                 {pagination.total} {pagination.total === 1 ? "Order" : "Orders"}
               </span>
             )}
+            {activeTab === "unfinished" && unfinishedPagination !== null && (
+              <span className="inline-flex items-center rounded-full bg-amber-500/10 px-3 py-1 text-xs font-extrabold text-amber-600 border border-amber-500/20">
+                {unfinishedPagination.total} Unfinished
+              </span>
+            )}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Manage customer orders, edit details, track status, print invoices, export data, and perform bulk operations.
+            {activeTab === "orders"
+              ? "Manage customer orders, edit details, track status, print invoices, export data, and perform bulk operations."
+              : "Track incomplete order attempts when customers enter their mobile number or fill out the form."}
           </p>
         </div>
 
@@ -382,37 +515,57 @@ export default function AdminOrdersPage() {
             />
           </div>
 
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus:border-primary"
-          >
-            <option value="">All statuses</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          {/* Status Filter for active tab */}
+          {activeTab === "orders" ? (
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus:border-primary"
+            >
+              <option value="">All statuses</option>
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <select
+              value={unfinishedStatusFilter}
+              onChange={(e) => {
+                setUnfinishedStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus:border-primary font-semibold"
+            >
+              <option value="">All statuses</option>
+              {UNFINISHED_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
 
-          {/* Export Excel Button */}
-          <button
-            onClick={handleExportExcel}
-            disabled={isExporting}
-            title="Export filtered orders to Excel / CSV"
-            className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
-          >
-            {isExporting ? (
-              <Loader2 size={14} className="animate-spin text-emerald-700 dark:text-emerald-300" />
-            ) : (
-              <Download size={14} />
-            )}
-            Export Excel
-          </button>
+          {/* Export Excel Button (Regular orders only) */}
+          {activeTab === "orders" && (
+            <button
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              title="Export filtered orders to Excel / CSV"
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+            >
+              {isExporting ? (
+                <Loader2 size={14} className="animate-spin text-emerald-700 dark:text-emerald-300" />
+              ) : (
+                <Download size={14} />
+              )}
+              Export Excel
+            </button>
+          )}
 
           {/* Refresh Button */}
           <button
@@ -472,7 +625,150 @@ export default function AdminOrdersPage() {
       )}
 
       {/* Orders Table Container */}
-      {loading ? (
+      {activeTab === "unfinished" ? (
+        loading ? (
+          <div className="flex justify-center rounded-xl border border-border bg-card p-16">
+            <Loader2 className="animate-spin text-amber-600" size={32} />
+          </div>
+        ) : unfinishedOrders.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card p-16 text-center font-medium text-muted-foreground">
+            No unfinished orders found.
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                  <th className="px-3 py-2.5 whitespace-nowrap">Time</th>
+                  <th className="px-3 py-2.5 max-w-[130px]">Customer</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Phone & Actions</th>
+                  <th className="px-3 py-2.5 max-w-[140px]">Location</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Flavour & Price</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Client IP</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Status Tag Selection</th>
+                  <th className="px-3 py-2.5 text-center whitespace-nowrap">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unfinishedOrders.map((u) => {
+                  const isUpdating = updatingId === u._id;
+                  const rawPhone = u.phone.replace(/[^0-9]/g, "");
+                  const whatsappUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(
+                    "আসসালামু আলাইকুম, মিল্কিমম থেকে যোগাযোগ করা হচ্ছে।"
+                  )}`;
+
+                  return (
+                    <tr
+                      key={u._id}
+                      className="border-b border-border/60 transition last:border-0 hover:bg-muted/60"
+                    >
+                      {/* Time */}
+                      <td className="px-3 py-3 text-xs whitespace-nowrap">
+                        <span className="font-semibold text-foreground">
+                          {new Date(u.updatedAt || u.createdAt).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <span className="block text-[11px] text-muted-foreground">
+                          {new Date(u.updatedAt || u.createdAt).toLocaleDateString("en-GB")}
+                        </span>
+                      </td>
+
+                      {/* Customer Name */}
+                      <td className="px-3 py-3 font-semibold text-foreground">
+                        {u.customerName || "Customer"}
+                      </td>
+
+                      {/* Phone & Contact Buttons */}
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-foreground">{u.phone}</span>
+                          <a
+                            href={`tel:${u.phone}`}
+                            title="Call Customer"
+                            className="inline-flex size-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300"
+                          >
+                            <PhoneCall size={13} />
+                          </a>
+                          <a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="WhatsApp Customer"
+                            className="inline-flex size-7 items-center justify-center rounded-full bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-300"
+                          >
+                            <ExternalLink size={13} />
+                          </a>
+                        </div>
+                      </td>
+
+                      {/* Location */}
+                      <td className="px-3 py-3 text-xs">
+                        {u.address || u.thana || u.district ? (
+                          <div>
+                            <span className="font-semibold text-foreground">
+                              {[u.thana, u.district].filter(Boolean).join(", ")}
+                            </span>
+                            {u.address && (
+                              <span className="block text-[11px] text-muted-foreground truncate max-w-[150px]">
+                                {u.address}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground italic">Not filled</span>
+                        )}
+                      </td>
+
+                      {/* Flavour & Price */}
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <span className="font-semibold text-foreground">{u.flavour || "Dark Chocolate"}</span>
+                        <span className="block text-xs font-bold text-primary">৳{u.price || 1200}</span>
+                      </td>
+
+                      {/* Client IP */}
+                      <td className="px-3 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">
+                        {u.ipAddress || "Unknown"}
+                      </td>
+
+                      {/* Status Tag Selection */}
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <select
+                          value={u.status}
+                          disabled={isUpdating}
+                          onChange={(e) => handleUnfinishedStatusChange(u._id, e.target.value)}
+                          className={cn(
+                            "rounded-lg px-2.5 py-1 text-xs font-bold border outline-none cursor-pointer transition-all",
+                            UNFINISHED_STATUS_COLORS[u.status] || "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          <option value="Pending">Pending (পেন্ডিং)</option>
+                          <option value="Called User">Called User (কল করা হয়েছে)</option>
+                          <option value="Cancelled">Cancelled (বাতিল)</option>
+                          <option value="Spam">Spam (স্প্যাম)</option>
+                        </select>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-3 py-3 text-center whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteUnfinished(u._id)}
+                          disabled={isUpdating}
+                          title="Delete Record"
+                          className="inline-flex size-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-950/40"
+                        >
+                          {isUpdating ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      ) : loading ? (
         <div className="flex justify-center rounded-xl border border-border bg-card p-16">
           <Loader2 className="animate-spin text-primary" size={32} />
         </div>
