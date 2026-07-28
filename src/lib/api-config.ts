@@ -15,4 +15,5 @@ export const API_ENDPOINTS = {
   settings: `${API_BASE_URL}/api/settings`,
   adminUsers: `${API_BASE_URL}/api/admin-users`,
   adminUserById: (id: string) => `${API_BASE_URL}/api/admin-users/${id}`,
+  motherCount: `${API_BASE_URL}/api/stats/mother-count`,
 } as const;

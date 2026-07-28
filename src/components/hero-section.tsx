@@ -1,13 +1,46 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Phone, ShoppingBag, Star } from "lucide-react";
+import { Phone, ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { FloatingBadges } from "@/components/floating-badges";
 import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
+import { fetchMotherCount } from "@/lib/api";
+import { formatBengaliNumber } from "@/lib/number-utils";
 
 export function HeroSection() {
+  const [motherCount, setMotherCount] = useState<number>(89746);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCount = async () => {
+      try {
+        const result = await fetchMotherCount();
+        if (isMounted && result?.success && typeof result.data?.count === "number" && result.data.count > 0) {
+          setMotherCount(result.data.count);
+        }
+      } catch {
+        // Keep initial fallback count 89746 on error
+      }
+    };
+
+    // Initial fetch
+    loadCount();
+
+    // Sync count real-time every 30 seconds
+    const interval = setInterval(loadCount, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <section id="top" className="relative overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-24">
       <GridPattern size={36} className="opacity-50" />
@@ -22,9 +55,27 @@ export function HeroSection() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-2 lg:gap-8">
         <div className="text-center lg:order-1 lg:text-left">
           <Reveal>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-semibold text-brand-green sm:text-sm">
-              <Star className="size-3.5 fill-brand-green text-brand-green" />
-              ৩০,০০০+ জন মা ইতিমধ্যেই মিল্কিমম খেয়ে উপকৃত হয়েছেন
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-green-light px-3.5 py-1.5 text-xs font-semibold text-brand-green sm:text-sm shadow-xs">
+              <div className="flex -space-x-2 shrink-0">
+                {[
+                  "/assets/reviewer/girl1.jpeg",
+                  "/assets/reviewer/girl2.jpeg",
+                  "/assets/reviewer/girl3.jpeg",
+                  "/assets/reviewer/girl4.jpeg",
+                ].map((imgSrc, index) => (
+                  <Image
+                    key={index}
+                    src={imgSrc}
+                    alt={`রিভিউয়ার ${index + 1}`}
+                    width={24}
+                    height={24}
+                    className="size-6 rounded-full border-2 border-white object-cover shadow-xs"
+                  />
+                ))}
+              </div>
+              <span>
+                {formatBengaliNumber(motherCount)} জন মা ইতিমধ্যেই মিল্কিমম খেয়ে উপকৃত হয়েছেন
+              </span>
             </span>
           </Reveal>
 

@@ -44,3 +44,14 @@ export function saveOrder(order: OrderPayload) {
     body: JSON.stringify(order),
   });
 }
+
+/**
+ * Fetches satisfied mother count from DB API
+ */
+export function fetchMotherCount() {
+  return request<{ count: number; lastUpdated?: string }>(API_ENDPOINTS.motherCount, {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+

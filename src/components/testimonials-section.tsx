@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
 import { testimonials } from "@/lib/content";
+import { fetchMotherCount } from "@/lib/api";
+import { formatBengaliNumber } from "@/lib/number-utils";
 
 const carouselItems = [
   {
@@ -139,6 +141,22 @@ function CareCarousel() {
 
 export function TestimonialsSection() {
   const [showAll, setShowAll] = useState(false);
+  const [motherCount, setMotherCount] = useState<number>(89746);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadCount = async () => {
+      try {
+        const result = await fetchMotherCount();
+        if (isMounted && result?.success && typeof result.data?.count === "number" && result.data.count > 0) {
+          setMotherCount(result.data.count);
+        }
+      } catch {
+        // Keep initial fallback count 89746 on error
+      }
+    };
+    loadCount();
+  }, []);
 
   return (
     <section id="reviews" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
@@ -171,7 +189,7 @@ export function TestimonialsSection() {
             ))}
           </div>
           <span className="text-sm font-semibold text-foreground">
-            ৩০,০০০+ সন্তুষ্ট মা
+            {formatBengaliNumber(motherCount)} সন্তুষ্ট মা
           </span>
         </div>
       </Reveal>
