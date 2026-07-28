@@ -21,7 +21,7 @@ export function GridPattern({
         className
       )}
     >
-      <svg className="h-full w-full stroke-brand-crimson/15 fill-brand-crimson/15">
+      <svg className="h-full w-full stroke-primary/20 fill-primary/20">
         <defs>
           <pattern
             id={`grid-pattern-${patternType}-${size}`}

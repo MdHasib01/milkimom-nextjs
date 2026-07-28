@@ -34,27 +34,31 @@ export function ComparisonSection() {
           </h2>
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-8 rounded-3xl border border-primary/20 bg-card p-6 sm:p-8 shadow-lg">
-          <p className="mb-6 font-heading text-lg font-bold text-primary sm:text-xl">
-            কারন,
-          </p>
-
-          <RevealGroup stagger={0.1} className="space-y-4">
-            {comparisonPoints.map((point, index) => (
-              <RevealItem key={index} className="flex items-start gap-3.5 text-base sm:text-lg font-medium text-foreground">
-                <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary shadow-sm">
-                  <Check className="size-4 stroke-[3]" />
-                </div>
-                <span>{point}</span>
-              </RevealItem>
-            ))}
-          </RevealGroup>
-
-          <Reveal delay={0.3} className="mt-8 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 p-4 sm:p-5 text-center">
-            <p className="font-heading text-lg font-bold text-primary sm:text-xl">
-              তাই নিশ্চিন্তে মিল্কিমমের উপর আস্থা রাখতে পারেন।
+        <Reveal delay={0.1} className="relative overflow-hidden mt-8 rounded-3xl border border-primary/20 bg-card p-6 sm:p-8 shadow-lg">
+          <GridPattern size={28} className="z-0 opacity-45 [mask-image:radial-gradient(ellipse_at_top_right,black_30%,transparent_75%)]" />
+          
+          <div className="relative z-10">
+            <p className="mb-6 font-heading text-lg font-bold text-primary sm:text-xl">
+              কারন,
             </p>
-          </Reveal>
+
+            <RevealGroup stagger={0.1} className="space-y-4">
+              {comparisonPoints.map((point, index) => (
+                <RevealItem key={index} className="flex items-start gap-3.5 text-base sm:text-lg font-medium text-foreground">
+                  <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary shadow-sm bg-card">
+                    <Check className="size-4 stroke-[3]" />
+                  </div>
+                  <span>{point}</span>
+                </RevealItem>
+              ))}
+            </RevealGroup>
+
+            <Reveal delay={0.3} className="mt-8 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 p-4 sm:p-5 text-center backdrop-blur-[2px]">
+              <p className="font-heading text-lg font-bold text-primary sm:text-xl">
+                তাই নিশ্চিন্তে মিল্কিমমের উপর আস্থা রাখতে পারেন।
+              </p>
+            </Reveal>
+          </div>
         </Reveal>
 
         <SectionCta />
