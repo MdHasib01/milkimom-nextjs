@@ -11,15 +11,37 @@ const bodyFont = Hind_Siliguri({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://milkimom.com"),
-  title: "মিল্কিমম™ | Make Mother Great Again",
+  title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™",
   description:
-    "বুকের দুধ কম হওয়ার প্রাকৃতিক সমাধান। ১০০% প্রাকৃতিক উপাদান, BSTI সার্টিফাইড ও ডাক্তার সুপারিশকৃত মিল্কিমম ব্রেস্টফিডিং বুস্ট ব্লেন্ড — মাত্র ৩ দিনেই প্রথম সুফল।",
+    "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
+  icons: {
+    icon: "/images/logo.webp",
+    shortcut: "/images/logo.webp",
+    apple: "/images/logo.webp",
+  },
   openGraph: {
-    title: "মিল্কিমম™ | Make Mother Great Again",
+    title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™",
     description:
-      "বুকের দুধ বৃদ্ধির প্রাকৃতিক ও নিরাপদ সমাধান — ১০০% প্রাকৃতিক উপাদান, BSTI সার্টিফাইড, ডাক্তার সুপারিশকৃত।",
+      "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
+    url: "https://milkimom.com",
+    siteName: "মিল্কিমম™",
+    images: [
+      {
+        url: "/images/product-jar.webp",
+        width: 1200,
+        height: 630,
+        alt: "মিল্কিমম™ - ১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!",
+      },
+    ],
     locale: "bn_BD",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™",
+    description:
+      "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
+    images: ["/images/product-jar.webp"],
   },
 };
 
@@ -39,6 +61,11 @@ export default function RootLayout({
       lang="bn"
       className={`${bodyFont.variable} h-full w-full max-w-full overflow-x-clip antialiased scroll-smooth`}
     >
+      <head>
+        <link rel="icon" href="/images/logo.webp" type="image/webp" />
+        <link rel="shortcut icon" href="/images/logo.webp" type="image/webp" />
+        <link rel="apple-touch-icon" href="/images/logo.webp" />
+      </head>
       <body className="min-h-full w-full max-w-full overflow-x-clip flex flex-col bg-background text-foreground">
         {children}
       </body>
