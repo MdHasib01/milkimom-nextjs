@@ -1,4 +1,7 @@
-import { ReactNode } from "react";
+"use client";
+
+import { useState, ReactNode } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -41,6 +44,8 @@ const FAQS: FaqItem[] = [
 ];
 
 export function FaqSection() {
+  const [showAll, setShowAll] = useState(false);
+
   return (
     <section id="faq" className="mx-auto max-w-3xl px-4 py-16 sm:py-24">
       <Reveal className="text-center">
@@ -52,20 +57,53 @@ export function FaqSection() {
         </h2>
       </Reveal>
 
-      <Reveal delay={0.1} className="mt-8 rounded-3xl border border-border bg-card px-5 shadow-sm sm:px-8">
-        <Accordion type="single" collapsible>
-          {FAQS.map((faq, index) => (
-            <AccordionItem key={faq.q} value={`item-${index}`}>
-              <AccordionTrigger className="py-4 text-left text-base font-semibold text-foreground">
-                {faq.q}
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                {faq.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+      <Reveal delay={0.1} className="relative mt-8 rounded-3xl border border-border bg-card px-5 shadow-sm sm:px-8 overflow-hidden">
+        <div
+          className={`transition-all duration-500 ease-in-out ${
+            !showAll ? "max-h-[355px] overflow-hidden" : "pb-6"
+          }`}
+        >
+          <Accordion type="single" collapsible>
+            {FAQS.map((faq, index) => (
+              <AccordionItem key={faq.q} value={`item-${index}`}>
+                <AccordionTrigger className="py-4 text-left text-base font-semibold text-foreground">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+
+        {/* Gradient Overlay & Blended See More Button */}
+        {!showAll && (
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-card via-card/95 to-transparent z-10 flex items-end justify-center pb-4 pointer-events-none rounded-b-3xl">
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="pointer-events-auto inline-flex items-center gap-2.5 rounded-full border border-brand-crimson/30 bg-card/90 backdrop-blur-md px-8 py-3 text-sm font-bold text-brand-crimson shadow-xl transition-all hover:scale-105 hover:bg-brand-crimson hover:text-white hover:shadow-2xl cursor-pointer"
+            >
+              <span>আরও প্রশ্ন দেখুন</span>
+              <ChevronDown className="size-4 animate-bounce" />
+            </button>
+          </div>
+        )}
       </Reveal>
+
+      {showAll && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShowAll(false)}
+            aria-label="কম প্রশ্ন দেখুন"
+            className="inline-flex items-center justify-center rounded-full border border-border bg-card p-3 text-muted-foreground shadow-md transition-all hover:bg-muted hover:text-foreground hover:scale-110 cursor-pointer"
+          >
+            <ChevronUp className="size-5" />
+          </button>
+        </div>
+      )}
 
       <SectionCta />
     </section>
