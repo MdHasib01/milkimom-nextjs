@@ -192,10 +192,10 @@ function ThankYouContent() {
           {/* Table / List Items */}
           <div className="p-5 space-y-3 text-sm">
             <div className="flex items-center justify-between font-medium border-b border-border/50 pb-3">
-              <span className="text-foreground">
-                ১ জার মিল্কিমম ({flavourName}) × ১
+              <span className="font-sans text-foreground">
+                ১টি জার মিল্কিমম ({flavourName}) × 1
               </span>
-              <span className="font-bold text-foreground">
+              <span className="font-bold text-foreground font-sans">
                 {totalPrice.toLocaleString("bn-BD")}৳
               </span>
             </div>

@@ -169,8 +169,8 @@ function TrackOrderContent() {
               <div className="p-5 space-y-3 text-sm">
                 <div className="flex justify-between items-center border-b border-border/50 pb-2.5">
                   <span className="text-muted-foreground">পণ্য:</span>
-                  <span className="font-bold text-foreground">
-                    ১ জার মিল্কিমম ({order.flavour || "ডার্ক চকলেট"})
+                  <span className="font-bold text-foreground font-sans">
+                    ১টি জার মিল্কিমম ({order.flavour || "ডার্ক চকলেট"})
                   </span>
                 </div>
 

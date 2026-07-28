@@ -7,8 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans), "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+  --font-heading: var(--font-sans), "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --color-brand-cream: var(--brand-cream);
   --color-brand-coral: var(--brand-coral);
   --color-brand-coral-dark: var(--brand-coral-dark);
@@ -145,6 +145,9 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html, body {
+    font-family: var(--font-sans), "Hind Siliguri", "Noto Sans Bengali", system-ui, -apple-system, sans-serif;
   }
   body {
     @apply bg-background text-foreground;

@@ -97,6 +97,22 @@ export function changeOrderStatus(id: string, status: string) {
   });
 }
 
+export function updateOrderDetails(
+  id: string,
+  data: {
+    customerName?: string;
+    address?: string;
+    thana?: string;
+    district?: string;
+    flavour?: string;
+  }
+) {
+  return authRequest(API_ENDPOINTS.orderById(id), {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
 export function deleteOrder(id: string) {
   return authRequest(API_ENDPOINTS.orderById(id), {
     method: "DELETE",

@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  Download,
   ExternalLink,
   Loader2,
+  Pencil,
   Printer,
   RefreshCw,
   Search,
@@ -18,10 +20,13 @@ import {
 import {
   fetchOrders,
   changeOrderStatus,
+  updateOrderDetails,
   deleteOrder,
   bulkDeleteOrders,
 } from "@/lib/admin-api";
-import { siteConfig } from "@/lib/content";
+import { flavors, siteConfig } from "@/lib/content";
+import { bdLocations } from "@/lib/bdLocations";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
 
@@ -67,6 +72,7 @@ export default function AdminOrdersPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
 
   // Bulk & Single Delete States
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -76,6 +82,25 @@ export default function AdminOrdersPage() {
 
   // Invoice Printing State
   const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
+
+  // Edit Order State
+  const [editOrder, setEditOrder] = useState<Order | null>(null);
+  const [editForm, setEditForm] = useState({
+    customerName: "",
+    address: "",
+    thana: "",
+    district: "",
+    flavour: "",
+  });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState("");
+
+  // Location dropdown options for Edit Modal
+  const districtOptions = useMemo(() => Object.keys(bdLocations).sort(), []);
+  const thanaOptions = useMemo(
+    () => (editForm.district ? (bdLocations[editForm.district] || []).slice().sort() : []),
+    [editForm.district]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -134,6 +159,44 @@ export default function AdminOrdersPage() {
     setUpdatingId(null);
   }
 
+  // Open Edit Modal
+  function handleOpenEdit(order: Order) {
+    setEditOrder(order);
+    setEditError("");
+    setEditForm({
+      customerName: order.customerName || "",
+      address: order.address || "",
+      thana: order.thana || "",
+      district: order.district || "",
+      flavour: order.flavour || "Dark Chocolate",
+    });
+  }
+
+  // Save Edited Details
+  async function handleSaveEdit() {
+    if (!editOrder) return;
+
+    if (!editForm.customerName.trim()) {
+      setEditError("Customer Name is required");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    setEditError("");
+
+    const result = await updateOrderDetails(editOrder._id, editForm);
+    setIsSavingEdit(false);
+
+    if (result.success && result.data) {
+      const updated = result.data as Order;
+      setOrders((prev) => prev.map((o) => (o._id === editOrder._id ? updated : o)));
+      setSuccessMsg(`Order #${editOrder._id.slice(-6)} updated successfully.`);
+      setEditOrder(null);
+    } else {
+      setEditError(typeof result.error === "string" ? result.error : "Failed to update order details");
+    }
+  }
+
   // Delete single order handler
   async function handleConfirmSingleDelete() {
     if (!singleDeleteOrder) return;
@@ -171,6 +234,82 @@ export default function AdminOrdersPage() {
     }
   }
 
+  // Export Filtered Orders to Excel (CSV with UTF-8 BOM encoding)
+  async function handleExportExcel() {
+    setIsExporting(true);
+    try {
+      const result = await fetchOrders({
+        status: statusFilter || undefined,
+        phone: phoneSearch.trim() || undefined,
+        page: 1,
+        limit: 5000, // Export up to 5,000 filtered orders
+      });
+
+      const exportData = (result.success && Array.isArray(result.data) ? result.data : orders) as Order[];
+
+      if (!exportData || exportData.length === 0) {
+        alert("No matching orders found to export.");
+        setIsExporting(false);
+        return;
+      }
+
+      const headers = [
+        "Order ID",
+        "Date",
+        "Customer Name",
+        "Phone",
+        "Address",
+        "Thana",
+        "District",
+        "Flavour",
+        "Price (BDT)",
+        "Payment Method",
+        "Payment Status",
+        "Transaction ID",
+        "Status",
+      ];
+
+      const rows = exportData.map((o) => [
+        o._id,
+        new Date(o.orderTime || o.createdAt).toLocaleString("en-GB"),
+        `"${(o.customerName || "").replace(/"/g, '""')}"`,
+        `"${o.phone}"`,
+        `"${(o.address || "").replace(/"/g, '""')}"`,
+        `"${(o.thana || "").replace(/"/g, '""')}"`,
+        `"${(o.district || "").replace(/"/g, '""')}"`,
+        `"${(o.flavour || "").replace(/"/g, '""')}"`,
+        o.price,
+        o.paymentStatus === "Paid" ? "bKash" : "COD",
+        o.paymentStatus || "Pending",
+        o.transactionId ? `"${o.transactionId}"` : "",
+        o.status,
+      ]);
+
+      // UTF-8 BOM for MS Excel compatibility with Bengali Unicode characters
+      const csvContent =
+        "\uFEFF" +
+        headers.join(",") +
+        "\n" +
+        rows.map((row) => row.join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      const dateStr = new Date().toISOString().split("T")[0];
+      const filterLabel = statusFilter ? statusFilter.toLowerCase() : "all";
+      link.setAttribute("download", `milkimom_orders_${filterLabel}_${dateStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Failed to export orders. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   // Selection logic for checkmarks
   const cancelledOrdersOnPage = orders.filter((o) => o.status === "Cancelled");
   const cancelledIdsOnPage = cancelledOrdersOnPage.map((o) => o._id);
@@ -197,14 +336,33 @@ export default function AdminOrdersPage() {
   // Pagination calculation
   const totalPages = pagination?.pages || 1;
 
+  // Available flavors for dropdown
+  const availableFlavors = Array.from(
+    new Set([
+      ...flavors.map((f) => f.nameEn || f.name),
+      ...flavors.map((f) => f.name),
+      "Dark Chocolate",
+      "Vanilla",
+      "Cardamom",
+      "Cinnamon",
+    ])
+  );
+
   return (
     <div className="space-y-6">
       {/* Top Header & Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Orders</h1>
-          <p className="text-xs text-muted-foreground">
-            Manage customer orders, track status, print invoices, and perform bulk operations.
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold text-foreground">Orders</h1>
+            {pagination !== null && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary border border-primary/20">
+                {pagination.total} {pagination.total === 1 ? "Order" : "Orders"}
+              </span>
+            )}
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Manage customer orders, edit details, track status, print invoices, export data, and perform bulk operations.
           </p>
         </div>
 
@@ -240,6 +398,21 @@ export default function AdminOrdersPage() {
               </option>
             ))}
           </select>
+
+          {/* Export Excel Button */}
+          <button
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            title="Export filtered orders to Excel / CSV"
+            className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+          >
+            {isExporting ? (
+              <Loader2 size={14} className="animate-spin text-emerald-700 dark:text-emerald-300" />
+            ) : (
+              <Download size={14} />
+            )}
+            Export Excel
+          </button>
 
           {/* Refresh Button */}
           <button
@@ -300,15 +473,15 @@ export default function AdminOrdersPage() {
 
       {/* Orders Table Container */}
       {loading ? (
-        <div className="flex justify-center rounded-2xl border border-border bg-card p-16">
+        <div className="flex justify-center rounded-xl border border-border bg-card p-16">
           <Loader2 className="animate-spin text-primary" size={32} />
         </div>
       ) : orders.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-16 text-center font-medium text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card p-16 text-center font-medium text-muted-foreground">
           No orders found.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-xs">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/30 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase">
@@ -415,7 +588,7 @@ export default function AdminOrdersPage() {
                     <td className="px-2.5 py-2.5 font-bold whitespace-nowrap text-xs text-foreground">৳{order.price}</td>
 
                     {/* Status dropdown */}
-                    <td className="px-4 py-3">
+                    <td className="px-2.5 py-2.5">
                       <div className="flex items-center gap-2">
                         <select
                           value={order.status}
@@ -437,9 +610,18 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
 
-                    {/* Action Column: Track, Print Invoice, Delete */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
+                    {/* Actions Column: Edit, Track, Print Invoice, Delete */}
+                    <td className="px-2.5 py-2.5 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {/* Edit Order Button */}
+                        <button
+                          onClick={() => handleOpenEdit(order)}
+                          title="Edit Order (Name, Location, Flavour)"
+                          className="inline-flex items-center justify-center rounded-lg p-1.5 text-amber-600 transition hover:bg-amber-100 hover:text-amber-700 dark:hover:bg-amber-950/50"
+                        >
+                          <Pencil size={15} />
+                        </button>
+
                         {/* Track Order Button */}
                         <Link
                           href={`/track/${order._id}`}
@@ -448,7 +630,7 @@ export default function AdminOrdersPage() {
                           title="Track Order"
                           className="inline-flex items-center justify-center rounded-lg p-1.5 text-blue-600 transition hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-950/50"
                         >
-                          <ExternalLink size={16} />
+                          <ExternalLink size={15} />
                         </Link>
 
                         {/* Print Invoice Button */}
@@ -457,7 +639,7 @@ export default function AdminOrdersPage() {
                           title="Print Invoice"
                           className="inline-flex items-center justify-center rounded-lg p-1.5 text-purple-600 transition hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-950/50"
                         >
-                          <Printer size={16} />
+                          <Printer size={15} />
                         </button>
 
                         {/* Delete Button (Only active for Cancelled status) */}
@@ -475,7 +657,7 @@ export default function AdminOrdersPage() {
                               : "cursor-not-allowed text-muted-foreground/30"
                           }`}
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -569,10 +751,158 @@ export default function AdminOrdersPage() {
         </div>
       )}
 
+      {/* Modal - Edit Order Details */}
+      {editOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Edit Order Details</h3>
+                <p className="text-xs text-muted-foreground font-mono">
+                  Order #{editOrder._id.slice(-6).toUpperCase()} ({editOrder.phone})
+                </p>
+              </div>
+              <button
+                onClick={() => setEditOrder(null)}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {editError && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs font-semibold text-destructive">
+                {editError}
+              </div>
+            )}
+
+            <div className="space-y-4 text-xs">
+              {/* Customer Name */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">
+                  Customer Name *
+                </label>
+                <input
+                  type="text"
+                  value={editForm.customerName}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, customerName: e.target.value }))
+                  }
+                  placeholder="Enter customer name"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+
+              {/* Location Fields: District & Thana Searchable Dropdowns + Address Textarea */}
+              <div className="space-y-3">
+                <label className="block font-bold text-foreground">
+                  Location Details
+                </label>
+
+                {/* District & Thana/Upazila Dropdowns */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-muted-foreground mb-1 font-semibold">
+                      District (জেলা):
+                    </span>
+                    <SearchableSelect
+                      value={editForm.district}
+                      onValueChange={(val) =>
+                        setEditForm((prev) => ({ ...prev, district: val, thana: "" }))
+                      }
+                      options={districtOptions}
+                      placeholder="Select district"
+                      searchPlaceholder="Search district..."
+                    />
+                  </div>
+
+                  <div>
+                    <span className="block text-muted-foreground mb-1 font-semibold">
+                      Thana / Upazila (থানা/উপজেলা):
+                    </span>
+                    <SearchableSelect
+                      value={editForm.thana}
+                      onValueChange={(val) =>
+                        setEditForm((prev) => ({ ...prev, thana: val }))
+                      }
+                      options={thanaOptions}
+                      placeholder={
+                        editForm.district
+                          ? "Select thana/upazila"
+                          : "Select district first"
+                      }
+                      searchPlaceholder="Search thana/upazila..."
+                      disabled={!editForm.district}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <span className="block text-muted-foreground mb-1 font-semibold">
+                    Full Address (বাসার পূর্ণ ঠিকানা):
+                  </span>
+                  <textarea
+                    rows={2}
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, address: e.target.value }))
+                    }
+                    placeholder="House/Holding no, Road, Area"
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Flavour Selection */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">
+                  Flavour Selection
+                </label>
+                <select
+                  value={editForm.flavour}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, flavour: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                >
+                  {availableFlavors.map((flv) => (
+                    <option key={flv} value={flv}>
+                      {flv}
+                    </option>
+                  ))}
+                  {!availableFlavors.includes(editForm.flavour) && editForm.flavour && (
+                    <option value={editForm.flavour}>{editForm.flavour}</option>
+                  )}
+                </select>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t">
+              <button
+                disabled={isSavingEdit}
+                onClick={() => setEditOrder(null)}
+                className="rounded-lg border border-input bg-card px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isSavingEdit}
+                onClick={handleSaveEdit}
+                className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 shadow-xs"
+              >
+                {isSavingEdit && <Loader2 className="animate-spin" size={14} />}
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Modal - Single Delete */}
       {singleDeleteOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-start gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400">
                 <AlertTriangle size={20} />
@@ -616,7 +946,7 @@ export default function AdminOrdersPage() {
       {/* Confirmation Modal - Bulk Delete */}
       {isBulkDeleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-start gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400">
                 <AlertTriangle size={20} />
@@ -660,7 +990,7 @@ export default function AdminOrdersPage() {
       {/* Printable Invoice Modal */}
       {invoiceOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="print-invoice-modal w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-white text-gray-900 p-8 shadow-2xl space-y-6">
+          <div className="print-invoice-modal w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-border bg-white text-gray-900 p-8 shadow-2xl space-y-6">
             {/* Modal Controls (Hidden during print) */}
             <div className="no-print flex items-center justify-between border-b pb-4">
               <span className="text-base font-bold text-gray-800">Order Invoice Preview</span>
