@@ -66,7 +66,7 @@ function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-72 sm:h-96 w-full overflow-hidden">
+      <div className="relative h-[360px] sm:h-[480px] md:h-[540px] w-full overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
