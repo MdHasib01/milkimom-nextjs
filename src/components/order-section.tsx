@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   ArrowDown,
@@ -47,6 +48,7 @@ const initialForm: FormState = {
 };
 
 export function OrderSection() {
+  const router = useRouter();
   const [selectedFlavorId, setSelectedFlavorId] = useState(
     flavors.find((flavor) => flavor.popular)?.id ?? flavors[0].id
   );
@@ -145,14 +147,17 @@ export function OrderSection() {
       orderTime: new Date().toISOString(),
     });
 
-    if (result.success) {
-      // The order is only a "purchase" once the backend has actually stored it
-      // and answered 201 Created. Guarded so a re-submit can never double-count.
+    if (result.success && result.data) {
       if (result.status === 201 && !purchaseTracked.current) {
         purchaseTracked.current = true;
         trackPurchase();
       }
-      setStatus("success");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("milkimom_last_order", JSON.stringify(result.data));
+      }
+      const orderObj = result.data as { _id?: string };
+      const orderIdParam = orderObj._id ? `?orderId=${orderObj._id}` : "";
+      router.push(`/thank-you${orderIdParam}`);
     } else {
       setStatus("idle");
       setSubmitError(
@@ -161,27 +166,6 @@ export function OrderSection() {
           : "অর্ডারটি সাবমিট করা যায়নি। আবার চেষ্টা করুন।"
       );
     }
-  }
-
-  if (status === "success") {
-    return (
-      <section id="pricing" className="mx-auto max-w-3xl px-4 py-16 sm:py-24">
-        <Reveal className="rounded-3xl border border-brand-green/30 bg-brand-green-light p-8 text-center sm:p-12">
-          <CheckCircle2 className="mx-auto size-12 text-brand-green" />
-          <h2 className="mt-4 font-heading text-2xl font-bold text-foreground">
-            ধন্যবাদ{form.name.trim() ? `, ${form.name.trim()}` : ""}! আপনার অর্ডারটি রেকর্ড করা হয়েছে।
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            {singleJarPrice.label} মিল্কিমম ({selectedFlavor.name}) — মোট ৳{singleJarPrice.salePrice}
-            {form.payment === "cod" ? " (ক্যাশ অন ডেলিভারি)" : ` (বিকাশ পেমেন্ট - TrxID: ${form.trxId})`}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            আমাদের একজন প্রতিনিধি খুব শীঘ্রই {form.phone} নম্বরে যোগাযোগ করে অর্ডার
-            নিশ্চিত করবেন।
-          </p>
-        </Reveal>
-      </section>
-    );
   }
 
   return (
