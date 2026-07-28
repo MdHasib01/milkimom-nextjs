@@ -59,16 +59,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // Browser extensions (Grammarly, ColorZilla, dark-mode/translate add-ons)
+    // stamp attributes on <html>/<body> before React hydrates, which React
+    // reports as a hydration mismatch. suppressHydrationWarning only applies to
+    // these two elements, so real mismatches inside the app still surface.
     <html
       lang="bn"
       className={`${bodyFont.variable} h-full w-full max-w-full overflow-x-clip antialiased scroll-smooth`}
+      suppressHydrationWarning
     >
       <head>
         <link rel="icon" href="/images/logo.webp" type="image/webp" />
         <link rel="shortcut icon" href="/images/logo.webp" type="image/webp" />
         <link rel="apple-touch-icon" href="/images/logo.webp" />
       </head>
-      <body className="min-h-full w-full max-w-full overflow-x-clip flex flex-col bg-background text-foreground">
+      <body
+        className="min-h-full w-full max-w-full overflow-x-clip flex flex-col bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <MetaPixel />
         <ClarityAnalytics />
         {children}

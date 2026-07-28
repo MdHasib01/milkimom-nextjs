@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Loader2,
   ShieldCheck,
+  ShoppingCart,
   Truck,
 } from "lucide-react";
 import { flavors, singleJarPrice } from "@/lib/content";
@@ -145,9 +146,13 @@ export function OrderSection() {
     <section id="pricing" className="relative overflow-hidden mx-auto max-w-5xl px-4 py-16 sm:py-24">
       <GridPattern patternType="lines" size={32} className="opacity-40" />
       <Reveal className="mx-auto max-w-2xl text-center">
-        <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
-          আজই অর্ডার করুন, বাড়িতে বসেই পেয়ে যান
+        <h2 className="text-balance font-heading text-3xl font-extrabold text-primary sm:text-4xl flex items-center justify-center gap-3">
+          <ShoppingCart className="size-8 sm:size-9 text-primary shrink-0" />
+          <span>অর্ডার ফর্ম</span>
         </h2>
+        <p className="mt-2.5 text-base font-medium text-muted-foreground sm:text-lg">
+          আপনার অর্ডারটি প্লেস করতে, অনুগ্রহ করে নিচের তথ্য গুলো দিয়ে সহযোগীতা করুন।
+        </p>
       </Reveal>
 
       <Reveal delay={0.15} className="mt-10">
@@ -212,6 +217,14 @@ export function OrderSection() {
                         <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                           {flavor.description}
                         </p>
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <span className="font-heading text-sm font-extrabold text-primary">
+                            ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
+                          </span>
+                          <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/70">
+                            ৳{singleJarPrice.regularPrice.toLocaleString("bn-BD")}
+                          </span>
+                        </div>
                         {!flavor.popular && flavor.tag && (
                           <span className="mt-1 text-[11px] font-semibold text-brand-crimson/90">
                             {flavor.tag}
@@ -401,6 +414,19 @@ export function OrderSection() {
                     </label>
                   ))}
                 </div>
+
+                {/* Cash on Delivery Notice */}
+                {form.payment === "cod" && (
+                  <div className="mt-3.5 rounded-2xl border border-brand-green/30 bg-brand-green-light/80 p-3.5 text-xs text-foreground shadow-xs">
+                    <p className="flex items-center gap-2 font-bold text-brand-green text-sm">
+                      <Truck className="size-4 shrink-0 text-brand-green" />
+                      <span>ক্যাশ অন ডেলিভারি</span>
+                    </p>
+                    <p className="mt-1 text-xs font-semibold text-brand-green leading-relaxed">
+                      সাপ্লিমেন্ট হাতে পেয়ে মূল্য পরিশোধ করবো।
+                    </p>
+                  </div>
+                )}
 
                 {/* bKash Payment Box (Image, Instructions & TrxID Input) */}
                 {form.payment === "bkash" && (
