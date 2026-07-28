@@ -11,36 +11,38 @@ import { testimonials } from "@/lib/content";
 import { fetchMotherCount } from "@/lib/api";
 import { formatBengaliNumber } from "@/lib/number-utils";
 
-const carouselItems = [
-  {
-    id: 1,
-    image: "/assets/carousel/doctor.png",
-    alt: "ডাক্তারের পরামর্শ ও মা ও শিশুর যত্ন",
-    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
-    description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
-    tag: "ডাক্তারের পরামর্শ",
-  },
-  {
-    id: 2,
-    image: "/assets/carousel/pic2.png",
-    alt: "মায়ের স্বাস্থ্যে মিল্কিমম",
-    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
-    description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
-    tag: "প্রাকৃতিক সুরক্ষা",
-  },
-  {
-    id: 3,
-    image: "/assets/carousel/pic3.png",
-    alt: "শিশুর হাসি ও মায়ের তৃপ্তি",
-    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
-    description: "৩০,০০০+ মায়েদের বিশ্বস্ততা ও শিশুর সঠিক পুষ্টির সাথে গড়ে উঠুক সুন্দর ভবিষ্যৎ।",
-    tag: "বিশ্বস্ত পছন্দ",
-  },
-];
-
-function CareCarousel() {
+function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+
+  const formattedCount = `${formatBengaliNumber(motherCount)}`;
+
+  const carouselItems = [
+    {
+      id: 1,
+      image: "/assets/carousel/doctor.png",
+      alt: "ডাক্তারের পরামর্শ ও মা ও শিশুর যত্ন",
+      title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+      description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
+      tag: "ডাক্তারের পরামর্শ",
+    },
+    {
+      id: 2,
+      image: "/assets/carousel/pic2.png",
+      alt: "মায়ের স্বাস্থ্যে মিল্কিমম",
+      title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+      description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
+      tag: "প্রাকৃতিক সুরক্ষা",
+    },
+    {
+      id: 3,
+      image: "/assets/carousel/pic3.png",
+      alt: "শিশুর হাসি ও মায়ের তৃপ্তি",
+      title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+      description: `${formattedCount} মায়েদের বিশ্বস্ততা ও শিশুর সঠিক পুষ্টির সাথে গড়ে উঠুক সুন্দর ভবিষ্যৎ।`,
+      tag: "বিশ্বস্ত পছন্দ",
+    },
+  ];
 
   useEffect(() => {
     if (isHovered) return;
@@ -48,7 +50,7 @@ function CareCarousel() {
       setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, [isHovered]);
+  }, [isHovered, carouselItems.length]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
@@ -156,6 +158,12 @@ export function TestimonialsSection() {
       }
     };
     loadCount();
+
+    const interval = setInterval(loadCount, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -165,7 +173,7 @@ export function TestimonialsSection() {
           মায়েদের অভিজ্ঞতা
         </span>
         <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
-          সন্তুষ্ট মায়েদের রিভিউ আমাদের প্রশান্তি দেয়
+          সন্তুষ্ট মায়েদের রিভিউ
         </h2>
       </Reveal>
 
@@ -189,7 +197,7 @@ export function TestimonialsSection() {
             ))}
           </div>
           <span className="text-sm font-semibold text-foreground">
-            {formatBengaliNumber(motherCount)} সন্তুষ্ট মা
+            {formatBengaliNumber(motherCount)} রিভিউ
           </span>
         </div>
       </Reveal>
@@ -260,7 +268,7 @@ export function TestimonialsSection() {
       )}
 
       <Reveal delay={0.15}>
-        <CareCarousel />
+        <CareCarousel motherCount={motherCount} />
       </Reveal>
       <SectionCta />
     </section>
