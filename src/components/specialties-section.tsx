@@ -58,15 +58,9 @@ export function SpecialtiesSection() {
 
       <div className="mx-auto max-w-6xl px-4">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-primary">
-            বিশেষত্ব
-          </span>
-          <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">
+          <h2 className="text-balance font-heading text-2xl font-bold text-primary sm:text-3xl lg:text-4xl">
             মিল্কিমম এর বিশেষত্ব
           </h2>
-          <p className="mt-3 text-balance text-muted-foreground text-sm sm:text-base">
-            যে কারণে মিল্কিমম অন্যান্য সকল মাধ্যম থেকে সম্পূর্ণ আলাদা ও অনন্য।
-          </p>
         </Reveal>
 
         <RevealGroup stagger={0.1} className="mt-12 flex flex-wrap justify-center gap-6">
@@ -76,11 +70,17 @@ export function SpecialtiesSection() {
                 key={index}
                 className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex"
               >
-                <div className="group relative flex w-full flex-col justify-between rounded-3xl border border-primary/20 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md hover:-translate-y-1">
+                <div className="group relative flex w-full flex-col justify-between overflow-hidden rounded-3xl border border-primary/20 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md hover:-translate-y-1">
+                  {/* Top Right Grid Pattern */}
+                  <GridPattern
+                    size={22}
+                    className="z-0 opacity-40 mix-blend-multiply dark:mix-blend-screen [mask-image:radial-gradient(circle_at_top_right,black_30%,transparent_75%)]"
+                  />
+
                   {/* Subtle Top Accent Line */}
                   <div className="absolute top-0 inset-x-8 h-1 rounded-b-full bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   
-                  <div>
+                  <div className="relative z-10">
                     {/* Header: Primary Color Circle with Numbering */}
                     <div className="mb-4">
                       <div className="flex size-10 sm:size-11 items-center justify-center rounded-full bg-primary font-heading text-base sm:text-lg font-bold text-primary-foreground shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-110">
