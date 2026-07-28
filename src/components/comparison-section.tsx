@@ -1,10 +1,19 @@
 import Image from "next/image";
-import { Check, Crown, X } from "lucide-react";
+import { Check } from "lucide-react";
 
-import { Reveal } from "@/components/motion/reveal";
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
 import { GridPattern } from "@/components/grid-pattern";
-import { comparisonRows, siteConfig } from "@/lib/content";
+import { siteConfig } from "@/lib/content";
+
+const comparisonPoints = [
+  "মিল্কিমম একটি পার্মানেন্ট সলিউশন।",
+  "এর একটি ডোজই খেতে হয়।",
+  "এটি ডক্টর সাজেস্টেড, ডক্টর প্রুভেন ও ডক্টর ইউসড।",
+  "এবং বিশ্ব ব্যাপী স্বীকৃত।",
+  "এটি 6+ বছর গবেষণার দ্বারা প্রুভড।",
+  "মিল্কিমম ভিন্ন ৪ টি ফ্লেভারে পাওয়া যায়, ফলে খেতে খুব মজা লাগে।",
+];
 
 export function ComparisonSection() {
   return (
@@ -18,46 +27,36 @@ export function ComparisonSection() {
         sizes="100vw"
         className="absolute inset-0 -z-10 object-cover opacity-[0.06]"
       />
-      <div className="mx-auto max-w-5xl px-4">
+      <div className="mx-auto max-w-4xl px-4">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
-            তুলনা করুন
-          </span>
-          <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
-            কেন অন্যান্য মেডিসিন এবং{" "}
-            <span className="text-primary">{siteConfig.name} সম্পূর্ণ আলাদা?</span>
+          <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
+            অন্যান্য মেডিসিন এবং <span className="text-primary">"{siteConfig.name}"</span> সম্পূর্ণ আলাদা।
           </h2>
-          <p className="mt-3 text-balance text-muted-foreground">
-            শুধু দাবি নয়, বাস্তব পার্থক্যটা নিজের চোখেই দেখুন।
-          </p>
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-10 overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className="grid grid-cols-2 divide-x divide-border border-b border-border text-center text-xs sm:text-sm">
-            <div className="bg-gradient-to-b from-primary/10 to-transparent p-3 sm:p-4">
-              <span className="inline-flex items-center gap-1.5 font-heading font-bold text-primary">
-                <Crown className="size-4 shrink-0 fill-primary sm:size-5" />
-                {siteConfig.name}
-              </span>
-            </div>
-            <div className="p-3 font-semibold text-muted-foreground sm:p-4">অন্যান্য</div>
-          </div>
-          {comparisonRows.map((row, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-2 divide-x divide-border border-b border-border last:border-b-0"
-            >
-              <div className="flex items-start gap-1.5 bg-primary/5 p-3 text-xs font-medium text-foreground sm:gap-2 sm:p-4 sm:text-sm">
-                <Check className="mt-0.5 size-3.5 shrink-0 text-brand-green sm:size-4" />
-                <span>{row.milkimom}</span>
-              </div>
-              <div className="flex items-start gap-1.5 p-3 text-xs text-muted-foreground sm:gap-2 sm:p-4 sm:text-sm">
-                <X className="mt-0.5 size-3.5 shrink-0 text-destructive/70 sm:size-4" />
-                <span>{row.other}</span>
-              </div>
-            </div>
-          ))}
+        <Reveal delay={0.1} className="mt-8 rounded-3xl border border-primary/20 bg-card p-6 sm:p-8 shadow-lg">
+          <p className="mb-6 font-heading text-lg font-bold text-primary sm:text-xl">
+            কারন,
+          </p>
+
+          <RevealGroup stagger={0.1} className="space-y-4">
+            {comparisonPoints.map((point, index) => (
+              <RevealItem key={index} className="flex items-start gap-3.5 text-base sm:text-lg font-medium text-foreground">
+                <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary shadow-sm">
+                  <Check className="size-4 stroke-[3]" />
+                </div>
+                <span>{point}</span>
+              </RevealItem>
+            ))}
+          </RevealGroup>
+
+          <Reveal delay={0.3} className="mt-8 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 p-4 sm:p-5 text-center">
+            <p className="font-heading text-lg font-bold text-primary sm:text-xl">
+              তাই নিশ্চিন্তে মিল্কিমমের উপর আস্থা রাখতে পারেন।
+            </p>
+          </Reveal>
         </Reveal>
+
         <SectionCta />
       </div>
     </section>
