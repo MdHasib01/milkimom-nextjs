@@ -176,20 +176,27 @@ export function OrderSection() {
               {flavors.map((flavor) => {
                 const isSelected = flavor.id === selectedFlavorId;
                 return (
-                  <RevealItem key={flavor.id}>
+                  <RevealItem key={flavor.id} className="h-full">
                     <button
                       type="button"
                       onClick={() => setSelectedFlavorId(flavor.id)}
                       aria-pressed={isSelected}
                       className={cn(
-                        "group relative flex w-full items-center gap-3.5 rounded-2xl border-2 p-3 text-left transition-all duration-200 min-h-[92px]",
+                        "group relative flex w-full h-full items-center gap-3.5 rounded-2xl border-2 p-3.5 text-left transition-all duration-200 min-h-[110px]",
                         isSelected
                           ? "border-primary bg-primary/[0.03] shadow-md shadow-brand-crimson/10 ring-1 ring-primary/20"
                           : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
                       )}
                     >
-                      {flavor.popular && (
-                        <span className="absolute -top-2.5 right-3.5 rounded-full bg-brand-crimson px-2.5 py-0.5 text-[11px] font-bold text-white shadow-xs z-10">
+                      {flavor.tag && (
+                        <span
+                          className={cn(
+                            "absolute -top-2.5 right-3.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold shadow-xs z-10",
+                            flavor.popular
+                              ? "bg-brand-crimson text-white"
+                              : "bg-muted border border-border text-foreground/80"
+                          )}
+                        >
                           {flavor.tag}
                         </span>
                       )}
@@ -214,7 +221,7 @@ export function OrderSection() {
                         <span className="font-heading text-base font-bold text-foreground leading-tight">
                           {flavor.name}
                         </span>
-                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed whitespace-pre-line">
                           {flavor.description}
                         </p>
                         <div className="mt-1.5 flex items-center gap-2">
@@ -225,11 +232,6 @@ export function OrderSection() {
                             ৳{singleJarPrice.regularPrice.toLocaleString("bn-BD")}
                           </span>
                         </div>
-                        {!flavor.popular && flavor.tag && (
-                          <span className="mt-1 text-[11px] font-semibold text-brand-crimson/90">
-                            {flavor.tag}
-                          </span>
-                        )}
                       </div>
 
                       {/* Radio / Selection Checkbox Indicator */}
