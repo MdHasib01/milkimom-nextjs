@@ -66,6 +66,14 @@ const specialties: SpecialtyItem[] = [
     footerText: "এজন্য, অনেক টাকাও বেঁচে যায়।",
     bulletPoints: true,
   },
+  {
+    number: "৬",
+    title: "বুকের দুধ বন্ধ হলেও আবার তৈরি হয়",
+    description: [
+      "মিল্কিমম খেয়ে একদম বুকের দুধ বন্ধ হয়ে যাওয়া মায়েদেরও বুকের দুধ আসে, আলহামদুলিল্লাহ।",
+    ],
+    bulletPoints: false,
+  },
 ];
 
 function SpecialtyCard({ item }: { item: SpecialtyItem }) {
