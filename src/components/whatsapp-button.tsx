@@ -27,9 +27,9 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="WhatsApp-এ যোগাযোগ করুন"
-      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex size-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-emerald-900/20 transition-all duration-300 hover:bg-[#20bd5a] hover:scale-110 active:scale-95 group cursor-pointer"
+      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex size-13 sm:size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-emerald-900/30 transition-all duration-300 hover:bg-[#20bd5a] hover:scale-110 active:scale-95 group cursor-pointer"
     >
-      <WhatsAppIcon className="size-6 transition-transform group-hover:rotate-12" />
+      <WhatsAppIcon className="size-7 sm:size-8 transition-transform group-hover:rotate-12" />
       <span className="sr-only">WhatsApp</span>
     </a>
   );
