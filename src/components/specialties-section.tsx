@@ -141,6 +141,19 @@ export function SpecialtiesSection() {
     return () => clearInterval(timer);
   }, [isPaused, handleNext]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        handlePrev();
+      } else if (e.key === "ArrowRight") {
+        handleNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handlePrev, handleNext]);
+
   return (
     <section id="specialties" className="relative overflow-hidden py-16 sm:py-24 bg-card/40">
       <GridPattern size={28} className="opacity-40" />
@@ -154,13 +167,14 @@ export function SpecialtiesSection() {
 
         {/* Mobile Automatic Loop Carousel */}
         <div
-          className="relative mt-8 block sm:hidden px-1"
+          className="relative mt-8 block sm:hidden px-4"
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          <div className="relative min-h-[250px] w-full overflow-hidden">
+          {/* Card Container */}
+          <div className="relative min-h-[250px] w-full">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
@@ -173,43 +187,42 @@ export function SpecialtiesSection() {
                 <SpecialtyCard item={specialties[currentIndex]} />
               </motion.div>
             </AnimatePresence>
-          </div>
 
-          {/* Navigation Controls & Indicators */}
-          <div className="mt-5 flex items-center justify-between px-2">
+            {/* Left & Right Side Buttons (Middle of card outline border) */}
             <button
               type="button"
               onClick={handlePrev}
               aria-label="Previous Slide"
-              className="flex size-10 items-center justify-center rounded-full border border-primary/20 bg-card text-primary shadow-sm active:scale-95 transition-all hover:bg-primary/10"
+              className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 flex size-9 items-center justify-center rounded-full border border-primary/30 bg-card text-primary shadow-md backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground active:scale-95"
             >
               <ChevronLeft className="size-5" />
             </button>
-
-            <div className="flex items-center gap-2">
-              {specialties.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setCurrentIndex(idx)}
-                  aria-label={`Go to slide ${idx + 1}`}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    idx === currentIndex
-                      ? "w-7 bg-primary"
-                      : "w-2.5 bg-primary/20 hover:bg-primary/40"
-                  }`}
-                />
-              ))}
-            </div>
 
             <button
               type="button"
               onClick={handleNext}
               aria-label="Next Slide"
-              className="flex size-10 items-center justify-center rounded-full border border-primary/20 bg-card text-primary shadow-sm active:scale-95 transition-all hover:bg-primary/10"
+              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 flex size-9 items-center justify-center rounded-full border border-primary/30 bg-card text-primary shadow-md backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground active:scale-95"
             >
               <ChevronRight className="size-5" />
             </button>
+          </div>
+
+          {/* Bottom Indicators */}
+          <div className="mt-5 flex items-center justify-center gap-2">
+            {specialties.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCurrentIndex(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  idx === currentIndex
+                    ? "w-7 bg-primary"
+                    : "w-2.5 bg-primary/20 hover:bg-primary/40"
+                }`}
+              />
+            ))}
           </div>
         </div>
 
