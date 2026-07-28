@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Phone, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
@@ -11,6 +11,19 @@ import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
 import { fetchMotherCount } from "@/lib/api";
 import { formatBengaliNumber } from "@/lib/number-utils";
+
+function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      {...props}
+    >
+      <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.91 1.455 5.51 3.734 7.214V22l3.425-1.881c.905.251 1.864.387 2.841.387 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.09 12.441l-2.55-2.72-4.976 2.72 5.474-5.81 2.597 2.72 4.929-2.72-5.474 5.81z" />
+    </svg>
+  );
+}
 
 export function HeroSection() {
   const [motherCount, setMotherCount] = useState<number>(89746);
@@ -112,9 +125,9 @@ export function HeroSection() {
                 variant="outline"
                 className="h-12 gap-2 rounded-full border-brand-coral/40 px-6 text-base text-brand-crimson hover:bg-brand-coral/10"
               >
-                <a href={`tel:${siteConfig.phone}`}>
-                  <Phone className="size-5" />
-                  কল করুন
+                <a href={siteConfig.messenger} target="_blank" rel="noopener noreferrer">
+                  <MessengerIcon className="size-5" />
+                  মেসেজ করুন
                 </a>
               </Button>
             </div>

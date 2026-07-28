@@ -4,6 +4,7 @@ export const siteConfig = {
   tagline: "Make Mother Great Again",
   phone: "+8801517102603",
   phoneDisplay: "01517-102603",
+  messenger: "https://www.facebook.com/milkimom?_rdr",
 };
 
 export const navLinks = [
