@@ -65,11 +65,45 @@ export function OrderSection() {
     [form.district]
   );
 
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setForm((f) => ({ ...f, phone: val }));
+
+    if (val.startsWith("+") || val.startsWith("88")) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "মোবাইল নম্বরটি 01 দিয়ে শুরু করুন (+88 ছাড়া লিখুন)",
+      }));
+    } else if (val.length === 1 && val !== "0") {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "মোবাইল নম্বরটি 01 দিয়ে শুরু করুন",
+      }));
+    } else if (val.length >= 2 && !val.startsWith("01")) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "মোবাইল নম্বরটি 01 দিয়ে শুরু করুন",
+      }));
+    } else if (errors.phone) {
+      setErrors((prev) => ({ ...prev, phone: undefined }));
+    }
+  }
+
   function validate(): boolean {
     const nextErrors: Partial<Record<keyof FormState, string>> = {};
     if (form.name.trim().length < 2) nextErrors.name = "পূর্ণ নাম লিখুন";
-    if (!PHONE_REGEX.test(form.phone.trim()))
+
+    const phoneTrimmed = form.phone.trim();
+    if (!phoneTrimmed) {
+      nextErrors.phone = "মোবাইল নম্বর লিখুন";
+    } else if (phoneTrimmed.startsWith("+") || phoneTrimmed.startsWith("88")) {
+      nextErrors.phone = "মোবাইল নম্বরটি 01 দিয়ে শুরু করুন (+88 ছাড়া লিখুন)";
+    } else if (!phoneTrimmed.startsWith("01")) {
+      nextErrors.phone = "মোবাইল নম্বরটি 01 দিয়ে শুরু করুন";
+    } else if (!PHONE_REGEX.test(phoneTrimmed)) {
       nextErrors.phone = "সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন";
+    }
+
     if (!form.district) nextErrors.district = "জেলা নির্বাচন করুন";
     if (!form.thana.trim()) nextErrors.thana = "থানা/উপজেলা নির্বাচন করুন";
     if (form.address.trim().length < 5) nextErrors.address = "বাসার বিস্তারিত ঠিকানা লিখুন";
@@ -279,17 +313,22 @@ export function OrderSection() {
             {/* Field 2: Phone */}
             <div className="grid gap-1.5">
               <Label htmlFor="phone">মোবাইল নম্বর *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                aria-invalid={Boolean(errors.phone)}
-                placeholder="01XXXXXXXXX"
-                className="h-11"
-              />
+              <div className="relative flex items-center">
+                <span className="absolute left-3.5 text-sm font-semibold text-muted-foreground select-none pointer-events-none">
+                  +88
+                </span>
+                <Input
+                  id="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  value={form.phone}
+                  onChange={handlePhoneChange}
+                  aria-invalid={Boolean(errors.phone)}
+                  placeholder="01XXXXXXXXX"
+                  className="h-11 pl-12"
+                />
+              </div>
               {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
             </div>
 
