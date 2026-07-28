@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -11,6 +11,7 @@ import {
 import { flavors, singleJarPrice } from "@/lib/content";
 import { bdLocations } from "@/lib/bdLocations";
 import { saveOrder } from "@/lib/api";
+import { trackPurchase } from "@/lib/fbpixel";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ export function OrderSection() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [submitError, setSubmitError] = useState("");
+  const purchaseTracked = useRef(false);
 
   const selectedFlavor = useMemo(
     () => flavors.find((flavor) => flavor.id === selectedFlavorId) ?? flavors[0],
@@ -101,6 +103,12 @@ export function OrderSection() {
     });
 
     if (result.success) {
+      // The order is only a "purchase" once the backend has actually stored it
+      // and answered 201 Created. Guarded so a re-submit can never double-count.
+      if (result.status === 201 && !purchaseTracked.current) {
+        purchaseTracked.current = true;
+        trackPurchase();
+      }
       setStatus("success");
     } else {
       setStatus("idle");

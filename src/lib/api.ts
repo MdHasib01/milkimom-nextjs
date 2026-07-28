@@ -19,6 +19,8 @@ export interface ApiResult<T = unknown> {
   success: boolean;
   data?: T;
   error?: unknown;
+  /** HTTP status of the response. Undefined when the request never completed. */
+  status?: number;
 }
 
 async function request<T = unknown>(url: string, options?: RequestInit): Promise<ApiResult<T>> {
@@ -27,7 +29,8 @@ async function request<T = unknown>(url: string, options?: RequestInit): Promise
       headers: { "Content-Type": "application/json" },
       ...options,
     });
-    return await response.json();
+    const payload = (await response.json()) as ApiResult<T>;
+    return { ...payload, status: response.status };
   } catch (err) {
     console.error(`API request failed: ${url}`, err);
     return { success: false, error: err instanceof Error ? err.message : "Network error" };
