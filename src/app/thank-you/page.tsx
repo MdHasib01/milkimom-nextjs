@@ -10,6 +10,7 @@ import {
   MapPin,
   Package,
   Phone,
+  Truck,
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,8 @@ function ThankYouContent() {
     order?.paymentMethod === "bKash" ||
     order?.paymentMethod === "Paid" ||
     Boolean(order?.transactionId);
+
+  const trackTargetId = order?._id || orderId;
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-16">
@@ -271,11 +274,28 @@ function ThankYouContent() {
           </div>
         </div>
 
-        {/* Back to Home CTA Button */}
-        <div className="pt-4 text-center">
+        {/* Track Order & Back to Home CTA Buttons */}
+        <div className="pt-4 text-center space-y-3">
+          {trackTargetId && (
+            <Button
+              asChild
+              className="h-12 w-full max-w-md gap-2 rounded-full bg-brand-green text-base font-bold text-white hover:bg-brand-green/90 shadow-md"
+            >
+              <Link href={`/track/${trackTargetId}`}>
+                <Truck className="size-5" />
+                <span>অর্ডার ট্র্যাক করুন</span>
+              </Link>
+            </Button>
+          )}
+
           <Button
             asChild
-            className="h-12 w-full max-w-md gap-2 rounded-full bg-primary text-base font-bold text-primary-foreground hover:bg-primary/90 shadow-md"
+            variant={trackTargetId ? "outline" : "default"}
+            className={`h-12 w-full max-w-md gap-2 rounded-full text-base font-bold shadow-md ${
+              trackTargetId
+                ? "border-primary text-primary hover:bg-primary/10"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            }`}
           >
             <Link href="/">
               <Home className="size-5" />
