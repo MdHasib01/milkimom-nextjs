@@ -7,6 +7,7 @@ import { ComparisonSection } from "@/components/comparison-section";
 import { DoctorSection } from "@/components/doctor-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { OrderSection } from "@/components/order-section";
+import { GuaranteeSection } from "@/components/guarantee-section";
 import { FaqSection } from "@/components/faq-section";
 import { SiteFooter } from "@/components/site-footer";
 import { StickyMobileBar } from "@/components/sticky-mobile-bar";
@@ -27,6 +28,7 @@ export default function Home() {
         <TestimonialsSection />
         <FaqSection />
         <OrderSection />
+        <GuaranteeSection />
       </main>
       <SiteFooter />
       <StickyMobileBar />
