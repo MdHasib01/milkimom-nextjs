@@ -1,8 +1,25 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import type { ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
 import { GridPattern } from "@/components/grid-pattern";
 
-const specialties = [
+type SpecialtyItem = {
+  number: string;
+  title: string;
+  description?: ReactNode[];
+  introText?: ReactNode;
+  bullets?: ReactNode[];
+  footerText?: ReactNode;
+  bulletPoints?: boolean;
+};
+
+const specialties: SpecialtyItem[] = [
   {
     number: "১",
     title: "৩ দিনেই বুকের দুধ বাড়ে",
@@ -51,7 +68,79 @@ const specialties = [
   },
 ];
 
+function SpecialtyCard({ item }: { item: SpecialtyItem }) {
+  return (
+    <div className="group relative flex w-full flex-col justify-between overflow-hidden rounded-3xl border border-primary/20 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md hover:-translate-y-1">
+      {/* Top Right Grid Pattern */}
+      <GridPattern
+        size={22}
+        className="z-0 opacity-40 mix-blend-multiply dark:mix-blend-screen [mask-image:radial-gradient(circle_at_top_right,black_30%,transparent_75%)]"
+      />
+
+      {/* Subtle Top Accent Line */}
+      <div className="absolute top-0 inset-x-8 h-1 rounded-b-full bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+      <div className="relative z-10">
+        {/* Header: Primary Color Circle with Numbering */}
+        <div className="mb-4">
+          <div className="flex size-10 sm:size-11 items-center justify-center rounded-full bg-primary font-heading text-base sm:text-lg font-bold text-primary-foreground shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-110">
+            {item.number}
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className="font-heading text-xl font-extrabold text-primary sm:text-2xl mb-3">
+          {item.title}
+        </h3>
+
+        {/* Content */}
+        {!item.bulletPoints ? (
+          <div className="space-y-2 text-muted-foreground text-sm sm:text-base leading-relaxed">
+            {item.description?.map((line, idx) => (
+              <p key={idx}>{line}</p>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2 text-muted-foreground text-sm sm:text-base leading-relaxed">
+            {item.introText && <p>{item.introText}</p>}
+            {item.bullets && (
+              <ul className="my-2 space-y-1.5 pl-1">
+                {item.bullets.map((bText, bIdx) => (
+                  <li key={bIdx} className="flex items-start gap-2 text-foreground font-medium">
+                    <span className="mt-1.5 size-1.5 rounded-full bg-primary shrink-0" />
+                    <span>{bText}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {item.footerText && <p className="font-medium text-foreground">{item.footerText}</p>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function SpecialtiesSection() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % specialties.length);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + specialties.length) % specialties.length);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      handleNext();
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [isPaused, handleNext]);
+
   return (
     <section id="specialties" className="relative overflow-hidden py-16 sm:py-24 bg-card/40">
       <GridPattern size={28} className="opacity-40" />
@@ -63,64 +152,77 @@ export function SpecialtiesSection() {
           </h2>
         </Reveal>
 
-        <RevealGroup stagger={0.1} className="mt-12 flex flex-wrap justify-center gap-6">
-          {specialties.map((item, index) => {
-            return (
-              <RevealItem
-                key={index}
-                className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex"
+        {/* Mobile Automatic Loop Carousel */}
+        <div
+          className="relative mt-8 block sm:hidden px-1"
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          <div className="relative min-h-[250px] w-full overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+                className="w-full"
               >
-                <div className="group relative flex w-full flex-col justify-between overflow-hidden rounded-3xl border border-primary/20 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md hover:-translate-y-1">
-                  {/* Top Right Grid Pattern */}
-                  <GridPattern
-                    size={22}
-                    className="z-0 opacity-40 mix-blend-multiply dark:mix-blend-screen [mask-image:radial-gradient(circle_at_top_right,black_30%,transparent_75%)]"
-                  />
+                <SpecialtyCard item={specialties[currentIndex]} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-                  {/* Subtle Top Accent Line */}
-                  <div className="absolute top-0 inset-x-8 h-1 rounded-b-full bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  
-                  <div className="relative z-10">
-                    {/* Header: Primary Color Circle with Numbering */}
-                    <div className="mb-4">
-                      <div className="flex size-10 sm:size-11 items-center justify-center rounded-full bg-primary font-heading text-base sm:text-lg font-bold text-primary-foreground shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-110">
-                        {item.number}
-                      </div>
-                    </div>
+          {/* Navigation Controls & Indicators */}
+          <div className="mt-5 flex items-center justify-between px-2">
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Previous Slide"
+              className="flex size-10 items-center justify-center rounded-full border border-primary/20 bg-card text-primary shadow-sm active:scale-95 transition-all hover:bg-primary/10"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
 
-                    {/* Title */}
-                    <h3 className="font-heading text-xl font-extrabold text-primary sm:text-2xl mb-3">
-                      {item.title}
-                    </h3>
+            <div className="flex items-center gap-2">
+              {specialties.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    idx === currentIndex
+                      ? "w-7 bg-primary"
+                      : "w-2.5 bg-primary/20 hover:bg-primary/40"
+                  }`}
+                />
+              ))}
+            </div>
 
-                    {/* Content */}
-                    {!item.bulletPoints ? (
-                      <div className="space-y-2 text-muted-foreground text-sm sm:text-base leading-relaxed">
-                        {item.description?.map((line, idx) => (
-                          <p key={idx}>{line}</p>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="space-y-2 text-muted-foreground text-sm sm:text-base leading-relaxed">
-                        {item.introText && <p>{item.introText}</p>}
-                        {item.bullets && (
-                          <ul className="my-2 space-y-1.5 pl-1">
-                            {item.bullets.map((bText, bIdx) => (
-                              <li key={bIdx} className="flex items-start gap-2 text-foreground font-medium">
-                                <span className="mt-1.5 size-1.5 rounded-full bg-primary shrink-0" />
-                                <span>{bText}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        {item.footerText && <p className="font-medium text-foreground">{item.footerText}</p>}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </RevealItem>
-            );
-          })}
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Next Slide"
+              className="flex size-10 items-center justify-center rounded-full border border-primary/20 bg-card text-primary shadow-sm active:scale-95 transition-all hover:bg-primary/10"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Grid Layout */}
+        <RevealGroup stagger={0.1} className="mt-12 hidden sm:flex flex-wrap justify-center gap-6">
+          {specialties.map((item, index) => (
+            <RevealItem
+              key={index}
+              className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex"
+            >
+              <SpecialtyCard item={item} />
+            </RevealItem>
+          ))}
         </RevealGroup>
 
         <SectionCta />
