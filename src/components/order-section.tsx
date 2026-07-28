@@ -109,7 +109,7 @@ export function OrderSection() {
     setLastCheckedPhone(phoneNum);
     setIsCheckingPhone(true);
     setPopupType("checking");
-    setPopupMessage("মোবাইল নম্বর ও IP চেক করা হচ্ছে...");
+    setPopupMessage("মোবাইল নম্বর যাচাই করা হচ্ছে...");
     setShowCheckingPopup(true);
 
     try {
@@ -120,24 +120,27 @@ export function OrderSection() {
 
         if (inDb) {
           setPopupType("tracked");
-          setPopupMessage("IP এড্রেস পূর্বে ব্যবহৃত হয়েছে। অর্ডারের জন্য OTP কোড ভেরিফিকেশন প্রযোজ্য।");
+          setPopupMessage("নিরাপত্তা ভেরিফিকেশন (OTP) প্রযোজ্য।");
         } else {
           setPopupType("clean");
-          setPopupMessage("নতুন IP এড্রেস ও মোবাইল নম্বর সফলভাবে ভ্যালিডেট করা হয়েছে।");
+          setPopupMessage("মোবাইল নম্বর সফলভাবে ভ্যালিডেট হয়েছে।");
         }
       } else {
         setIsIpAlreadyInDb(false);
-        setShowCheckingPopup(false);
+        setPopupType("clean");
+        setPopupMessage("মোবাইল নম্বর সফলভাবে ভ্যালিডেট হয়েছে।");
       }
     } catch (err) {
-      console.error("IP Check Error:", err);
+      console.error("Phone Check Error:", err);
       setIsIpAlreadyInDb(false);
-      setShowCheckingPopup(false);
+      setPopupType("clean");
+      setPopupMessage("মোবাইল নম্বর যাচাই করা হয়েছে।");
     } finally {
       setIsCheckingPhone(false);
+      // Small alert pops up and automatically goes away after 2.5 seconds
       setTimeout(() => {
         setShowCheckingPopup(false);
-      }, 3500);
+      }, 2500);
     }
   }
 
@@ -151,7 +154,8 @@ export function OrderSection() {
     if (phoneTrimmed.length === 11 && PHONE_REGEX.test(phoneTrimmed)) {
       triggerPhoneIpCheck(phoneTrimmed);
     } else {
-      if (isIpAlreadyInDb !== null && phoneTrimmed.length !== 11) {
+      setLastCheckedPhone("");
+      if (isIpAlreadyInDb !== null) {
         setIsIpAlreadyInDb(null);
         setIsOtpVerified(false);
       }
@@ -488,18 +492,6 @@ export function OrderSection() {
                 </div>
               </div>
               {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
-              {!errors.phone && isIpAlreadyInDb === true && (
-                <p className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg p-2 flex items-center gap-1.5 mt-1 animate-in fade-in">
-                  <ShieldAlert className="size-4 shrink-0 text-amber-600" />
-                  <span>আপনার IP এড্রেস ডাটাবেসে নিবন্ধিত। অর্ডার সম্পন্ন করতে OTP ভেরিফিকেশন প্রযোজ্য।</span>
-                </p>
-              )}
-              {!errors.phone && isIpAlreadyInDb === false && (
-                <p className="text-xs font-medium text-emerald-800 bg-emerald-50 border border-emerald-200/80 rounded-lg p-2 flex items-center gap-1.5 mt-1 animate-in fade-in">
-                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
-                  <span>IP এড্রেস ও মোবাইল নম্বর সফলভাবে ভ্যালিডেট হয়েছে।</span>
-                </p>
-              )}
             </div>
 
             {/* Field 3: District Searchable Dropdown */}
@@ -836,44 +828,36 @@ export function OrderSection() {
         </div>
       )}
 
-      {/* Small Popup Dialog: Checking Mobile Number & IP */}
+      {/* Small Alert Toast Popup at Bottom */}
       {showCheckingPopup && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 duration-300 max-w-sm">
-          <div className="bg-white/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-xl p-4 flex items-center gap-3.5 dark:bg-slate-900/95 dark:border-emerald-500/30">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto">
+          <div className="bg-slate-900/95 text-white backdrop-blur-md border border-slate-700/60 rounded-full shadow-2xl px-4 py-2.5 flex items-center gap-3 max-w-sm">
             {popupType === "checking" && (
-              <div className="relative flex items-center justify-center size-10 rounded-full bg-emerald-100 text-emerald-600 shrink-0 dark:bg-emerald-950/60 dark:text-emerald-400">
-                <div className="absolute inset-0 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-                <Smartphone className="size-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="relative flex items-center justify-center size-6 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">
+                <Loader2 className="size-4 animate-spin text-emerald-400" />
               </div>
             )}
             {popupType === "tracked" && (
-              <div className="flex items-center justify-center size-10 rounded-full bg-amber-100 text-amber-600 shrink-0 dark:bg-amber-950/60 dark:text-amber-400">
-                <ShieldAlert className="size-5 text-amber-600 dark:text-amber-400" />
+              <div className="flex items-center justify-center size-6 rounded-full bg-amber-500/20 text-amber-400 shrink-0">
+                <ShieldAlert className="size-4 text-amber-400" />
               </div>
             )}
             {popupType === "clean" && (
-              <div className="flex items-center justify-center size-10 rounded-full bg-emerald-100 text-emerald-600 shrink-0 dark:bg-emerald-950/60 dark:text-emerald-400">
-                <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center justify-center size-6 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">
+                <CheckCircle2 className="size-4 text-emerald-400" />
               </div>
             )}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-foreground">
-                {popupType === "checking"
-                  ? "মোবাইল নম্বর ও IP চেক করা হচ্ছে..."
-                  : popupType === "tracked"
-                  ? "IP ডাটাবেসে নিবন্ধিত"
-                  : "মোবাইল ও IP ভ্যালিড"}
-              </p>
-              <p className="text-[11px] font-medium text-muted-foreground line-clamp-2 mt-0.5">
+            <div className="flex-1 min-w-0 pr-1">
+              <p className="text-xs font-bold leading-tight">
                 {popupMessage}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowCheckingPopup(false)}
-              className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors"
+              className="text-slate-400 hover:text-white p-0.5 rounded-full transition-colors"
             >
-              <X className="size-4" />
+              <X className="size-3.5" />
             </button>
           </div>
         </div>
@@ -900,7 +884,7 @@ export function OrderSection() {
             </h3>
 
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              আপনার IP পূর্বে ডাটাবেসে থাকায় নিরাপত্তার স্বার্থে আপনার নম্বর{" "}
+              নিরাপত্তার স্বার্থে আপনার মোবাইল নম্বর{" "}
               <span className="font-bold text-foreground">{form.phone}</span>-এ ৪ ডিজিটের ভেরিফিকেশন কোড পাঠানো হয়েছে।
             </p>
 
