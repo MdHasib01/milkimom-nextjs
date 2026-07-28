@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import {
@@ -33,6 +33,20 @@ interface OrderData {
 }
 
 export default function TrackOrderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background text-sm font-semibold text-muted-foreground">
+          অর্ডারের তথ্য লোড হচ্ছে...
+        </div>
+      }
+    >
+      <TrackOrderContent />
+    </Suspense>
+  );
+}
+
+function TrackOrderContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const rawId = (params?.id as string) || searchParams.get("id");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -31,6 +31,20 @@ interface OrderData {
 }
 
 export default function ThankYouPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background text-sm font-semibold text-muted-foreground">
+          অর্ডারের তথ্য লোড হচ্ছে...
+        </div>
+      }
+    >
+      <ThankYouContent />
+    </Suspense>
+  );
+}
+
+function ThankYouContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const [order, setOrder] = useState<OrderData | null>(null);

@@ -8,6 +8,7 @@ export const API_BASE_URL: string =
 export const API_ENDPOINTS = {
   health: `${API_BASE_URL}/api/health`,
   orders: `${API_BASE_URL}/api/orders`,
+  bulkOrders: `${API_BASE_URL}/api/orders/bulk`,
   orderById: (id: string) => `${API_BASE_URL}/api/orders/${id}`,
   orderStatus: (id: string) => `${API_BASE_URL}/api/orders/${id}/status`,
   login: `${API_BASE_URL}/api/auth/login`,

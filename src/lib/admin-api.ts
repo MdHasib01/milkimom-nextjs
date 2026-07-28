@@ -97,6 +97,19 @@ export function changeOrderStatus(id: string, status: string) {
   });
 }
 
+export function deleteOrder(id: string) {
+  return authRequest(API_ENDPOINTS.orderById(id), {
+    method: "DELETE",
+  });
+}
+
+export function bulkDeleteOrders(ids: string[]) {
+  return authRequest<{ success: boolean; count: number }>(API_ENDPOINTS.bulkOrders, {
+    method: "DELETE",
+    body: JSON.stringify({ ids }),
+  });
+}
+
 export function fetchSettings() {
   return authRequest<{ adminEmail: string; adminMobile: string }>(API_ENDPOINTS.settings);
 }
