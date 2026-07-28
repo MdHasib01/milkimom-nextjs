@@ -17,4 +17,7 @@ export const API_ENDPOINTS = {
   adminUsers: `${API_BASE_URL}/api/admin-users`,
   adminUserById: (id: string) => `${API_BASE_URL}/api/admin-users/${id}`,
   motherCount: `${API_BASE_URL}/api/stats/mother-count`,
+  fraudCheckIp: `${API_BASE_URL}/api/fraud/check-ip`,
+  fraudSendOtp: `${API_BASE_URL}/api/fraud/send-otp`,
+  fraudVerifyOtp: `${API_BASE_URL}/api/fraud/verify-otp`,
 } as const;

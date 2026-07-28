@@ -1,21 +1,25 @@
 "use client";
 
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   ArrowDown,
   CheckCircle2,
+  KeyRound,
   Loader2,
   PhoneCall,
+  RefreshCw,
+  ShieldAlert,
   ShieldCheck,
   ShoppingCart,
+  Smartphone,
   Truck,
   X,
 } from "lucide-react";
 import { flavors, singleJarPrice } from "@/lib/content";
 import { bdLocations } from "@/lib/bdLocations";
-import { saveOrder } from "@/lib/api";
+import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { trackPurchase } from "@/lib/fbpixel";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,34 @@ export function OrderSection() {
   const [modalErrorMessage, setModalErrorMessage] = useState("");
   const purchaseTracked = useRef(false);
 
+  // IP Tracking & Phone Fraud Check state
+  const [isCheckingPhone, setIsCheckingPhone] = useState(false);
+  const [isIpAlreadyInDb, setIsIpAlreadyInDb] = useState<boolean | null>(null);
+  const [lastCheckedPhone, setLastCheckedPhone] = useState("");
+  const [showCheckingPopup, setShowCheckingPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState<"checking" | "tracked" | "clean">("checking");
+
+  // OTP Modal state
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [otpInfo, setOtpInfo] = useState("");
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [otpResendTimer, setOtpResendTimer] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpResendTimer > 0) {
+      interval = setInterval(() => {
+        setOtpResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpResendTimer]);
+
   const selectedFlavor = useMemo(
     () => flavors.find((flavor) => flavor.id === selectedFlavorId) ?? flavors[0],
     [selectedFlavorId]
@@ -71,10 +103,59 @@ export function OrderSection() {
     [form.district]
   );
 
+  async function triggerPhoneIpCheck(phoneNum: string) {
+    if (isCheckingPhone || phoneNum === lastCheckedPhone) return;
+
+    setLastCheckedPhone(phoneNum);
+    setIsCheckingPhone(true);
+    setPopupType("checking");
+    setPopupMessage("মোবাইল নম্বর ও IP চেক করা হচ্ছে...");
+    setShowCheckingPopup(true);
+
+    try {
+      const res = await checkIpAndFraud(phoneNum);
+      if (res.success && res.data) {
+        const inDb = res.data.isAlreadyInDb;
+        setIsIpAlreadyInDb(inDb);
+
+        if (inDb) {
+          setPopupType("tracked");
+          setPopupMessage("IP এড্রেস পূর্বে ব্যবহৃত হয়েছে। অর্ডারের জন্য OTP কোড ভেরিফিকেশন প্রযোজ্য।");
+        } else {
+          setPopupType("clean");
+          setPopupMessage("নতুন IP এড্রেস ও মোবাইল নম্বর সফলভাবে ভ্যালিডেট করা হয়েছে।");
+        }
+      } else {
+        setIsIpAlreadyInDb(false);
+        setShowCheckingPopup(false);
+      }
+    } catch (err) {
+      console.error("IP Check Error:", err);
+      setIsIpAlreadyInDb(false);
+      setShowCheckingPopup(false);
+    } finally {
+      setIsCheckingPhone(false);
+      setTimeout(() => {
+        setShowCheckingPopup(false);
+      }, 3500);
+    }
+  }
+
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
     setForm((f) => ({ ...f, phone: val }));
     if (submitError) setSubmitError("");
+
+    const phoneTrimmed = val.trim();
+
+    if (phoneTrimmed.length === 11 && PHONE_REGEX.test(phoneTrimmed)) {
+      triggerPhoneIpCheck(phoneTrimmed);
+    } else {
+      if (isIpAlreadyInDb !== null && phoneTrimmed.length !== 11) {
+        setIsIpAlreadyInDb(null);
+        setIsOtpVerified(false);
+      }
+    }
 
     if (val.startsWith("+") || val.startsWith("88")) {
       setErrors((prev) => ({
@@ -96,6 +177,64 @@ export function OrderSection() {
     }
   }
 
+  async function handleSendOtp(phoneNum: string) {
+    setIsSendingOtp(true);
+    setOtpError("");
+    setOtpInfo("ওটিপি (OTP) পাঠানো হচ্ছে...");
+    try {
+      const res = await sendFraudOtp(phoneNum);
+      if (res.success) {
+        setOtpInfo("আপনার মোবাইলে ৪ ডিজিটের ওটিপি কোড পাঠানো হয়েছে।");
+        setOtpResendTimer(30);
+      } else {
+        setOtpError(
+          typeof res.error === "string"
+            ? res.error
+            : "ওটিপি পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+        );
+        setOtpInfo("");
+      }
+    } catch (err) {
+      setOtpError("নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।");
+      setOtpInfo("");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  }
+
+  async function handleVerifyOtpSubmit(e?: FormEvent) {
+    if (e) e.preventDefault();
+    const phoneVal = form.phone.trim();
+    const codeVal = otpCode.trim();
+
+    if (!codeVal || codeVal.length < 4) {
+      setOtpError("অনুগ্রহ করে ৪ ডিজিটের সঠিক ওটিপি কোডটি লিখুন।");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setOtpError("");
+    try {
+      const res = await verifyFraudOtp(phoneVal, codeVal);
+      if (res.success && res.data?.verified) {
+        setIsOtpVerified(true);
+        setShowOtpModal(false);
+        setOtpCode("");
+        executeSaveOrder();
+      } else {
+        setOtpError(
+          typeof res.error === "string"
+            ? res.error
+            : "ভুল ওটিপি কোড। সঠিক কোড দিয়ে আবার চেষ্টা করুন।"
+        );
+      }
+    } catch (err) {
+      setOtpError("ওটিপি ভেরিফিকেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  }
+
   function validate(): boolean {
     const nextErrors: Partial<Record<keyof FormState, string>> = {};
 
@@ -114,22 +253,7 @@ export function OrderSection() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    setSubmitError("");
-
-    const isValid = validate();
-    if (!isValid) {
-      const phoneVal = form.phone.trim();
-      if (!phoneVal || !PHONE_REGEX.test(phoneVal)) {
-        setModalErrorMessage(!phoneVal ? "empty" : "invalid");
-        setShowErrorModal(true);
-      } else {
-        setSubmitError("অর্ডার সম্পূর্ণ করতে অনুগ্রহ করে সব প্রয়োজনীয় তথ্য সঠিকভাবে দিন।");
-      }
-      return;
-    }
-
+  async function executeSaveOrder() {
     setStatus("submitting");
 
     const result = await saveOrder({
@@ -166,6 +290,35 @@ export function OrderSection() {
           : "অর্ডারটি সাবমিট করা যায়নি। আবার চেষ্টা করুন।"
       );
     }
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setSubmitError("");
+
+    const isValid = validate();
+    if (!isValid) {
+      const phoneVal = form.phone.trim();
+      if (!phoneVal || !PHONE_REGEX.test(phoneVal)) {
+        setModalErrorMessage(!phoneVal ? "empty" : "invalid");
+        setShowErrorModal(true);
+      } else {
+        setSubmitError("অর্ডার সম্পূর্ণ করতে অনুগ্রহ করে সব প্রয়োজনীয় তথ্য সঠিকভাবে দিন।");
+      }
+      return;
+    }
+
+    const phoneVal = form.phone.trim();
+
+    // If IP is already in database and OTP is not verified yet, show OTP verification popup
+    if (isIpAlreadyInDb && !isOtpVerified) {
+      setShowOtpModal(true);
+      handleSendOtp(phoneVal);
+      return;
+    }
+
+    // Else proceed to save order directly
+    executeSaveOrder();
   }
 
   return (
@@ -315,10 +468,38 @@ export function OrderSection() {
                   onChange={handlePhoneChange}
                   aria-invalid={Boolean(errors.phone)}
                   placeholder="01XXXXXXXXX"
-                  className="h-11 pl-12"
+                  className={cn(
+                    "h-11 pl-12 pr-10 transition-all duration-200",
+                    isCheckingPhone && "border-emerald-500 ring-2 ring-emerald-500/30",
+                    isIpAlreadyInDb === false && "border-emerald-500 ring-1 ring-emerald-500/20",
+                    isIpAlreadyInDb === true && "border-amber-500 ring-1 ring-amber-500/20"
+                  )}
                 />
+                <div className="absolute right-3 flex items-center pointer-events-none">
+                  {isCheckingPhone && (
+                    <Loader2 className="size-5 animate-spin text-emerald-600" />
+                  )}
+                  {!isCheckingPhone && isIpAlreadyInDb === false && (
+                    <CheckCircle2 className="size-5 text-emerald-600 animate-in fade-in" />
+                  )}
+                  {!isCheckingPhone && isIpAlreadyInDb === true && (
+                    <ShieldAlert className="size-5 text-amber-500 animate-in fade-in" />
+                  )}
+                </div>
               </div>
               {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+              {!errors.phone && isIpAlreadyInDb === true && (
+                <p className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg p-2 flex items-center gap-1.5 mt-1 animate-in fade-in">
+                  <ShieldAlert className="size-4 shrink-0 text-amber-600" />
+                  <span>আপনার IP এড্রেস ডাটাবেসে নিবন্ধিত। অর্ডার সম্পন্ন করতে OTP ভেরিফিকেশন প্রযোজ্য।</span>
+                </p>
+              )}
+              {!errors.phone && isIpAlreadyInDb === false && (
+                <p className="text-xs font-medium text-emerald-800 bg-emerald-50 border border-emerald-200/80 rounded-lg p-2 flex items-center gap-1.5 mt-1 animate-in fade-in">
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                  <span>IP এড্রেস ও মোবাইল নম্বর সফলভাবে ভ্যালিডেট হয়েছে।</span>
+                </p>
+              )}
             </div>
 
             {/* Field 3: District Searchable Dropdown */}
@@ -651,6 +832,138 @@ export function OrderSection() {
                 ঠিক আছে, নম্বর দিচ্ছি
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Small Popup Dialog: Checking Mobile Number & IP */}
+      {showCheckingPopup && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 duration-300 max-w-sm">
+          <div className="bg-white/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-xl p-4 flex items-center gap-3.5 dark:bg-slate-900/95 dark:border-emerald-500/30">
+            {popupType === "checking" && (
+              <div className="relative flex items-center justify-center size-10 rounded-full bg-emerald-100 text-emerald-600 shrink-0 dark:bg-emerald-950/60 dark:text-emerald-400">
+                <div className="absolute inset-0 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+                <Smartphone className="size-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+            )}
+            {popupType === "tracked" && (
+              <div className="flex items-center justify-center size-10 rounded-full bg-amber-100 text-amber-600 shrink-0 dark:bg-amber-950/60 dark:text-amber-400">
+                <ShieldAlert className="size-5 text-amber-600 dark:text-amber-400" />
+              </div>
+            )}
+            {popupType === "clean" && (
+              <div className="flex items-center justify-center size-10 rounded-full bg-emerald-100 text-emerald-600 shrink-0 dark:bg-emerald-950/60 dark:text-emerald-400">
+                <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-foreground">
+                {popupType === "checking"
+                  ? "মোবাইল নম্বর ও IP চেক করা হচ্ছে..."
+                  : popupType === "tracked"
+                  ? "IP ডাটাবেসে নিবন্ধিত"
+                  : "মোবাইল ও IP ভ্যালিড"}
+              </p>
+              <p className="text-[11px] font-medium text-muted-foreground line-clamp-2 mt-0.5">
+                {popupMessage}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCheckingPopup(false)}
+              className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* OTP Verification Modal Pop Up */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-background border border-primary/20 rounded-3xl shadow-2xl p-6 sm:p-8 text-center overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowOtpModal(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
+              <KeyRound className="size-7 animate-pulse text-primary" />
+            </div>
+
+            <h3 className="font-heading text-xl sm:text-2xl font-extrabold text-foreground">
+              মোবাইল ওটিপি (OTP) ভেরিফিকেশন
+            </h3>
+
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              আপনার IP পূর্বে ডাটাবেসে থাকায় নিরাপত্তার স্বার্থে আপনার নম্বর{" "}
+              <span className="font-bold text-foreground">{form.phone}</span>-এ ৪ ডিজিটের ভেরিফিকেশন কোড পাঠানো হয়েছে।
+            </p>
+
+            <form onSubmit={handleVerifyOtpSubmit} className="mt-6 space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
+                  placeholder="1 2 3 4"
+                  className="h-14 text-center font-mono text-3xl font-extrabold tracking-[0.5em] rounded-2xl border-2 border-primary/30 focus-visible:ring-primary/40"
+                  autoFocus
+                />
+              </div>
+
+              {otpError && (
+                <p className="text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 rounded-xl p-2.5">
+                  {otpError}
+                </p>
+              )}
+
+              {otpInfo && !otpError && (
+                <p className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300">
+                  {otpInfo}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={isVerifyingOtp || !otpCode.trim()}
+                className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base shadow-lg shadow-primary/20"
+              >
+                {isVerifyingOtp ? (
+                  <>
+                    <Loader2 className="size-5 animate-spin mr-2" />
+                    যাচাই করা হচ্ছে...
+                  </>
+                ) : (
+                  "ওটিপি যাচাই ও অর্ডার কনফার্ম করুন"
+                )}
+              </Button>
+
+              <div className="pt-2 text-xs text-muted-foreground flex items-center justify-between">
+                <span>কোড পাননি?</span>
+                {otpResendTimer > 0 ? (
+                  <span className="font-medium text-muted-foreground">
+                    {otpResendTimer} সেকেন্ড পর আবার পাঠানো যাবে
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isSendingOtp}
+                    onClick={() => handleSendOtp(form.phone.trim())}
+                    className="font-bold text-primary hover:underline flex items-center gap-1"
+                  >
+                    <RefreshCw className={cn("size-3.5", isSendingOtp && "animate-spin")} />
+                    পুনরায় ওটিপি পাঠান
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -58,3 +58,40 @@ export function fetchMotherCount() {
   });
 }
 
+export interface CheckIpResult {
+  ip: string;
+  isAlreadyInDb: boolean;
+  requiresOtp: boolean;
+}
+
+/**
+ * Checks client IP address & logs phone check. Returns whether IP is already in DB.
+ */
+export function checkIpAndFraud(phone: string) {
+  return request<CheckIpResult>(API_ENDPOINTS.fraudCheckIp, {
+    method: "POST",
+    body: JSON.stringify({ phone }),
+  });
+}
+
+/**
+ * Sends a 4-digit OTP code to the provided phone number.
+ */
+export function sendFraudOtp(phone: string) {
+  return request<{ message: string; devCode?: string }>(API_ENDPOINTS.fraudSendOtp, {
+    method: "POST",
+    body: JSON.stringify({ phone }),
+  });
+}
+
+/**
+ * Verifies customer entered OTP code.
+ */
+export function verifyFraudOtp(phone: string, code: string) {
+  return request<{ verified: boolean; message?: string }>(API_ENDPOINTS.fraudVerifyOtp, {
+    method: "POST",
+    body: JSON.stringify({ phone, code }),
+  });
+}
+
+
