@@ -88,12 +88,12 @@ export default function ThankYouPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-16">
-      {/* Top Header Banner Section - Dark Green Background */}
-      <section className="relative overflow-hidden bg-[#046A38] text-white pt-10 pb-16 px-4 text-center">
+      {/* Top Header Banner Section - Brand Crimson Gradient Background */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#8B1A2B] via-[#9E1B32] to-[#7A1323] text-white pt-10 pb-16 px-4 text-center">
         <div className="mx-auto max-w-xl">
           {/* White Circular Badge with Checkmark */}
-          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-white text-[#046A38] shadow-lg">
-            <CheckCircle2 className="size-12 fill-[#046A38] text-white" />
+          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-white text-[#9E1B32] shadow-xl">
+            <CheckCircle2 className="size-12 fill-[#9E1B32] text-white" />
           </div>
 
           <h1 className="mt-4 font-heading text-3xl font-extrabold text-white sm:text-4xl">
@@ -104,7 +104,7 @@ export default function ThankYouPage() {
             আমাদের টিম আপনার অর্ডারটি সফল ভাবে রিসিভ করেছে।
           </p>
 
-          {/* White Instruction Card inside Green Header */}
+          {/* White Instruction Card inside Header */}
           <div className="mt-6 rounded-2xl bg-white p-5 sm:p-6 text-foreground shadow-xl border border-white/20">
             <p className="text-sm sm:text-base font-bold text-[#C8102E] leading-relaxed">
               অতিশীঘ্রই আমাদের একজন প্রতিনিধি আপনাকে কল করে অর্ডারটি কনফার্ম করবেন।
@@ -125,8 +125,16 @@ export default function ThankYouPage() {
           </div>
         </div>
 
-        {/* Curved / Angled Bottom Edge */}
-        <div className="absolute inset-x-0 bottom-0 h-4 bg-background [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
+        {/* Seamless SVG Curve Bottom Divider (No straight line stroke) */}
+        <div className="absolute inset-x-0 bottom-0 overflow-hidden leading-none z-10 pointer-events-none">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-7 sm:h-9 fill-background text-background"
+          >
+            <path d="M0,0 C300,90 900,90 1200,0 L1200,120 L0,120 Z"></path>
+          </svg>
+        </div>
       </section>
 
       {/* Main Order Details Container */}
