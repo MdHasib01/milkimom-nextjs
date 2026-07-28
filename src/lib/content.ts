@@ -50,6 +50,7 @@ export const flavors = [
   {
     id: "dark-chocolate",
     name: "ডার্ক চকলেট",
+    nameEn: "Dark Chocolate",
     icon: "cookie" as const,
     tag: "সবচেয়ে জনপ্রিয়",
     description: "গাঢ় চকলেটের সমৃদ্ধ স্বাদ, প্রতিদিনের ডোজ হয়ে উঠুক আনন্দের।",
@@ -61,6 +62,7 @@ export const flavors = [
   {
     id: "vanilla",
     name: "ভ্যানিলা",
+    nameEn: "Vanilla",
     icon: "ice-cream-cone" as const,
     tag: "মৃদু ও সুবাসিত",
     description: "হালকা মিষ্টি ভ্যানিলার স্বাদ, যাদের হালকা স্বাদ পছন্দ তাদের জন্য।",
@@ -72,6 +74,7 @@ export const flavors = [
   {
     id: "cardamom",
     name: "এলাচ",
+    nameEn: "Cardamom",
     icon: "leaf" as const,
     tag: "ঐতিহ্যবাহী",
     description: "দেশীয় এলাচের ঘ্রাণ ও স্বাদ, ঐতিহ্যবাহী রেসিপির ছোঁয়ায়।",
@@ -83,6 +86,7 @@ export const flavors = [
   {
     id: "cinnamon",
     name: "দারুচিনি",
+    nameEn: "Cinnamon",
     icon: "flame" as const,
     tag: "উষ্ণ স্বাদ",
     description: "দারুচিনির উষ্ণ স্বাদ, শীতের দিনে আরামদায়ক এক কাপ উষ্ণতা।",

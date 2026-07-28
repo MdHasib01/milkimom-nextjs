@@ -3,7 +3,7 @@
  * Override the base URL with NEXT_PUBLIC_API_BASE_URL in .env.local for production.
  */
 export const API_BASE_URL: string =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 export const API_ENDPOINTS = {
   health: `${API_BASE_URL}/api/health`,

@@ -92,7 +92,7 @@ export function OrderSection() {
       district: form.district,
       thana: form.thana.trim(),
       address: form.address.trim(),
-      flavour: selectedFlavor.name,
+      flavour: selectedFlavor.nameEn || selectedFlavor.name,
       paymentMethod: form.payment === "bkash" ? "bKash" : "COD",
       price: singleJarPrice.salePrice,
       transactionId: form.payment === "bkash" ? form.trxId.trim() : undefined,
