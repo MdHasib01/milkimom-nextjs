@@ -197,7 +197,7 @@ export function TestimonialsSection() {
             ))}
           </div>
           <span className="text-sm font-semibold text-foreground">
-            {formatBengaliNumber(motherCount)} রিভিউ
+          ৩০,০০০+ রিভিউ
           </span>
         </div>
       </Reveal>
