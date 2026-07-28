@@ -12,8 +12,7 @@ import { GuaranteeSection } from "@/components/guarantee-section";
 import { FaqSection } from "@/components/faq-section";
 import { SiteFooter } from "@/components/site-footer";
 import { StickyMobileBar } from "@/components/sticky-mobile-bar";
-import { WhatsAppButton } from "@/components/whatsapp-button";
-import { BackToTop } from "@/components/back-to-top";
+import { FloatingActions } from "@/components/floating-actions";
 
 export default function Home() {
   return (
@@ -34,8 +33,7 @@ export default function Home() {
       </main>
       <SiteFooter />
       <StickyMobileBar />
-      <BackToTop />
-      <WhatsAppButton />
+      <FloatingActions />
     </div>
   );
 }

@@ -70,8 +70,12 @@ export function GuaranteeSection() {
                 <p className="text-foreground/90 leading-relaxed text-base sm:text-lg font-medium">
                   মিল্কিমম খাওয়ার 14 দিনের মধ্যেও আপনি যদি স্যাটিসফাইড না হন, তাহলে এই{" "}
                   <a
-                    href="tel:01517102603"
-                    className="inline-flex items-center gap-1 font-bold text-primary hover:underline bg-primary/10 px-2.5 py-0.5 rounded-md transition-colors whitespace-nowrap align-middle"
+                    href={`https://wa.me/8801517102603?text=${encodeURIComponent(
+                      "হ্যালো মিল্কিমম, আমি রিফান্ড সম্পর্কিত তথ্য জানতে চাই।"
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 hover:underline bg-emerald-500/10 px-2.5 py-0.5 rounded-md transition-colors whitespace-nowrap align-middle"
                   >
                     <PhoneCall className="size-3.5 sm:size-4 shrink-0" />
                     (01517102603)
