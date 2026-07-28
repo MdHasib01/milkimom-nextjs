@@ -70,7 +70,7 @@ const specialties: SpecialtyItem[] = [
 
 function SpecialtyCard({ item }: { item: SpecialtyItem }) {
   return (
-    <div className="group relative flex w-full flex-col justify-between overflow-hidden rounded-3xl border border-primary/20 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md hover:-translate-y-1">
+    <div className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-primary/20 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md sm:hover:-translate-y-1">
       {/* Top Right Grid Pattern */}
       <GridPattern
         size={22}
@@ -174,7 +174,7 @@ export function SpecialtiesSection() {
           onMouseLeave={() => setIsPaused(false)}
         >
           {/* Card Container */}
-          <div className="relative min-h-[250px] w-full">
+          <div className="relative w-full">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
