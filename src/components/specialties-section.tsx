@@ -89,7 +89,7 @@ export function SpecialtiesSection() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-heading text-lg font-bold text-foreground sm:text-xl mb-3">
+                    <h3 className="font-heading text-xl font-extrabold text-primary sm:text-2xl mb-3">
                       {item.title}
                     </h3>
 
