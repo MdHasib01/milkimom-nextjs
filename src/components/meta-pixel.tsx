@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 
+import { isAnalyticsExcluded } from "@/lib/analytics";
 import { FB_PIXEL_ID, trackPageView } from "@/lib/fbpixel";
 
 /**
@@ -13,7 +14,7 @@ import { FB_PIXEL_ID, trackPageView } from "@/lib/fbpixel";
  */
 export function MetaPixel() {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = isAnalyticsExcluded(pathname);
 
   // The inline snippet tracks the first PageView itself, so only client-side
   // route changes after it need one.

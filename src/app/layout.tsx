@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri } from "next/font/google";
+import { ClarityAnalytics } from "@/components/clarity-analytics";
 import { MetaPixel } from "@/components/meta-pixel";
 import "./globals.css";
 
@@ -69,6 +70,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full w-full max-w-full overflow-x-clip flex flex-col bg-background text-foreground">
         <MetaPixel />
+        <ClarityAnalytics />
         {children}
       </body>
     </html>
