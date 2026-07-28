@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
 import { TrustBadgesBar } from "@/components/trust-badges";
 import { HowItWorksSection } from "@/components/how-it-works";
+import { SpecialtiesSection } from "@/components/specialties-section";
 import { ComparisonSection } from "@/components/comparison-section";
 import { DoctorSection } from "@/components/doctor-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
@@ -23,6 +24,7 @@ export default function Home() {
         <HeroSection />
         <TrustBadgesBar />
         <HowItWorksSection />
+        <SpecialtiesSection />
         <ComparisonSection />
         <DoctorSection />
         <TestimonialsSection />
