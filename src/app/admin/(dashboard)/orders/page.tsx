@@ -184,8 +184,18 @@ export default function AdminOrdersPage() {
     setUpdatingId(id);
     const result = await changeUnfinishedOrderStatus(id, status);
     if (result.success) {
+      const updatedOrder = (result.data as UnfinishedOrder) || null;
       setUnfinishedOrders((prev) =>
-        prev.map((o) => (o._id === id ? { ...o, status: status as UnfinishedOrder["status"] } : o))
+        prev.map((o) =>
+          o._id === id
+            ? {
+                ...o,
+                status: (updatedOrder?.status || status) as UnfinishedOrder["status"],
+                statusUpdatedBy: updatedOrder?.statusUpdatedBy || o.statusUpdatedBy,
+                statusUpdatedAt: updatedOrder?.statusUpdatedAt || o.statusUpdatedAt,
+              }
+            : o
+        )
       );
       setSuccessMsg("Unfinished order status updated");
     } else {
@@ -219,6 +229,7 @@ export default function AdminOrdersPage() {
     setUpdatingId(id);
     const result = await changeOrderStatus(id, status);
     if (result.success) {
+      const updatedOrder = (result.data as Order) || null;
       setOrders((prev) =>
         prev.map((o) => {
           if (o._id === id) {
@@ -226,7 +237,12 @@ export default function AdminOrdersPage() {
             if (status !== "Cancelled" && selectedIds.includes(id)) {
               setSelectedIds((ids) => ids.filter((i) => i !== id));
             }
-            return { ...o, status };
+            return {
+              ...o,
+              status,
+              statusUpdatedBy: updatedOrder?.statusUpdatedBy || o.statusUpdatedBy,
+              statusUpdatedAt: updatedOrder?.statusUpdatedAt || o.statusUpdatedAt,
+            };
           }
           return o;
         })

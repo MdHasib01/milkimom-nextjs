@@ -169,6 +169,20 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function handleRoleChange(user: AdminUser, newRole: "superadmin" | "admin" | "moderator") {
+    if (user.role === newRole) return;
+    setBusyId(user.id);
+    const result = await updateAdminUser(user.id, { role: newRole });
+    setBusyId(null);
+    if (result.success) {
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u))
+      );
+    } else {
+      setError(typeof result.error === "string" ? result.error : "Failed to update user role");
+    }
+  }
+
   return (
     <div className="max-w-4xl space-y-6">
       {/* Header & Create User Button */}
@@ -245,9 +259,26 @@ export default function AdminUsersPage() {
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-foreground text-sm">{user.name}</p>
-                      <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase", roleConf.badge)}>
-                        {roleConf.label}
-                      </span>
+                      {isSuperAdmin && !isSelf ? (
+                        <select
+                          value={user.role}
+                          disabled={busyId === user.id}
+                          onChange={(e) => handleRoleChange(user, e.target.value as "superadmin" | "admin" | "moderator")}
+                          title="Click to update user role"
+                          className={cn(
+                            "cursor-pointer rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase outline-none transition hover:brightness-105 disabled:opacity-50",
+                            roleConf.badge
+                          )}
+                        >
+                          <option value="admin" className="bg-card text-foreground font-semibold">Admin</option>
+                          <option value="moderator" className="bg-card text-foreground font-semibold">Moderator</option>
+                          <option value="superadmin" className="bg-card text-foreground font-semibold">Super Admin</option>
+                        </select>
+                      ) : (
+                        <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase", roleConf.badge)}>
+                          {roleConf.label}
+                        </span>
+                      )}
                       {!user.active && (
                         <span className="rounded-full bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-600 uppercase">
                           Deactivated
