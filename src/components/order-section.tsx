@@ -18,14 +18,12 @@ import {
   X,
 } from "lucide-react";
 import { flavors, singleJarPrice } from "@/lib/content";
-import { bdLocations } from "@/lib/bdLocations";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { trackPurchase } from "@/lib/fbpixel";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { GridPattern } from "@/components/grid-pattern";
 
@@ -97,11 +95,7 @@ export function OrderSection() {
     [selectedFlavorId]
   );
 
-  const districtOptions = useMemo(() => Object.keys(bdLocations).sort(), []);
-  const thanaOptions = useMemo(
-    () => (form.district ? (bdLocations[form.district] || []).slice().sort() : []),
-    [form.district]
-  );
+
 
   async function triggerPhoneIpCheck(phoneNum: string) {
     if (isCheckingPhone || phoneNum === lastCheckedPhone) return;
@@ -494,48 +488,15 @@ export function OrderSection() {
               {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
             </div>
 
-            {/* Field 3: District Searchable Dropdown */}
-            <div className="grid gap-1.5">
-              <Label htmlFor="district">জেলা</Label>
-              <SearchableSelect
-                id="district"
-                value={form.district}
-                onValueChange={(value) =>
-                  setForm((f) => ({ ...f, district: value, thana: "" }))
-                }
-                options={districtOptions}
-                placeholder="জেলা নির্বাচন করুন"
-                searchPlaceholder="জেলা খুঁজুন..."
-              />
-            </div>
-
-            {/* Field 4: Subdistrict / Thana Searchable Dropdown */}
-            <div className="grid gap-1.5">
-              <Label htmlFor="thana">থানা/উপজেলা</Label>
-              <SearchableSelect
-                id="thana"
-                value={form.thana}
-                onValueChange={(value) => setForm((f) => ({ ...f, thana: value }))}
-                options={thanaOptions}
-                placeholder={
-                  form.district
-                    ? "থানা/উপজেলা নির্বাচন করুন"
-                    : "প্রথমে জেলা নির্বাচন করুন"
-                }
-                searchPlaceholder="থানা/উপজেলা খুঁজুন..."
-                disabled={!form.district}
-              />
-            </div>
-
-            {/* Field 5: Full Address */}
+            {/* Field 3: Full Address */}
             <div className="grid gap-1.5 sm:col-span-2">
-              <Label htmlFor="address">বাসার পূর্ণ ঠিকানা</Label>
+              <Label htmlFor="address">বাসার পূর্ণ ঠিকানা (এলাকা, থানা, জেলা সহ লিখুন)</Label>
               <Input
                 id="address"
                 autoComplete="street-address"
                 value={form.address}
                 onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                placeholder="বাসা/হোল্ডিং নং, রোড, এলাকা"
+                placeholder="বাসা/হোল্ডিং নং, রোড, এলাকা, থানা, জেলা"
                 className="h-11"
               />
             </div>

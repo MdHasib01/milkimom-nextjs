@@ -34,8 +34,6 @@ import {
   type UnfinishedOrder,
 } from "@/lib/admin-api";
 import { flavors, siteConfig } from "@/lib/content";
-import { bdLocations } from "@/lib/bdLocations";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
@@ -105,12 +103,7 @@ export default function AdminOrdersPage() {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
 
-  // Location dropdown options for Edit Modal
-  const districtOptions = useMemo(() => Object.keys(bdLocations).sort(), []);
-  const thanaOptions = useMemo(
-    () => (editForm.district ? (bdLocations[editForm.district] || []).slice().sort() : []),
-    [editForm.district]
-  );
+
 
   // Active Tab: "orders" | "unfinished"
   const [activeTab, setActiveTab] = useState<"orders" | "unfinished">("orders");
@@ -707,12 +700,12 @@ export default function AdminOrdersPage() {
                       <td className="px-3 py-3 text-xs">
                         {u.address || u.thana || u.district ? (
                           <div>
-                            <span className="font-semibold text-foreground">
-                              {[u.thana, u.district].filter(Boolean).join(", ")}
+                            <span className="font-semibold text-foreground truncate max-w-[220px] block" title={u.address}>
+                              {u.address || [u.thana, u.district].filter(Boolean).join(", ")}
                             </span>
-                            {u.address && (
-                              <span className="block text-[11px] text-muted-foreground truncate max-w-[150px]">
-                                {u.address}
+                            {u.address && (u.thana || u.district) && (
+                              <span className="block text-[11px] text-muted-foreground truncate max-w-[180px]">
+                                {[u.thana, u.district].filter(Boolean).join(", ")}
                               </span>
                             )}
                           </div>
@@ -859,8 +852,8 @@ export default function AdminOrdersPage() {
                     <td className="px-2.5 py-2.5 font-mono text-xs text-foreground/80 whitespace-nowrap">{order.phone}</td>
 
                     {/* Location */}
-                    <td className="max-w-[110px] px-2.5 py-2.5 text-xs text-muted-foreground truncate" title={`${order.thana}, ${order.district}`}>
-                      {order.thana}, {order.district}
+                    <td className="max-w-[150px] px-2.5 py-2.5 text-xs text-muted-foreground truncate" title={order.address || [order.thana, order.district].filter(Boolean).join(", ")}>
+                      {order.address || [order.thana, order.district].filter(Boolean).join(", ") || "-"}
                     </td>
 
                     {/* Flavour */}
@@ -1089,61 +1082,23 @@ export default function AdminOrdersPage() {
                 />
               </div>
 
-              {/* Location Fields: District & Thana Searchable Dropdowns + Address Textarea */}
+              {/* Location Fields: Address Textarea */}
               <div className="space-y-3">
                 <label className="block font-bold text-foreground">
                   Location Details
                 </label>
 
-                {/* District & Thana/Upazila Dropdowns */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <span className="block text-muted-foreground mb-1 font-semibold">
-                      District (জেলা):
-                    </span>
-                    <SearchableSelect
-                      value={editForm.district}
-                      onValueChange={(val) =>
-                        setEditForm((prev) => ({ ...prev, district: val, thana: "" }))
-                      }
-                      options={districtOptions}
-                      placeholder="Select district"
-                      searchPlaceholder="Search district..."
-                    />
-                  </div>
-
-                  <div>
-                    <span className="block text-muted-foreground mb-1 font-semibold">
-                      Thana / Upazila (থানা/উপজেলা):
-                    </span>
-                    <SearchableSelect
-                      value={editForm.thana}
-                      onValueChange={(val) =>
-                        setEditForm((prev) => ({ ...prev, thana: val }))
-                      }
-                      options={thanaOptions}
-                      placeholder={
-                        editForm.district
-                          ? "Select thana/upazila"
-                          : "Select district first"
-                      }
-                      searchPlaceholder="Search thana/upazila..."
-                      disabled={!editForm.district}
-                    />
-                  </div>
-                </div>
-
                 <div>
                   <span className="block text-muted-foreground mb-1 font-semibold">
-                    Full Address (বাসার পূর্ণ ঠিকানা):
+                    Full Address / বাসার পূর্ণ ঠিকানা (এলাকা, থানা, জেলা সহ লিখুন):
                   </span>
                   <textarea
-                    rows={2}
+                    rows={3}
                     value={editForm.address}
                     onChange={(e) =>
                       setEditForm((prev) => ({ ...prev, address: e.target.value }))
                     }
-                    placeholder="House/Holding no, Road, Area"
+                    placeholder="House/Holding no, Road, Area, Thana, District"
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                   />
                 </div>
