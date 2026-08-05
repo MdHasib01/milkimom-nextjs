@@ -7,12 +7,8 @@ import {
   Trash2,
   KeyRound,
   X,
-  ShieldAlert,
   CheckCircle2,
-  Mail,
-  ShieldCheck,
-  Eye,
-  Lock,
+  AlertTriangle,
 } from "lucide-react";
 
 import {
@@ -63,9 +59,13 @@ export default function AdminUsersPage() {
   const [creating, setCreating] = useState(false);
   const [createdResult, setCreatedResult] = useState<{ name: string; email: string; key: string } | null>(null);
 
-  // Reset Password State
+  // Reset Password Modal State
+  const [userToReset, setUserToReset] = useState<AdminUser | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [resetResult, setResetResult] = useState<{ name: string; key: string } | null>(null);
+
+  // Delete User Modal State
+  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const isSuperAdmin = currentUser?.role === "superadmin";
@@ -110,7 +110,7 @@ export default function AdminUsersPage() {
       });
       load();
     } else {
-      alert(typeof result.error === "string" ? result.error : "Failed to create user");
+      setError(typeof result.error === "string" ? result.error : "Failed to create user");
     }
   }
 
@@ -124,24 +124,37 @@ export default function AdminUsersPage() {
     setCreatedResult(null);
   }
 
-  async function handleResetPassword(user: AdminUser) {
-    if (!confirm(`Reset password for ${user.name} (${user.email})?\nA new 8-character random key will be generated and emailed to them.`)) {
-      return;
-    }
-
-    setResettingId(user.id);
-    const result = await resetAdminUserPassword(user.id);
+  async function confirmResetPassword() {
+    if (!userToReset) return;
+    const targetUser = userToReset;
+    setResettingId(targetUser.id);
+    const result = await resetAdminUserPassword(targetUser.id);
+    setUserToReset(null);
     setResettingId(null);
 
     if (result.success && result.data) {
       const dataObj = result.data as AdminUser & { generatedPassword?: string };
       setResetResult({
-        name: user.name,
+        name: targetUser.name,
         key: dataObj.generatedPassword || "Generated",
       });
       load();
     } else {
-      alert(typeof result.error === "string" ? result.error : "Failed to reset password");
+      setError(typeof result.error === "string" ? result.error : "Failed to reset password");
+    }
+  }
+
+  async function confirmDeleteUser() {
+    if (!userToDelete) return;
+    const targetUser = userToDelete;
+    setBusyId(targetUser.id);
+    const result = await deleteAdminUser(targetUser.id);
+    setUserToDelete(null);
+    setBusyId(null);
+    if (result.success) {
+      load();
+    } else {
+      setError(typeof result.error === "string" ? result.error : "Failed to delete user");
     }
   }
 
@@ -152,19 +165,7 @@ export default function AdminUsersPage() {
     if (result.success) {
       load();
     } else {
-      alert(typeof result.error === "string" ? result.error : "Failed to update user status");
-    }
-  }
-
-  async function handleDelete(user: AdminUser) {
-    if (!confirm(`Delete admin user "${user.name}" (${user.email})? This cannot be undone.`)) return;
-    setBusyId(user.id);
-    const result = await deleteAdminUser(user.id);
-    setBusyId(null);
-    if (result.success) {
-      load();
-    } else {
-      alert(typeof result.error === "string" ? result.error : "Failed to delete user");
+      setError(typeof result.error === "string" ? result.error : "Failed to update user status");
     }
   }
 
@@ -188,8 +189,11 @@ export default function AdminUsersPage() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive">
-          {error}
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError("")} className="text-muted-foreground hover:text-foreground">
+            <X size={14} />
+          </button>
         </div>
       )}
 
@@ -204,11 +208,11 @@ export default function AdminUsersPage() {
                   Password Reset Successfully for {resetResult.name}
                 </h4>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  An email with the new temporary key has been sent. The user must update their password on next login.
+                  An email with the new password has been sent. The user must update their password on next login.
                 </p>
-                <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-card border border-emerald-500/20 px-3 py-1.5 text-xs font-bold text-foreground font-mono">
-                  <span>Generated Key:</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-extrabold select-all">
+                <div className="mt-2.5 inline-flex items-center gap-2.5 rounded-lg bg-card border border-emerald-500/20 px-3.5 py-1.5 text-xs font-bold text-foreground">
+                  <span>New Generated Password:</span>
+                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-extrabold select-all tracking-wider text-sm">
                     {resetResult.key}
                   </span>
                 </div>
@@ -268,10 +272,10 @@ export default function AdminUsersPage() {
                     {/* Super Admin Reset Password Button */}
                     {isSuperAdmin && (
                       <button
-                        onClick={() => handleResetPassword(user)}
+                        onClick={() => setUserToReset(user)}
                         disabled={resettingId === user.id}
-                        title="Generate random 8-letter key & email user"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-600 hover:bg-amber-500/20 transition disabled:opacity-50"
+                        title="Reset password modal"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-600 hover:bg-amber-500/20 transition disabled:opacity-50"
                       >
                         {resettingId === user.id ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -293,7 +297,7 @@ export default function AdminUsersPage() {
                         </button>
 
                         <button
-                          onClick={() => handleDelete(user)}
+                          onClick={() => setUserToDelete(user)}
                           disabled={busyId === user.id}
                           title="Delete user"
                           className="inline-flex size-9 items-center justify-center rounded-xl border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-950/40 transition disabled:opacity-50"
@@ -306,6 +310,112 @@ export default function AdminUsersPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* RESET PASSWORD CONFIRMATION MODAL */}
+      {userToReset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <KeyRound size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">Reset Password</h3>
+                  <p className="text-xs text-muted-foreground">Super Admin Security Action</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setUserToReset(null)}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-foreground leading-relaxed">
+              Are you sure you want to reset the password for <strong className="text-foreground">{userToReset.name}</strong> (<span className="font-mono text-muted-foreground">{userToReset.email}</span>)?
+            </p>
+
+            <div className="rounded-xl bg-muted/50 border border-border/80 p-3.5 text-[11px] text-muted-foreground space-y-1.5">
+              <p className="font-bold text-foreground flex items-center gap-1.5">
+                <AlertTriangle size={13} className="text-amber-500" /> Reset Process Overview:
+              </p>
+              <ul className="list-disc list-inside space-y-1 pl-1">
+                <li>A new 8-character password will be auto-generated.</li>
+                <li>An email notification containing the new password will be sent to the user.</li>
+                <li>The user will be required to update their password on next login.</li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
+              <button
+                onClick={() => setUserToReset(null)}
+                className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmResetPassword}
+                disabled={resettingId === userToReset.id}
+                className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-4.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-amber-700 transition disabled:opacity-50"
+              >
+                {resettingId === userToReset.id && <Loader2 size={14} className="animate-spin" />}
+                <span>Confirm Reset Password</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE USER CONFIRMATION MODAL */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400">
+                  <Trash2 size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">Delete Admin User</h3>
+                  <p className="text-xs text-muted-foreground">Permanent Action</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setUserToDelete(null)}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-foreground leading-relaxed">
+              Are you sure you want to delete <strong className="text-foreground">{userToDelete.name}</strong> (<span className="font-mono text-muted-foreground">{userToDelete.email}</span>)?
+            </p>
+            <p className="text-[11px] font-semibold text-destructive">
+              ⚠️ This account will be permanently removed and cannot be undone.
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
+              <button
+                onClick={() => setUserToDelete(null)}
+                className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                disabled={busyId === userToDelete.id}
+                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition disabled:opacity-50"
+              >
+                {busyId === userToDelete.id && <Loader2 size={14} className="animate-spin" />}
+                <span>Delete Account</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -334,12 +444,12 @@ export default function AdminUsersPage() {
                     <CheckCircle2 size={18} /> User Created Successfully!
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    An email with the temporary login key has been sent to <strong className="text-foreground">{createdResult.email}</strong>.
+                    An email with the temporary login password has been sent to <strong className="text-foreground">{createdResult.email}</strong>.
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-2">
-                  <p className="font-bold text-foreground">Generated Login Key (8-Character Password):</p>
+                  <p className="font-bold text-foreground">Generated Password (8-Character):</p>
                   <div className="flex items-center justify-between rounded-lg bg-card border border-border px-3 py-2.5 font-mono text-sm font-bold text-primary select-all">
                     <span>{createdResult.key}</span>
                   </div>
