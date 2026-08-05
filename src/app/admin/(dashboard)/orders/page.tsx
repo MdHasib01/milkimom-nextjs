@@ -661,6 +661,7 @@ export default function AdminOrdersPage() {
                           {new Date(u.updatedAt || u.createdAt).toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
+                            hour12: true,
                           })}
                         </span>
                         <span className="block text-[11px] text-muted-foreground">
@@ -835,6 +836,7 @@ export default function AdminOrdersPage() {
                         month: "short",
                         hour: "2-digit",
                         minute: "2-digit",
+                        hour12: true,
                       })}
                     </td>
 
