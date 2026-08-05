@@ -31,6 +31,7 @@ import {
   changeUnfinishedOrderStatus,
   deleteUnfinishedOrder,
   bulkDeleteUnfinishedOrders,
+  getStoredUser,
   type UnfinishedOrder,
 } from "@/lib/admin-api";
 import { flavors, siteConfig } from "@/lib/content";
@@ -72,6 +73,9 @@ interface Pagination {
 }
 
 export default function AdminOrdersPage() {
+  const currentUser = getStoredUser();
+  const isModerator = currentUser?.role === "moderator";
+  const canDelete = currentUser?.role === "admin" || currentUser?.role === "superadmin";
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -908,25 +912,35 @@ export default function AdminOrdersPage() {
 
                     {/* Status dropdown */}
                     <td className="px-2.5 py-2.5">
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={order.status}
-                          disabled={updatingId === order._id}
-                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                          className={`cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-bold outline-none disabled:opacity-50 ${
+                      {isModerator ? (
+                        <span
+                          className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-bold ${
                             STATUS_COLORS[order.status] || "border-border bg-muted text-foreground"
                           }`}
                         >
-                          {STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                        {updatingId === order._id && (
-                          <Loader2 className="animate-spin text-muted-foreground" size={14} />
-                        )}
-                      </div>
+                          {order.status}
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={order.status}
+                            disabled={updatingId === order._id}
+                            onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                            className={`cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-bold outline-none disabled:opacity-50 ${
+                              STATUS_COLORS[order.status] || "border-border bg-muted text-foreground"
+                            }`}
+                          >
+                            {STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                          {updatingId === order._id && (
+                            <Loader2 className="animate-spin text-muted-foreground" size={14} />
+                          )}
+                        </div>
+                      )}
                     </td>
 
                     {/* Updated By */}
@@ -952,14 +966,16 @@ export default function AdminOrdersPage() {
                     {/* Actions Column: Edit, Track, Print Invoice, Delete */}
                     <td className="px-2.5 py-2.5 text-center">
                       <div className="flex items-center justify-center gap-1">
-                        {/* Edit Order Button */}
-                        <button
-                          onClick={() => handleOpenEdit(order)}
-                          title="Edit Order (Name, Location, Flavour)"
-                          className="inline-flex items-center justify-center rounded-lg p-1.5 text-amber-600 transition hover:bg-amber-100 hover:text-amber-700 dark:hover:bg-amber-950/50"
-                        >
-                          <Pencil size={15} />
-                        </button>
+                        {/* Edit Order Button (Admins/Superadmins only) */}
+                        {!isModerator && (
+                          <button
+                            onClick={() => handleOpenEdit(order)}
+                            title="Edit Order (Name, Location, Flavour)"
+                            className="inline-flex items-center justify-center rounded-lg p-1.5 text-amber-600 transition hover:bg-amber-100 hover:text-amber-700 dark:hover:bg-amber-950/50"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        )}
 
                         {/* Track Order Button */}
                         <Link
@@ -981,23 +997,25 @@ export default function AdminOrdersPage() {
                           <Printer size={15} />
                         </button>
 
-                        {/* Delete Button (Only active for Cancelled status) */}
-                        <button
-                          disabled={!isCancelled}
-                          onClick={() => setSingleDeleteOrder(order)}
-                          title={
-                            !isCancelled
-                              ? "Only cancelled orders can be deleted"
-                              : "Delete cancelled order"
-                          }
-                          className={`inline-flex items-center justify-center rounded-lg p-1.5 transition ${
-                            isCancelled
-                              ? "text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/50"
-                              : "cursor-not-allowed text-muted-foreground/30"
-                          }`}
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        {/* Delete Button (Only Admins and Superadmins) */}
+                        {canDelete && (
+                          <button
+                            disabled={!isCancelled}
+                            onClick={() => setSingleDeleteOrder(order)}
+                            title={
+                              !isCancelled
+                                ? "Only cancelled orders can be deleted"
+                                : "Delete cancelled order"
+                            }
+                            className={`inline-flex items-center justify-center rounded-lg p-1.5 transition ${
+                              isCancelled
+                                ? "text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/50"
+                                : "cursor-not-allowed text-muted-foreground/30"
+                            }`}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

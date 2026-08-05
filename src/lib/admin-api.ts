@@ -8,7 +8,8 @@ export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "superadmin" | "admin";
+  role: "superadmin" | "admin" | "moderator";
+  mustChangePassword?: boolean;
   active: boolean;
   lastLoginAt?: string | null;
   createdAt?: string;
@@ -141,17 +142,30 @@ export function fetchAdminUsers() {
   return authRequest<AdminUser[]>(API_ENDPOINTS.adminUsers);
 }
 
-export function createAdminUser(data: { name: string; email: string; password: string; role?: string }) {
+export function createAdminUser(data: { name: string; email: string; password?: string; role?: "superadmin" | "admin" | "moderator" }) {
   return authRequest(API_ENDPOINTS.adminUsers, {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export function updateAdminUser(id: string, data: { name?: string; password?: string; active?: boolean }) {
+export function updateAdminUser(id: string, data: { name?: string; role?: "superadmin" | "admin" | "moderator"; active?: boolean }) {
   return authRequest(API_ENDPOINTS.adminUserById(id), {
     method: "PATCH",
     body: JSON.stringify(data),
+  });
+}
+
+export function resetAdminUserPassword(id: string) {
+  return authRequest(`${API_ENDPOINTS.adminUsers}/${id}/reset-password`, {
+    method: "POST",
+  });
+}
+
+export function changePassword(newPassword: string, currentPassword?: string) {
+  return authRequest(`${API_ENDPOINTS.adminUsers.replace('/admin-users', '/auth')}/change-password`, {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
   });
 }
 
