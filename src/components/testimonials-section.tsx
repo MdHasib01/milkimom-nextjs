@@ -8,10 +8,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
 import { testimonials } from "@/lib/content";
-import { fetchMotherCount } from "@/lib/api";
+import { FALLBACK_MOTHER_COUNT, useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
 
-function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
+function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: number }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -20,7 +20,7 @@ function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
   const carouselItems = [
     {
       id: 1,
-      image: "/assets/carousel/doctor.png",
+      image: "/assets/carousel/doctor.webp",
       alt: "ডাক্তারের পরামর্শ ও মা ও শিশুর যত্ন",
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
@@ -28,7 +28,7 @@ function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
     },
     {
       id: 2,
-      image: "/assets/carousel/pic2.png",
+      image: "/assets/carousel/pic2.webp",
       alt: "মায়ের স্বাস্থ্যে মিল্কিমম",
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
@@ -36,7 +36,7 @@ function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
     },
     {
       id: 3,
-      image: "/assets/carousel/pic3.png",
+      image: "/assets/carousel/pic3.webp",
       alt: "শিশুর হাসি ও মায়ের তৃপ্তি",
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: `${formattedCount} মায়েদের বিশ্বস্ততা ও শিশুর সঠিক পুষ্টির সাথে গড়ে উঠুক সুন্দর ভবিষ্যৎ।`,
@@ -143,28 +143,7 @@ function CareCarousel({ motherCount = 89746 }: { motherCount?: number }) {
 
 export function TestimonialsSection() {
   const [showAll, setShowAll] = useState(false);
-  const [motherCount, setMotherCount] = useState<number>(89746);
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadCount = async () => {
-      try {
-        const result = await fetchMotherCount();
-        if (isMounted && result?.success && typeof result.data?.count === "number" && result.data.count > 0) {
-          setMotherCount(result.data.count);
-        }
-      } catch {
-        // Keep initial fallback count 89746 on error
-      }
-    };
-    loadCount();
-
-    const interval = setInterval(loadCount, 30000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
+  const motherCount = useMotherCount();
 
   return (
     <section id="reviews" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">

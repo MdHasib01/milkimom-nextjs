@@ -5,6 +5,14 @@
 export const API_BASE_URL: string =
   process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
+/**
+ * Served by the route handler in this project (app/api/stats/mother-count),
+ * which proxies and edge-caches the upstream stat. Deliberately same-origin and
+ * relative: it rides the page's existing connection instead of paying a second
+ * DNS lookup + TLS handshake on first paint.
+ */
+export const MOTHER_COUNT_PATH = "/api/stats/mother-count";
+
 export const API_ENDPOINTS = {
   health: `${API_BASE_URL}/api/health`,
   orders: `${API_BASE_URL}/api/orders`,

@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from "./api-config";
+import { API_ENDPOINTS, MOTHER_COUNT_PATH } from "./api-config";
 
 export interface OrderPayload {
   product: string;
@@ -49,12 +49,16 @@ export function saveOrder(order: OrderPayload) {
 }
 
 /**
- * Fetches satisfied mother count from DB API
+ * Fetches the satisfied mother count from the same-origin route handler.
+ *
+ * Call `useMotherCount()` / `getMotherCount()` in lib/mother-count instead of
+ * this directly — they dedupe the request across the sections that display it.
+ * No `cache: "no-store"` here on purpose: the route handler sets the freshness
+ * policy via Cache-Control.
  */
 export function fetchMotherCount() {
-  return request<{ count: number; lastUpdated?: string }>(API_ENDPOINTS.motherCount, {
+  return request<{ count: number; lastUpdated?: string }>(MOTHER_COUNT_PATH, {
     method: "GET",
-    cache: "no-store",
   });
 }
 

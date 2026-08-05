@@ -604,7 +604,7 @@ export function OrderSection() {
                       />
                       {option.id === "bkash" && (
                         <img
-                          src="/assets/bkash-logo.png"
+                          src="/assets/bkash-logo.webp"
                           alt="bKash"
                           className="h-5 w-auto object-contain shrink-0"
                         />
@@ -633,7 +633,7 @@ export function OrderSection() {
                     {/* bKash Cover Image Header */}
                     <div className="overflow-hidden rounded-xl border border-border bg-white p-2 text-center shadow-xs">
                       <img
-                        src="/images/bkash.png"
+                        src="/images/bkash.webp"
                         alt="bKash Payment"
                         className="mx-auto h-auto max-h-56 w-full rounded-lg object-contain"
                       />
@@ -653,7 +653,7 @@ export function OrderSection() {
                     <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
                       <p className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 sm:text-sm">
                         <img
-                          src="/assets/bkash-logo.png"
+                          src="/assets/bkash-logo.webp"
                           alt="bKash"
                           className="h-4.5 w-auto object-contain shrink-0 inline-block"
                         />

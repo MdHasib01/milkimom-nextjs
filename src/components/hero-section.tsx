@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 
@@ -9,7 +8,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { FloatingBadges } from "@/components/floating-badges";
 import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
-import { fetchMotherCount } from "@/lib/api";
+import { useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
 
 function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -26,33 +25,7 @@ function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export function HeroSection() {
-  const [motherCount, setMotherCount] = useState<number>(89746);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadCount = async () => {
-      try {
-        const result = await fetchMotherCount();
-        if (isMounted && result?.success && typeof result.data?.count === "number" && result.data.count > 0) {
-          setMotherCount(result.data.count);
-        }
-      } catch {
-        // Keep initial fallback count 89746 on error
-      }
-    };
-
-    // Initial fetch
-    loadCount();
-
-    // Sync count real-time every 30 seconds
-    const interval = setInterval(loadCount, 30000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
+  const motherCount = useMotherCount();
 
   return (
     <section id="top" className="relative overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-24">

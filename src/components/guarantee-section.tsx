@@ -1,44 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ShieldCheck, CheckCircle2, PhoneCall } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { GridPattern } from "@/components/grid-pattern";
-import { fetchMotherCount } from "@/lib/api";
+import { useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
 
 export function GuaranteeSection() {
-  const [motherCount, setMotherCount] = useState<number>(89746);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadCount = async () => {
-      try {
-        const result = await fetchMotherCount();
-        if (
-          isMounted &&
-          result?.success &&
-          typeof result.data?.count === "number" &&
-          result.data.count > 0
-        ) {
-          setMotherCount(result.data.count);
-        }
-      } catch {
-        // Fallback count stays 89746
-      }
-    };
-
-    loadCount();
-
-    const interval = setInterval(loadCount, 30000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  const formattedMotherCount = formatBengaliNumber(motherCount);
+  const formattedMotherCount = formatBengaliNumber(useMotherCount());
 
   return (
     <section id="guarantee" className="relative overflow-hidden py-12 sm:py-16">

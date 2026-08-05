@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 type RevealProps = {
   children: ReactNode;
@@ -33,13 +33,20 @@ export function RevealGroup({
   children,
   className,
   stagger = 0.12,
+  ref,
+  onScroll,
 }: {
   children: ReactNode;
   className?: string;
   stagger?: number;
+  /** Exposed so a group can double as a scroll container (see SpecialtiesSection). */
+  ref?: Ref<HTMLDivElement>;
+  onScroll?: React.UIEventHandler<HTMLDivElement>;
 }) {
   return (
     <motion.div
+      ref={ref}
+      onScroll={onScroll}
       className={className}
       initial="hidden"
       whileInView="visible"

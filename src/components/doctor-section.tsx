@@ -13,7 +13,7 @@ const doctors = [
   {
     id: "saddam",
     name: "ডা. মোঃ সাদ্দাম",
-    image: "/assets/doctors/saddam.jpg",
+    image: "/assets/doctors/saddam.webp",
     title: "মেডিকেল বোর্ড অনুমোদিত",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
@@ -22,7 +22,7 @@ const doctors = [
   {
     id: "nazmul",
     name: "ডা. মোঃ নাজমুল",
-    image: "/assets/doctors/nazmul.jpg",
+    image: "/assets/doctors/nazmul.webp",
     title: "মেডিকেল বোর্ড অনুমোদিত",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
@@ -31,7 +31,7 @@ const doctors = [
   {
     id: "hadis",
     name: "ডা. মোঃ হাদিস",
-    image: "/assets/doctors/hadis.jpg",
+    image: "/assets/doctors/hadis.webp",
     title: "মেডিকেল বোর্ড অনুমোদিত",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
@@ -40,7 +40,7 @@ const doctors = [
   {
     id: "wahid",
     name: "ডা. ওয়াহিদুর রহমান",
-    image: "/assets/doctors/wahid.jpg",
+    image: "/assets/doctors/wahid.webp",
     title: "মেডিকেল বোর্ড অনুমোদিত",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:

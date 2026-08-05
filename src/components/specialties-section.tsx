@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
@@ -129,25 +128,75 @@ function SpecialtyCard({ item }: { item: SpecialtyItem }) {
   );
 }
 
+/**
+ * One card list, presented two ways.
+ *
+ * This used to be a mobile `<AnimatePresence>` carousel *plus* a desktop grid,
+ * both always mounted and toggled with `block sm:hidden` / `hidden sm:flex`.
+ * That put every specialty in the DOM twice — the first one read as a literal
+ * duplicate to crawlers and screen readers — and doubled the markup, hydration
+ * and framer-motion work on the low-end phones this page is built for.
+ *
+ * Now a single list renders once and CSS decides the shape: a scroll-snap rail
+ * on mobile (which also buys native swipe) and a wrapping grid from `sm` up.
+ */
 export function SpecialtiesSection() {
+  const trackRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isInView, setIsInView] = useState(false);
 
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % specialties.length);
+  /** Scrolls the rail. A no-op on `sm` and up, where the track does not scroll. */
+  const goToIndex = useCallback((index: number) => {
+    const track = trackRef.current;
+    const card = track?.children[index] as HTMLElement | undefined;
+    if (!track || !card || track.scrollWidth <= track.clientWidth) return;
+    track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: "smooth" });
   }, []);
 
+  const handleNext = useCallback(() => {
+    goToIndex((currentIndex + 1) % specialties.length);
+  }, [currentIndex, goToIndex]);
+
   const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + specialties.length) % specialties.length);
+    goToIndex((currentIndex - 1 + specialties.length) % specialties.length);
+  }, [currentIndex, goToIndex]);
+
+  /** Keeps the dots in step with swipes as well as button presses. */
+  const handleTrackScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const cards = Array.from(track.children) as HTMLElement[];
+    let nearest = 0;
+    let smallestGap = Infinity;
+    cards.forEach((card, index) => {
+      const gap = Math.abs(card.offsetLeft - track.offsetLeft - track.scrollLeft);
+      if (gap < smallestGap) {
+        smallestGap = gap;
+        nearest = index;
+      }
+    });
+    setCurrentIndex(nearest);
+  }, []);
+
+  // Auto-advance only while the section is actually on screen, so the timer is
+  // not burning frames on a phone that is still looking at the hero.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.2 }
+    );
+    observer.observe(track);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      handleNext();
-    }, 3500);
+    if (isPaused || !isInView) return;
+    const timer = setInterval(handleNext, 3500);
     return () => clearInterval(timer);
-  }, [isPaused, handleNext]);
+  }, [isPaused, isInView, handleNext]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -173,56 +222,55 @@ export function SpecialtiesSection() {
           </h2>
         </Reveal>
 
-        {/* Mobile Automatic Loop Carousel */}
+        {/* Scroll-snap rail below `sm`, wrapping grid above it — one list either way. */}
         <div
-          className="relative mt-8 block sm:hidden px-4"
+          className="relative mt-8 px-4 sm:mt-12 sm:px-0"
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Card Container */}
-          <div className="relative w-full">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="w-full"
+          <RevealGroup
+            ref={trackRef}
+            onScroll={handleTrackScroll}
+            stagger={0.1}
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:justify-center sm:gap-6 sm:overflow-x-visible sm:pb-0 sm:snap-none"
+          >
+            {specialties.map((item) => (
+              <RevealItem
+                key={item.number}
+                className="flex w-full shrink-0 snap-start sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
               >
-                <SpecialtyCard item={specialties[currentIndex]} />
-              </motion.div>
-            </AnimatePresence>
+                <SpecialtyCard item={item} />
+              </RevealItem>
+            ))}
+          </RevealGroup>
 
-            {/* Left & Right Side Buttons (Middle of card outline border) */}
-            <button
-              type="button"
-              onClick={handlePrev}
-              aria-label="Previous Slide"
-              className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 flex size-9 items-center justify-center rounded-full border border-primary/30 bg-card text-primary shadow-md backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground active:scale-95"
-            >
-              <ChevronLeft className="size-5" />
-            </button>
+          {/* Rail controls — the grid above `sm` needs neither. */}
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous Slide"
+            className="absolute left-1 top-[calc(50%-1.25rem)] z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-primary/30 bg-card text-primary shadow-md backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground active:scale-95 sm:hidden"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
 
-            <button
-              type="button"
-              onClick={handleNext}
-              aria-label="Next Slide"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 flex size-9 items-center justify-center rounded-full border border-primary/30 bg-card text-primary shadow-md backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground active:scale-95"
-            >
-              <ChevronRight className="size-5" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next Slide"
+            className="absolute right-1 top-[calc(50%-1.25rem)] z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-primary/30 bg-card text-primary shadow-md backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground active:scale-95 sm:hidden"
+          >
+            <ChevronRight className="size-5" />
+          </button>
 
-          {/* Bottom Indicators */}
-          <div className="mt-5 flex items-center justify-center gap-2">
-            {specialties.map((_, idx) => (
+          <div className="mt-5 flex items-center justify-center gap-2 sm:hidden">
+            {specialties.map((item, idx) => (
               <button
-                key={idx}
+                key={item.number}
                 type="button"
-                onClick={() => setCurrentIndex(idx)}
+                onClick={() => goToIndex(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
                 className={`h-2.5 rounded-full transition-all duration-300 ${
                   idx === currentIndex
@@ -233,18 +281,6 @@ export function SpecialtiesSection() {
             ))}
           </div>
         </div>
-
-        {/* Desktop Grid Layout */}
-        <RevealGroup stagger={0.1} className="mt-12 hidden sm:flex flex-wrap justify-center gap-6">
-          {specialties.map((item, index) => (
-            <RevealItem
-              key={index}
-              className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex"
-            >
-              <SpecialtyCard item={item} />
-            </RevealItem>
-          ))}
-        </RevealGroup>
 
         <SectionCta />
       </div>
