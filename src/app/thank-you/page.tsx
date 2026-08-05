@@ -10,6 +10,7 @@ import {
   MapPin,
   Package,
   Phone,
+  Printer,
   Truck,
   User,
 } from "lucide-react";
@@ -277,15 +278,27 @@ function ThankYouContent() {
         {/* Track Order & Back to Home CTA Buttons */}
         <div className="pt-4 text-center space-y-3">
           {trackTargetId && (
-            <Button
-              asChild
-              className="h-12 w-full max-w-md gap-2 rounded-full bg-brand-green text-base font-bold text-white hover:bg-brand-green/90 shadow-md"
-            >
-              <Link href={`/track/${trackTargetId}`}>
-                <Truck className="size-5" />
-                <span>অর্ডার ট্র্যাক করুন</span>
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2.5 justify-center max-w-md mx-auto">
+              <Button
+                asChild
+                className="h-12 flex-1 gap-2 rounded-full bg-brand-green text-sm sm:text-base font-bold text-white hover:bg-brand-green/90 shadow-md"
+              >
+                <Link href={`/track/${trackTargetId}`}>
+                  <Truck className="size-5" />
+                  <span>অর্ডার ট্র্যাক করুন</span>
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 flex-1 gap-2 rounded-full border-border bg-card hover:bg-muted text-sm sm:text-base font-bold text-foreground shadow-md"
+              >
+                <Link href={`/invoice/${trackTargetId}`}>
+                  <Printer className="size-5 text-primary" />
+                  <span>ইনভয়েস প্রিন্ট</span>
+                </Link>
+              </Button>
+            </div>
           )}
 
           <Button
