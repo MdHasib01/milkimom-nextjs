@@ -170,6 +170,8 @@ export interface UnfinishedOrder {
   price?: number;
   ipAddress?: string;
   status: "Pending" | "Called User" | "Cancelled" | "Spam";
+  statusUpdatedBy?: string;
+  statusUpdatedAt?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;

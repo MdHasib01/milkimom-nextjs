@@ -58,6 +58,8 @@ interface Order {
   transactionId?: string;
   price: number;
   status: string;
+  statusUpdatedBy?: string;
+  statusUpdatedAt?: string;
   orderTime?: string;
   createdAt: string;
 }
@@ -339,11 +341,13 @@ export default function AdminOrdersPage() {
         "Payment Status",
         "Transaction ID",
         "Status",
+        "Updated By",
+        "Update Time",
       ];
 
       const rows = exportData.map((o) => [
         o._id,
-        new Date(o.orderTime || o.createdAt).toLocaleString("en-GB"),
+        new Date(o.orderTime || o.createdAt).toLocaleString("en-GB", { hour12: true }),
         `"${(o.customerName || "").replace(/"/g, '""')}"`,
         `"${o.phone}"`,
         `"${(o.address || "").replace(/"/g, '""')}"`,
@@ -355,6 +359,8 @@ export default function AdminOrdersPage() {
         o.paymentStatus || "Pending",
         o.transactionId ? `"${o.transactionId}"` : "",
         o.status,
+        `"${(o.statusUpdatedBy || "").replace(/"/g, '""')}"`,
+        o.statusUpdatedAt ? new Date(o.statusUpdatedAt).toLocaleString("en-GB", { hour12: true }) : "",
       ]);
 
       // UTF-8 BOM for MS Excel compatibility with Bengali Unicode characters
@@ -639,6 +645,8 @@ export default function AdminOrdersPage() {
                   <th className="px-3 py-2.5 whitespace-nowrap">Flavour & Price</th>
                   <th className="px-3 py-2.5 whitespace-nowrap">Client IP</th>
                   <th className="px-3 py-2.5 whitespace-nowrap">Status Tag Selection</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Updated By</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Update Time</th>
                   <th className="px-3 py-2.5 text-center whitespace-nowrap">Action</th>
                 </tr>
               </thead>
@@ -744,6 +752,24 @@ export default function AdminOrdersPage() {
                         </select>
                       </td>
 
+                      {/* Updated By */}
+                      <td className="px-3 py-3 text-xs whitespace-nowrap font-medium text-foreground">
+                        {u.statusUpdatedBy || "-"}
+                      </td>
+
+                      {/* Update Time */}
+                      <td className="px-3 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                        {u.statusUpdatedAt
+                          ? new Date(u.statusUpdatedAt).toLocaleString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })
+                          : "-"}
+                      </td>
+
                       {/* Actions */}
                       <td className="px-3 py-3 text-center whitespace-nowrap">
                         <button
@@ -798,6 +824,8 @@ export default function AdminOrdersPage() {
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Payment</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Total</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Status</th>
+                <th className="px-2.5 py-2.5 whitespace-nowrap">Updated By</th>
+                <th className="px-2.5 py-2.5 whitespace-nowrap">Update Time</th>
                 <th className="px-2.5 py-2.5 text-center whitespace-nowrap">Actions</th>
               </tr>
             </thead>
@@ -899,6 +927,26 @@ export default function AdminOrdersPage() {
                           <Loader2 className="animate-spin text-muted-foreground" size={14} />
                         )}
                       </div>
+                    </td>
+
+                    {/* Updated By */}
+                    <td className="px-2.5 py-2.5 text-xs whitespace-nowrap">
+                      <span className="font-semibold text-foreground">
+                        {order.statusUpdatedBy || "-"}
+                      </span>
+                    </td>
+
+                    {/* Update Time */}
+                    <td className="px-2.5 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                      {order.statusUpdatedAt
+                        ? new Date(order.statusUpdatedAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                        : "-"}
                     </td>
 
                     {/* Actions Column: Edit, Track, Print Invoice, Delete */}
