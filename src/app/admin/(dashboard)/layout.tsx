@@ -47,8 +47,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
       router.replace("/admin/login");
     } else if (user && user.mustChangePassword) {
       setMustChangeModal(true);
+    } else if (user?.role === "moderator" && pathname.startsWith("/admin/users")) {
+      router.replace("/admin/dashboard");
     }
-  }, [router, user]);
+  }, [router, user, pathname]);
 
   async function handleFirstLoginPassChange(e: React.FormEvent) {
     e.preventDefault();
@@ -95,9 +97,16 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     router.replace("/admin/login");
   }
 
+  const navItems = NAV_ITEMS.filter((item) => {
+    if (user?.role === "moderator" && item.href === "/admin/users") {
+      return false;
+    }
+    return true;
+  });
+
   const renderNavLinks = () => (
     <nav className="flex-1 space-y-1.5 px-3 py-4">
-      {NAV_ITEMS.map(({ href, label, Icon }) => {
+      {navItems.map(({ href, label, Icon }) => {
         const isActive =
           href === "/admin"
             ? pathname === "/admin" || pathname === "/admin/dashboard"

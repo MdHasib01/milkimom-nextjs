@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   Loader2,
   UserPlus,
@@ -9,6 +10,7 @@ import {
   X,
   CheckCircle2,
   AlertTriangle,
+  ShieldAlert,
 } from "lucide-react";
 
 import {
@@ -44,6 +46,7 @@ const ROLE_CONFIG: Record<
 };
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const currentUser = getStoredUser();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +72,7 @@ export default function AdminUsersPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const isSuperAdmin = currentUser?.role === "superadmin";
+  const isModerator = currentUser?.role === "moderator";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,8 +87,26 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
+    if (isModerator) {
+      router.replace("/admin/dashboard");
+      return;
+    }
     load();
-  }, [load]);
+  }, [isModerator, load, router]);
+
+  if (isModerator) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
+        <div className="size-16 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center mb-4 border border-destructive/20">
+          <ShieldAlert size={32} />
+        </div>
+        <h2 className="text-xl font-bold text-foreground">Access Denied</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-md">
+          Moderators do not have permission to view or manage admin users. Redirecting to dashboard...
+        </p>
+      </div>
+    );
+  }
 
   async function handleCreateUser(e: FormEvent) {
     e.preventDefault();
