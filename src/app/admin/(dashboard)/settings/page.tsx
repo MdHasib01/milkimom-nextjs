@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Loader2, Save, Mail, Smartphone } from "lucide-react";
+import { Loader2, Save, Mail, Smartphone, ShieldAlert, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { fetchSettings, saveSettings } from "@/lib/admin-api";
+import { fetchSettings, saveSettings, getStoredUser } from "@/lib/admin-api";
 
 export default function AdminSettingsPage() {
+  const currentUser = getStoredUser();
+  const isModerator = currentUser?.role === "moderator";
+
   const [adminEmail, setAdminEmail] = useState("");
   const [adminMobile, setAdminMobile] = useState("");
   const [loading, setLoading] = useState(true);
@@ -26,6 +29,8 @@ export default function AdminSettingsPage() {
 
   async function handleSave(e: FormEvent) {
     e.preventDefault();
+    if (isModerator) return;
+
     setSaving(true);
     setMessage(null);
     const result = await saveSettings({ adminEmail: adminEmail.trim(), adminMobile: adminMobile.trim() });
@@ -44,6 +49,13 @@ export default function AdminSettingsPage() {
     <div className="max-w-xl">
       <h1 className="mb-6 text-2xl font-bold text-foreground">Settings</h1>
 
+      {isModerator && (
+        <div className="mb-5 flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm font-semibold text-amber-700 dark:text-amber-400">
+          <ShieldAlert size={20} className="shrink-0 text-amber-600 dark:text-amber-400" />
+          <span>You are logged in as a Moderator (View-Only). Settings can be viewed, but editing and saving are restricted to Admins.</span>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center rounded-2xl border border-border bg-card p-16">
           <Loader2 className="animate-spin text-primary" size={32} />
@@ -61,8 +73,9 @@ export default function AdminSettingsPage() {
                 type="email"
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
+                disabled={isModerator}
                 placeholder="admin@milkimom.com"
-                className="w-full rounded-xl border border-input bg-background py-3 pr-4 pl-10 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring/20"
+                className="w-full rounded-xl border border-input bg-background py-3 pr-4 pl-10 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
           </div>
@@ -78,8 +91,9 @@ export default function AdminSettingsPage() {
                 type="tel"
                 value={adminMobile}
                 onChange={(e) => setAdminMobile(e.target.value)}
+                disabled={isModerator}
                 placeholder="01XXXXXXXXX"
-                className="w-full rounded-xl border border-input bg-background py-3 pr-4 pl-10 font-mono text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring/20"
+                className="w-full rounded-xl border border-input bg-background py-3 pr-4 pl-10 font-mono text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
           </div>
@@ -96,12 +110,19 @@ export default function AdminSettingsPage() {
             </p>
           )}
 
-          <Button type="submit" disabled={saving} className="gap-2 rounded-xl px-6 py-3">
-            {saving ? <Loader2 className="size-4 animate-spin" /> : <Save size={16} />}
-            {saving ? "Saving..." : "Save Settings"}
+          <Button type="submit" disabled={saving || isModerator} className="gap-2 rounded-xl px-6 py-3">
+            {saving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : isModerator ? (
+              <Lock size={16} />
+            ) : (
+              <Save size={16} />
+            )}
+            {saving ? "Saving..." : isModerator ? "Read-Only (Moderator)" : "Save Settings"}
           </Button>
         </form>
       )}
     </div>
   );
 }
+
