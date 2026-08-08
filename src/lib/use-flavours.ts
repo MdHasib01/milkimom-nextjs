@@ -68,7 +68,11 @@ function mapApiFlavour(f: ApiFlavour, index: number): DisplayFlavor {
   return {
     id: f._id || visual.id,
     name: f.name || visual.name,
-    nameEn: f.nameEn || visual.nameEn,
+    // Never borrow the hardcoded English name: this is what gets stored on the
+    // order, and the courier entry looks the product back up by it. Falling
+    // back to the visual's nameEn would store a name that isn't in the catalog,
+    // so the configured weight/invoice code would never be found.
+    nameEn: f.nameEn || f.name,
     description: f.description || visual.description,
     tag: f.tag || "",
     popular: Boolean(f.tag),
