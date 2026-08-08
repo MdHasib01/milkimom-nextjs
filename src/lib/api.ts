@@ -29,8 +29,17 @@ async function request<T = unknown>(url: string, options?: RequestInit): Promise
       headers: { "Content-Type": "application/json" },
       ...options,
     });
-    const payload = (await response.json()) as ApiResult<T>;
-    return { ...payload, status: response.status };
+    const payload = (await response.json()) as any;
+    const isSuccess = Boolean(payload?.success ?? response.ok);
+    const data = payload?.data !== undefined ? payload.data : payload;
+    const error = payload?.error || (!isSuccess ? payload?.message : undefined);
+
+    return {
+      success: isSuccess,
+      data: data as T,
+      error,
+      status: response.status,
+    };
   } catch (err) {
     console.error(`API request failed: ${url}`, err);
     return { success: false, error: err instanceof Error ? err.message : "Network error" };

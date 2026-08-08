@@ -78,6 +78,7 @@ export function OrderSection() {
   const [otpError, setOtpError] = useState("");
   const [otpInfo, setOtpInfo] = useState("");
   const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState("");
   const [otpResendTimer, setOtpResendTimer] = useState(0);
 
   useEffect(() => {
@@ -94,8 +95,6 @@ export function OrderSection() {
     () => flavors.find((flavor) => flavor.id === selectedFlavorId) ?? flavors[0],
     [selectedFlavorId]
   );
-
-
 
   async function triggerPhoneIpCheck(phoneNum: string) {
     if (isCheckingPhone || phoneNum === lastCheckedPhone) return;
@@ -145,13 +144,16 @@ export function OrderSection() {
 
     const phoneTrimmed = val.trim();
 
+    if (phoneTrimmed !== verifiedPhone) {
+      setIsOtpVerified(false);
+    }
+
     if (phoneTrimmed.length === 11 && PHONE_REGEX.test(phoneTrimmed)) {
       triggerPhoneIpCheck(phoneTrimmed);
     } else {
       setLastCheckedPhone("");
       if (isIpAlreadyInDb !== null) {
         setIsIpAlreadyInDb(null);
-        setIsOtpVerified(false);
       }
     }
 
@@ -182,7 +184,11 @@ export function OrderSection() {
     try {
       const res = await sendFraudOtp(phoneNum);
       if (res.success) {
-        setOtpInfo("আপনার মোবাইলে ৪ ডিজিটের ওটিপি কোড পাঠানো হয়েছে।");
+        let msg = "আপনার মোবাইলে ৪ ডিজিটের ওটিপি কোড পাঠানো হয়েছে।";
+        if (res.data?.devCode) {
+          msg += ` (Dev OTP: ${res.data.devCode})`;
+        }
+        setOtpInfo(msg);
         setOtpResendTimer(30);
       } else {
         setOtpError(
@@ -214,8 +220,14 @@ export function OrderSection() {
     setOtpError("");
     try {
       const res = await verifyFraudOtp(phoneVal, codeVal);
-      if (res.success && res.data?.verified) {
+      const isVerified = Boolean(
+        res.success &&
+          (res.data?.verified || (res as unknown as { verified?: boolean })?.verified)
+      );
+
+      if (isVerified) {
         setIsOtpVerified(true);
+        setVerifiedPhone(phoneVal);
         setShowOtpModal(false);
         setOtpCode("");
         executeSaveOrder();
@@ -308,14 +320,13 @@ export function OrderSection() {
 
     const phoneVal = form.phone.trim();
 
-    // If IP is already in database and OTP is not verified yet, show OTP verification popup
-    if (isIpAlreadyInDb && !isOtpVerified) {
+    // Mandatory OTP validation for all orders with a mobile number
+    if (!isOtpVerified || verifiedPhone !== phoneVal) {
       setShowOtpModal(true);
       handleSendOtp(phoneVal);
       return;
     }
 
-    // Else proceed to save order directly
     executeSaveOrder();
   }
 
@@ -452,7 +463,14 @@ export function OrderSection() {
 
             {/* Field 2: Phone */}
             <div className="grid gap-1.5">
-              <Label htmlFor="phone">মোবাইল নম্বর *</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="phone">মোবাইল নম্বর *</Label>
+                {isOtpVerified && verifiedPhone === form.phone.trim() && (
+                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <CheckCircle2 className="size-3.5" /> ওটিপি ভেরিফাইড
+                  </span>
+                )}
+              </div>
               <div className="relative flex items-center">
                 <span className="absolute left-3.5 text-sm font-semibold text-muted-foreground select-none pointer-events-none">
                   +88
@@ -468,19 +486,23 @@ export function OrderSection() {
                   placeholder="01XXXXXXXXX"
                   className={cn(
                     "h-11 pl-12 pr-10 transition-all duration-200",
-                    isCheckingPhone && "border-emerald-500 ring-2 ring-emerald-500/30",
-                    isIpAlreadyInDb === false && "border-emerald-500 ring-1 ring-emerald-500/20",
-                    isIpAlreadyInDb === true && "border-amber-500 ring-1 ring-amber-500/20"
+                    isOtpVerified && verifiedPhone === form.phone.trim() && "border-emerald-500 ring-1 ring-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/10",
+                    !isOtpVerified && isCheckingPhone && "border-emerald-500 ring-2 ring-emerald-500/30",
+                    !isOtpVerified && isIpAlreadyInDb === false && "border-emerald-500 ring-1 ring-emerald-500/20",
+                    !isOtpVerified && isIpAlreadyInDb === true && "border-amber-500 ring-1 ring-amber-500/20"
                   )}
                 />
                 <div className="absolute right-3 flex items-center pointer-events-none">
                   {isCheckingPhone && (
                     <Loader2 className="size-5 animate-spin text-emerald-600" />
                   )}
-                  {!isCheckingPhone && isIpAlreadyInDb === false && (
+                  {!isCheckingPhone && isOtpVerified && verifiedPhone === form.phone.trim() && (
                     <CheckCircle2 className="size-5 text-emerald-600 animate-in fade-in" />
                   )}
-                  {!isCheckingPhone && isIpAlreadyInDb === true && (
+                  {!isCheckingPhone && (!isOtpVerified || verifiedPhone !== form.phone.trim()) && isIpAlreadyInDb === false && (
+                    <CheckCircle2 className="size-5 text-emerald-600 animate-in fade-in" />
+                  )}
+                  {!isCheckingPhone && (!isOtpVerified || verifiedPhone !== form.phone.trim()) && isIpAlreadyInDb === true && (
                     <ShieldAlert className="size-5 text-amber-500 animate-in fade-in" />
                   )}
                 </div>
@@ -856,7 +878,12 @@ export function OrderSection() {
                   inputMode="numeric"
                   maxLength={6}
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
+                  onChange={(e) => {
+                    const converted = e.target.value
+                      .replace(/[০-৯]/g, (w) => "০১২৩৪৫৬৭৮৯".indexOf(w).toString())
+                      .replace(/[^0-9]/g, "");
+                    setOtpCode(converted);
+                  }}
                   placeholder="1 2 3 4"
                   className="h-14 text-center font-mono text-3xl font-extrabold tracking-[0.5em] rounded-2xl border-2 border-primary/30 focus-visible:ring-primary/40"
                   autoFocus
