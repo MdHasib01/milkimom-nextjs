@@ -12,6 +12,7 @@ import {
   Loader2,
   Pencil,
   PhoneCall,
+  Plus,
   Printer,
   RefreshCw,
   Search,
@@ -23,6 +24,7 @@ import {
 
 import {
   fetchOrders,
+  createOrderAdmin,
   changeOrderStatus,
   updateOrderDetails,
   deleteOrder,
@@ -34,10 +36,13 @@ import {
   getStoredUser,
   type UnfinishedOrder,
 } from "@/lib/admin-api";
-import { flavors, siteConfig } from "@/lib/content";
+import { flavors, siteConfig, singleJarPrice } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
+
+// Same format the public order form enforces
+const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 const STATUS_COLORS: Record<string, string> = {
   Pending: "bg-amber-100 text-amber-800 border-amber-200",
@@ -63,6 +68,8 @@ interface Order {
   statusUpdatedAt?: string;
   orderTime?: string;
   createdAt: string;
+  /** 'admin' = manually entered (message-campaign sale); undefined/'web' = site order */
+  source?: "web" | "admin";
 }
 
 interface Pagination {
@@ -108,6 +115,21 @@ export default function AdminOrdersPage() {
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
+
+  // Add Manual Order State (message-campaign sales entered by the admin)
+  const emptyAddForm = {
+    customerName: "",
+    phone: "",
+    address: "",
+    flavour: "Dark Chocolate",
+    paymentMethod: "COD" as "COD" | "bKash",
+    transactionId: "",
+    price: String(singleJarPrice.salePrice),
+  };
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState(emptyAddForm);
+  const [isSavingAdd, setIsSavingAdd] = useState(false);
+  const [addError, setAddError] = useState("");
 
 
 
@@ -291,6 +313,44 @@ export default function AdminOrdersPage() {
     }
   }
 
+  // Create a manual order (no SMS is sent; never reported to Meta)
+  async function handleSaveAdd() {
+    const phoneTrimmed = addForm.phone.trim();
+    if (!PHONE_REGEX.test(phoneTrimmed)) {
+      setAddError("Enter a valid 11-digit phone number (01XXXXXXXXX)");
+      return;
+    }
+    const priceNum = Number(addForm.price);
+    if (!Number.isFinite(priceNum) || priceNum <= 0) {
+      setAddError("Enter a valid price");
+      return;
+    }
+
+    setIsSavingAdd(true);
+    setAddError("");
+
+    const result = await createOrderAdmin({
+      customerName: addForm.customerName.trim() || undefined,
+      phone: phoneTrimmed,
+      address: addForm.address.trim(),
+      flavour: addForm.flavour,
+      paymentMethod: addForm.paymentMethod,
+      transactionId: addForm.paymentMethod === "bKash" ? addForm.transactionId.trim() : "",
+      price: priceNum,
+    });
+    setIsSavingAdd(false);
+
+    if (result.success && result.data) {
+      setIsAddOpen(false);
+      setSuccessMsg(`Manual order for ${phoneTrimmed} created (Confirmed).`);
+      // setPage(1) is a no-op when already on page 1, so call load() directly there
+      if (page !== 1) setPage(1);
+      else load();
+    } else {
+      setAddError(typeof result.error === "string" ? result.error : "Failed to create order");
+    }
+  }
+
   // Delete single order handler
   async function handleConfirmSingleDelete() {
     if (!singleDeleteOrder) return;
@@ -361,6 +421,7 @@ export default function AdminOrdersPage() {
         "Payment Status",
         "Transaction ID",
         "Status",
+        "Source",
         "Updated By",
         "Update Time",
       ];
@@ -379,6 +440,7 @@ export default function AdminOrdersPage() {
         o.paymentStatus || "Pending",
         o.transactionId ? `"${o.transactionId}"` : "",
         o.status,
+        o.source === "admin" ? "Manual" : "Web",
         `"${(o.statusUpdatedBy || "").replace(/"/g, '""')}"`,
         o.statusUpdatedAt ? new Date(o.statusUpdatedAt).toLocaleString("en-GB", { hour12: true }) : "",
       ]);
@@ -567,6 +629,21 @@ export default function AdminOrdersPage() {
                 </option>
               ))}
             </select>
+          )}
+
+          {/* Add Manual Order Button (Regular orders only, not for moderators) */}
+          {activeTab === "orders" && !isModerator && (
+            <button
+              onClick={() => {
+                setAddForm(emptyAddForm);
+                setAddError("");
+                setIsAddOpen(true);
+              }}
+              title="Manually add an order from a message campaign"
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 shadow-xs"
+            >
+              <Plus size={14} /> Add Order
+            </button>
           )}
 
           {/* Export Excel Button (Regular orders only) */}
@@ -892,6 +969,11 @@ export default function AdminOrdersPage() {
                     <td className="max-w-[130px] px-2.5 py-2.5">
                       <p className="truncate text-xs font-semibold text-foreground" title={order.customerName}>
                         {order.customerName}
+                        {order.source === "admin" && (
+                          <span className="ml-1.5 inline-flex items-center rounded border border-violet-200 bg-violet-100 px-1.5 py-px text-[10px] font-bold text-violet-700 align-middle dark:border-violet-800/40 dark:bg-violet-950/50 dark:text-violet-300">
+                            Manual
+                          </span>
+                        )}
                       </p>
                       <p className="truncate text-[11px] text-muted-foreground" title={order.address}>
                         {order.address}
@@ -1228,6 +1310,169 @@ export default function AdminOrdersPage() {
               >
                 {isSavingEdit && <Loader2 className="animate-spin" size={14} />}
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Add Manual Order */}
+      {isAddOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Add Manual Order</h3>
+                <p className="text-xs text-muted-foreground">
+                  For message/chat campaign sales — no SMS is sent, not reported to Meta.
+                </p>
+              </div>
+              <button
+                disabled={isSavingAdd}
+                onClick={() => setIsAddOpen(false)}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {addError && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs font-semibold text-destructive">
+                {addError}
+              </div>
+            )}
+
+            <div className="space-y-4 text-xs">
+              {/* Customer Name */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">Customer Name</label>
+                <input
+                  type="text"
+                  value={addForm.customerName}
+                  onChange={(e) =>
+                    setAddForm((prev) => ({ ...prev, customerName: e.target.value }))
+                  }
+                  placeholder="Enter customer name"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">Phone *</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={addForm.phone}
+                  onChange={(e) =>
+                    setAddForm((prev) => ({ ...prev, phone: e.target.value }))
+                  }
+                  placeholder="01XXXXXXXXX"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">
+                  Full Address / বাসার পূর্ণ ঠিকানা (এলাকা, থানা, জেলা সহ লিখুন)
+                </label>
+                <textarea
+                  rows={3}
+                  value={addForm.address}
+                  onChange={(e) =>
+                    setAddForm((prev) => ({ ...prev, address: e.target.value }))
+                  }
+                  placeholder="House/Holding no, Road, Area, Thana, District"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                />
+              </div>
+
+              {/* Flavour */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">Flavour</label>
+                <select
+                  value={addForm.flavour}
+                  onChange={(e) =>
+                    setAddForm((prev) => ({ ...prev, flavour: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                >
+                  {availableFlavors.map((flv) => (
+                    <option key={flv} value={flv}>
+                      {flv}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Payment Method + Price */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-foreground mb-1">Payment Method</label>
+                  <select
+                    value={addForm.paymentMethod}
+                    onChange={(e) =>
+                      setAddForm((prev) => ({
+                        ...prev,
+                        paymentMethod: e.target.value as "COD" | "bKash",
+                      }))
+                    }
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  >
+                    <option value="COD">Cash on Delivery (COD)</option>
+                    <option value="bKash">bKash (Paid)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold text-foreground mb-1">Price (BDT) *</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={addForm.price}
+                    onChange={(e) =>
+                      setAddForm((prev) => ({ ...prev, price: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/20"
+                  />
+                </div>
+              </div>
+
+              {/* Transaction ID (bKash only) */}
+              {addForm.paymentMethod === "bKash" && (
+                <div>
+                  <label className="block font-bold text-foreground mb-1">
+                    bKash Transaction ID
+                  </label>
+                  <input
+                    type="text"
+                    value={addForm.transactionId}
+                    onChange={(e) =>
+                      setAddForm((prev) => ({ ...prev, transactionId: e.target.value }))
+                    }
+                    placeholder="e.g. 9C7XXXXXXX"
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/20"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t">
+              <button
+                disabled={isSavingAdd}
+                onClick={() => setIsAddOpen(false)}
+                className="rounded-lg border border-input bg-card px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isSavingAdd}
+                onClick={handleSaveAdd}
+                className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 shadow-xs"
+              >
+                {isSavingAdd && <Loader2 className="animate-spin" size={14} />}
+                Create Order
               </button>
             </div>
           </div>

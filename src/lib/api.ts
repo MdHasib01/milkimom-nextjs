@@ -13,6 +13,10 @@ export interface OrderPayload {
   transactionId?: string;
   pageUrl?: string;
   orderTime?: string;
+  /** Meta browser id cookies, stored so the delivered-order Purchase (sent
+   *  server-side via the Conversions API) can be matched to the ad click. */
+  fbp?: string;
+  fbc?: string;
 }
 
 export interface ApiResult<T = unknown> {

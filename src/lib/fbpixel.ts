@@ -2,22 +2,15 @@
  * Meta (Facebook) Pixel helpers.
  *
  * The base pixel and the initial PageView are injected once from the root
- * layout by <MetaPixel />. Conversion events are fired by the component that
- * owns the action — the order form fires Purchase only after
- * POST /api/orders responds 201.
+ * layout by <MetaPixel />. The browser never fires Purchase: submitting the
+ * order form only fires InitiateCheckout, because a freshly placed order may
+ * still be fake or get cancelled. The real Purchase is reported server-side
+ * via the Meta Conversions API when the order is marked Delivered in the
+ * admin dashboard (see server/utils/metaCapi.js).
  */
 
 export const FB_PIXEL_ID: string =
   process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || "1067546575776185";
-
-/**
- * Amount reported with Purchase. There is no payment gateway on the site — a
- * confirmed order landing in the dashboard is what counts as a purchase — so
- * the value is reported as 0. Change these two constants to report the real
- * order amount instead (e.g. singleJarPrice.salePrice / "BDT").
- */
-export const PURCHASE_VALUE = 0.0;
-export const PURCHASE_CURRENCY = "USD";
 
 type Fbq = {
   (...args: unknown[]): void;
@@ -45,13 +38,35 @@ export function trackPageView() {
 }
 
 /**
- * Fires the Purchase conversion. Call this only once the backend has
- * confirmed the order (HTTP 201 from POST /api/orders).
+ * Fires InitiateCheckout once the backend accepts the order (HTTP 201 from
+ * POST /api/orders). This keeps a browser-side mid-funnel signal for Meta
+ * while the actual Purchase waits for delivery confirmation.
  */
-export function trackPurchase(params?: Record<string, unknown>) {
-  trackFbEvent("Purchase", {
-    value: PURCHASE_VALUE,
-    currency: PURCHASE_CURRENCY,
-    ...params,
-  });
+export function trackInitiateCheckout(params?: Record<string, unknown>) {
+  trackFbEvent("InitiateCheckout", params);
+}
+
+function readCookie(name: string): string {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+/**
+ * Browser identifiers sent along with the order so the server-side Purchase
+ * (fired on delivery, days later) can still be matched to this browser and
+ * the ad click. `_fbc` only exists after an ad click (fbclid); when the
+ * cookie is missing but fbclid is in the URL, it is reconstructed in the
+ * `fb.1.<timestamp>.<fbclid>` format Meta expects.
+ */
+export function getFbBrowserIds(): { fbp: string; fbc: string } {
+  const fbp = readCookie("_fbp");
+  let fbc = readCookie("_fbc");
+
+  if (!fbc && typeof window !== "undefined") {
+    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
+    if (fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`;
+  }
+
+  return { fbp, fbc };
 }

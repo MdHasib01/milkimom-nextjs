@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { flavors, singleJarPrice } from "@/lib/content";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
-import { trackPurchase } from "@/lib/fbpixel";
+import { getFbBrowserIds, trackInitiateCheckout } from "@/lib/fbpixel";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +60,7 @@ export function OrderSection() {
   const [submitError, setSubmitError] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [modalErrorMessage, setModalErrorMessage] = useState("");
-  const purchaseTracked = useRef(false);
+  const checkoutTracked = useRef(false);
 
   // IP Tracking & Phone Fraud Check state
   const [isCheckingPhone, setIsCheckingPhone] = useState(false);
@@ -266,6 +266,7 @@ export function OrderSection() {
   async function executeSaveOrder() {
     setStatus("submitting");
 
+    const { fbp, fbc } = getFbBrowserIds();
     const result = await saveOrder({
       product: "Milkimom Complete Dose",
       customerName: form.name.trim() || "গ্রাহক",
@@ -279,12 +280,20 @@ export function OrderSection() {
       transactionId: form.payment === "bkash" ? form.trxId.trim() : undefined,
       pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
       orderTime: new Date().toISOString(),
+      fbp: fbp || undefined,
+      fbc: fbc || undefined,
     });
 
     if (result.success && result.data) {
-      if (result.status === 201 && !purchaseTracked.current) {
-        purchaseTracked.current = true;
-        trackPurchase();
+      // Purchase is NOT fired here — a just-placed order may be fake or get
+      // cancelled. The server reports Purchase via the Conversions API when
+      // the order is marked Delivered. The browser only signals checkout.
+      if (result.status === 201 && !checkoutTracked.current) {
+        checkoutTracked.current = true;
+        trackInitiateCheckout({
+          value: singleJarPrice.salePrice,
+          currency: "BDT",
+        });
       }
       if (typeof window !== "undefined") {
         sessionStorage.setItem("milkimom_last_order", JSON.stringify(result.data));

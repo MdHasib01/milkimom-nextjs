@@ -71,14 +71,13 @@ export const config = {
     /** Microsoft Clarity project. */
     clarityProjectId: "xtgst4xcr4",
 
-    /**
-     * Amount reported with the Meta `Purchase` event. There is no payment
-     * gateway on the site — a confirmed order landing in the dashboard is what
-     * counts as a purchase — so the value is reported as 0 by default. Set it
-     * to `pricing.salePrice` and the currency to "BDT" to report real revenue.
+    /*
+     * The Meta `Purchase` event is NOT fired from the browser. Orders can be
+     * fake or get cancelled after confirmation/shipping, so the server reports
+     * Purchase (with the real order value in BDT) via the Meta Conversions API
+     * only when an order is marked Delivered — see server/utils/metaCapi.js.
+     * The browser fires InitiateCheckout on successful order submission.
      */
-    purchaseValue: 0.0,
-    purchaseCurrency: "USD",
 
     /**
      * Route prefixes third-party analytics must never run on. The admin

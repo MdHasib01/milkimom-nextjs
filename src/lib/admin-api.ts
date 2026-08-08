@@ -91,6 +91,26 @@ export function fetchOrders(params?: {
   return authRequest(`${API_ENDPOINTS.orders}${qs ? `?${qs}` : ""}`);
 }
 
+/**
+ * Manually adds an order from the admin dashboard (message-campaign sales).
+ * Created server-side as Confirmed with source 'admin': no SMS/email is sent
+ * and it is never reported to the Meta Conversions API on delivery.
+ */
+export function createOrderAdmin(data: {
+  customerName?: string;
+  phone: string;
+  address?: string;
+  flavour?: string;
+  paymentMethod?: "COD" | "bKash";
+  transactionId?: string;
+  price: number;
+}) {
+  return authRequest(API_ENDPOINTS.adminCreateOrder, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 export function changeOrderStatus(id: string, status: string) {
   return authRequest(API_ENDPOINTS.orderStatus(id), {
     method: "PATCH",

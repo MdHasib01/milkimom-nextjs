@@ -16,6 +16,7 @@ export const MOTHER_COUNT_PATH = "/api/stats/mother-count";
 export const API_ENDPOINTS = {
   health: `${API_BASE_URL}/api/health`,
   orders: `${API_BASE_URL}/api/orders`,
+  adminCreateOrder: `${API_BASE_URL}/api/orders/admin`,
   bulkOrders: `${API_BASE_URL}/api/orders/bulk`,
   orderById: (id: string) => `${API_BASE_URL}/api/orders/${id}`,
   orderStatus: (id: string) => `${API_BASE_URL}/api/orders/${id}/status`,
