@@ -177,11 +177,46 @@ export function testSteadfastConnection(data?: { apiKey?: string; secretKey?: st
   });
 }
 
-/** Manually (re)sends a Confirmed/Shipped order to Steadfast. */
-export function sendOrderToSteadfast(id: string) {
-  return authRequest(API_ENDPOINTS.orderSteadfast(id), {
+/**
+ * Dynamic flavour/product catalog (admin-managed; the website order section
+ * renders it). weight and invoiceCode feed the Steadfast consignment entry.
+ */
+export interface Flavour {
+  _id: string;
+  name: string;
+  nameEn: string;
+  description: string;
+  price: number;
+  offerPrice: number | null;
+  weight: number;
+  invoiceCode: string;
+  tag: string;
+  active: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export function fetchFlavoursAdmin() {
+  return authRequest<Flavour[]>(API_ENDPOINTS.flavoursAdmin);
+}
+
+export function createFlavour(data: Partial<Omit<Flavour, "_id">>) {
+  return authRequest<Flavour>(API_ENDPOINTS.flavours, {
     method: "POST",
+    body: JSON.stringify(data),
   });
+}
+
+export function updateFlavour(id: string, data: Partial<Omit<Flavour, "_id">>) {
+  return authRequest<Flavour>(API_ENDPOINTS.flavourById(id), {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteFlavour(id: string) {
+  return authRequest(API_ENDPOINTS.flavourById(id), { method: "DELETE" });
 }
 
 export function fetchAdminUsers() {

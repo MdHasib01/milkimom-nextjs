@@ -15,8 +15,9 @@ import {
   Eye,
   Users,
   ChevronRight,
+  XCircle,
 } from "lucide-react";
-import { fetchOrders, fetchUnfinishedOrders } from "@/lib/admin-api";
+import { fetchOrders } from "@/lib/admin-api";
 import { cn } from "@/lib/utils";
 
 export interface Order {
@@ -47,21 +48,24 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
 
 export default function AdminDashboardOverviewPage() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [unfinishedCount, setUnfinishedCount] = useState(0);
   const [totalOrdersCount, setTotalOrdersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [trendFilter, setTrendFilter] = useState<"day" | "week" | "month">("day");
-  const [hoveredDataPoint, setHoveredDataPoint] = useState<{ label: string; count: number; revenue: number } | null>(null);
+  const [hoveredDataPoint, setHoveredDataPoint] = useState<{
+    key: string;
+    label: string;
+    count: number;
+    cancelledCount: number;
+    othersCount: number;
+    revenue: number;
+  } | null>(null);
 
   async function loadData() {
     setLoading(true);
     setError("");
     try {
-      const [ordersRes, unfinishedRes] = await Promise.all([
-        fetchOrders({ limit: 100 }),
-        fetchUnfinishedOrders({ limit: 1 }),
-      ]);
+      const ordersRes = await fetchOrders({ limit: 100 });
 
       if (ordersRes.success && ordersRes.data) {
         const orderList = ordersRes.data as Order[];
@@ -70,11 +74,6 @@ export default function AdminDashboardOverviewPage() {
         setTotalOrdersCount(paginationObj?.total || orderList.length);
       } else {
         setError(typeof ordersRes.error === "string" ? ordersRes.error : "Failed to load dashboard statistics");
-      }
-
-      const unfinishedPagination = (unfinishedRes as unknown as { pagination?: { total: number } }).pagination;
-      if (unfinishedRes.success && unfinishedPagination) {
-        setUnfinishedCount(unfinishedPagination.total);
       }
     } catch (err) {
       setError("Failed to load dashboard data");
@@ -146,7 +145,15 @@ export default function AdminDashboardOverviewPage() {
 
   // Generate trend chart data based on filter ("day" | "week" | "month")
   const trendData = useMemo(() => {
-    const items: { key: string; label: string; subLabel?: string; count: number; revenue: number }[] = [];
+    const items: {
+      key: string;
+      label: string;
+      subLabel?: string;
+      count: number;
+      cancelledCount: number;
+      othersCount: number;
+      revenue: number;
+    }[] = [];
     const now = new Date();
 
     if (trendFilter === "day") {
@@ -163,6 +170,9 @@ export default function AdminDashboardOverviewPage() {
           return orderDate === dateStr;
         });
 
+        const cancelledCount = dayOrders.filter((o) => o.status === "Cancelled").length;
+        const othersCount = dayOrders.length - cancelledCount;
+
         const dayRevenue = dayOrders
           .filter((o) => o.status !== "Cancelled")
           .reduce((sum, o) => sum + (o.price || 0), 0);
@@ -172,6 +182,8 @@ export default function AdminDashboardOverviewPage() {
           label: `${label} (${subLabel})`,
           subLabel: label,
           count: dayOrders.length,
+          cancelledCount,
+          othersCount,
           revenue: dayRevenue,
         });
       }
@@ -196,6 +208,9 @@ export default function AdminDashboardOverviewPage() {
           return orderTime >= startMs && orderTime <= endMs;
         });
 
+        const cancelledCount = weekOrders.filter((o) => o.status === "Cancelled").length;
+        const othersCount = weekOrders.length - cancelledCount;
+
         const weekRevenue = weekOrders
           .filter((o) => o.status !== "Cancelled")
           .reduce((sum, o) => sum + (o.price || 0), 0);
@@ -205,6 +220,8 @@ export default function AdminDashboardOverviewPage() {
           label,
           subLabel,
           count: weekOrders.length,
+          cancelledCount,
+          othersCount,
           revenue: weekRevenue,
         });
       }
@@ -222,6 +239,9 @@ export default function AdminDashboardOverviewPage() {
           return orderD.getFullYear() === year && orderD.getMonth() === month;
         });
 
+        const cancelledCount = monthOrders.filter((o) => o.status === "Cancelled").length;
+        const othersCount = monthOrders.length - cancelledCount;
+
         const monthRevenue = monthOrders
           .filter((o) => o.status !== "Cancelled")
           .reduce((sum, o) => sum + (o.price || 0), 0);
@@ -231,6 +251,8 @@ export default function AdminDashboardOverviewPage() {
           label,
           subLabel,
           count: monthOrders.length,
+          cancelledCount,
+          othersCount,
           revenue: monthRevenue,
         });
       }
@@ -357,18 +379,19 @@ export default function AdminDashboardOverviewPage() {
           </div>
         </div>
 
-        {/* Card 5: Unfinished Attempts */}
-        <div className="group relative overflow-hidden rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition hover:shadow-md hover:border-purple-500/40">
+        {/* Card 5: Cancelled Orders */}
+        <div className="group relative overflow-hidden rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition hover:shadow-md hover:border-red-500/40">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Unfinished</span>
-            <div className="flex size-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-              <Users size={20} />
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cancelled Orders</span>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400">
+              <XCircle size={20} />
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-2xl sm:text-3xl font-extrabold text-foreground">{unfinishedCount}</p>
-            <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
-              <span>Checkout drop-offs</span>
+            <p className="text-2xl sm:text-3xl font-extrabold text-foreground">{stats.cancelledCount}</p>
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-semibold flex items-center gap-1">
+              <XCircle size={13} />
+              <span>Cancelled orders</span>
             </p>
           </div>
         </div>
@@ -392,12 +415,18 @@ export default function AdminDashboardOverviewPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              {hoveredDataPoint && (
-                <div className="hidden sm:block rounded-lg bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-bold text-primary">
-                  {hoveredDataPoint.label}: {hoveredDataPoint.count} orders (৳{hoveredDataPoint.revenue.toLocaleString("bn-BD")})
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Chart Legend */}
+              <div className="flex items-center gap-3 text-xs font-semibold mr-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-indigo-500" />
+                  <span className="text-muted-foreground">Others</span>
                 </div>
-              )}
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-rose-500" />
+                  <span className="text-muted-foreground">Cancelled</span>
+                </div>
+              </div>
 
               {/* Filter Buttons: Daily, Weekly, Monthly */}
               <div className="flex items-center gap-1 rounded-xl bg-muted/60 p-1 border border-border/60">
@@ -424,6 +453,8 @@ export default function AdminDashboardOverviewPage() {
             <div className="flex h-full items-end justify-between gap-2 pt-6">
               {trendData.items.map((item) => {
                 const heightPercent = Math.max(12, Math.round((item.count / trendData.maxOrders) * 100));
+                const othersRatio = item.count > 0 ? (item.othersCount / item.count) * 100 : 0;
+                const cancelledRatio = item.count > 0 ? (item.cancelledCount / item.count) * 100 : 0;
 
                 return (
                   <div
@@ -433,15 +464,54 @@ export default function AdminDashboardOverviewPage() {
                     className="group flex flex-1 flex-col items-center gap-2 h-full justify-end cursor-pointer"
                   >
                     <div className="relative w-full flex-1 flex items-end justify-center">
-                      <div
-                        style={{ height: `${heightPercent}%` }}
-                        className={cn(
-                          "w-full max-w-[38px] rounded-t-lg transition-all duration-300 group-hover:brightness-110",
-                          item.count > 0
-                            ? "bg-gradient-to-t from-primary/80 to-primary shadow-md shadow-primary/20"
-                            : "bg-muted/60"
-                        )}
-                      />
+                      {/* Floating hover popover tooltip */}
+                      {hoveredDataPoint?.key === item.key && (
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center animate-in fade-in-50 zoom-in-95 duration-150">
+                          <div className="rounded-xl border border-border/80 bg-popover/95 px-3 py-2 text-popover-foreground shadow-xl backdrop-blur-md text-[11px] whitespace-nowrap space-y-1">
+                            <p className="font-extrabold text-foreground border-b border-border/60 pb-1">
+                              {item.label}
+                            </p>
+                            <div className="flex items-center gap-2 font-semibold">
+                              <span className="text-indigo-600 dark:text-indigo-400">{item.othersCount} Non-Cancelled</span>
+                              <span>·</span>
+                              <span className="text-rose-600 dark:text-rose-400">{item.cancelledCount} Cancelled</span>
+                            </div>
+                            <p className="text-muted-foreground font-bold">
+                              Revenue: <span className="text-foreground">৳{item.revenue.toLocaleString("bn-BD")}</span>
+                            </p>
+                          </div>
+                          <div className="size-2 -mt-1 rotate-45 border-r border-b border-border/80 bg-popover/95" />
+                        </div>
+                      )}
+
+                      {item.count > 0 ? (
+                        <div
+                          style={{ height: `${heightPercent}%` }}
+                          className="w-full max-w-[38px] rounded-t-[3px] overflow-hidden flex flex-col-reverse shadow-xs transition-all duration-300 group-hover:brightness-110"
+                        >
+                          {/* Others segment (bottom - Modern Indigo Blue) */}
+                          {item.othersCount > 0 && (
+                            <div
+                              style={{ height: `${othersRatio}%` }}
+                              className="w-full bg-gradient-to-t from-indigo-600 via-indigo-500 to-blue-500 transition-all"
+                              title={`${item.othersCount} non-cancelled orders`}
+                            />
+                          )}
+                          {/* Cancelled segment (top - Modern Sunset Coral Rose) */}
+                          {item.cancelledCount > 0 && (
+                            <div
+                              style={{ height: `${cancelledRatio}%` }}
+                              className="w-full bg-gradient-to-t from-rose-600 to-rose-400 transition-all"
+                              title={`${item.cancelledCount} cancelled orders`}
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <div
+                          style={{ height: `${heightPercent}%` }}
+                          className="w-full max-w-[38px] rounded-t-[3px] bg-muted/60 transition-all duration-300"
+                        />
+                      )}
                       {item.count > 0 && (
                         <span className="absolute -top-6 text-[11px] font-extrabold text-foreground group-hover:scale-110 transition">
                           {item.count}

@@ -34,11 +34,11 @@ import {
   changeUnfinishedOrderStatus,
   deleteUnfinishedOrder,
   bulkDeleteUnfinishedOrders,
-  sendOrderToSteadfast,
   getStoredUser,
   type UnfinishedOrder,
 } from "@/lib/admin-api";
-import { flavors, siteConfig, singleJarPrice } from "@/lib/content";
+import { siteConfig } from "@/lib/content";
+import { useFlavors } from "@/lib/use-flavours";
 import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
@@ -89,6 +89,9 @@ export default function AdminOrdersPage() {
   const currentUser = getStoredUser();
   const isModerator = currentUser?.role === "moderator";
   const canDelete = currentUser?.role === "admin" || currentUser?.role === "superadmin";
+  // Dynamic product catalog (falls back to the hardcoded flavours).
+  const flavors = useFlavors();
+  const featuredFlavor = flavors.find((f) => f.popular) ?? flavors[0];
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -97,7 +100,6 @@ export default function AdminOrdersPage() {
   const [limit, setLimit] = useState(20);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [sendingSteadfastId, setSendingSteadfastId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isExporting, setIsExporting] = useState(false);
@@ -128,10 +130,10 @@ export default function AdminOrdersPage() {
     customerName: "",
     phone: "",
     address: "",
-    flavour: "Dark Chocolate",
+    flavour: featuredFlavor.nameEn || featuredFlavor.name,
     paymentMethod: "COD" as "COD" | "bKash",
     transactionId: "",
-    price: String(singleJarPrice.salePrice),
+    price: String(featuredFlavor.salePrice),
   };
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addForm, setAddForm] = useState(emptyAddForm);
@@ -287,22 +289,6 @@ export default function AdminOrdersPage() {
     setUpdatingId(null);
   }
 
-  async function handleSendToSteadfast(order: Order) {
-    if (sendingSteadfastId) return;
-    setSendingSteadfastId(order._id);
-    const result = await sendOrderToSteadfast(order._id);
-    if (result.success && result.data) {
-      const updated = result.data as Order;
-      setOrders((prev) => prev.map((o) => (o._id === order._id ? { ...o, ...updated } : o)));
-      setSuccessMsg(
-        `Order #${order._id.slice(-6)} sent to Steadfast (tracking: ${updated.steadfastTrackingCode || updated.steadfastConsignmentId}).`
-      );
-    } else {
-      alert(typeof result.error === "string" ? result.error : "Failed to send order to Steadfast");
-    }
-    setSendingSteadfastId(null);
-  }
-
   // Open Edit Modal
   function handleOpenEdit(order: Order) {
     setEditOrder(order);
@@ -450,6 +436,8 @@ export default function AdminOrdersPage() {
         "Transaction ID",
         "Status",
         "Source",
+        "Courier Tracking",
+        "Courier Status",
         "Updated By",
         "Update Time",
       ];
@@ -469,6 +457,8 @@ export default function AdminOrdersPage() {
         o.transactionId ? `"${o.transactionId}"` : "",
         o.status,
         o.source === "admin" ? "Manual" : "Web",
+        `"${o.steadfastTrackingCode || o.steadfastConsignmentId || ""}"`,
+        `"${(o.steadfastStatus || "").replace(/_/g, " ")}"`,
         `"${(o.statusUpdatedBy || "").replace(/"/g, '""')}"`,
         o.statusUpdatedAt ? new Date(o.statusUpdatedAt).toLocaleString("en-GB", { hour12: true }) : "",
       ]);
@@ -1089,28 +1079,24 @@ export default function AdminOrdersPage() {
                             </p>
                           )}
                         </div>
-                      ) : !isModerator && ["Confirmed", "Shipped"].includes(order.status) ? (
-                        <button
-                          onClick={() => handleSendToSteadfast(order)}
-                          disabled={sendingSteadfastId === order._id}
+                      ) : ["Confirmed", "Shipped"].includes(order.status) ? (
+                        // Entry is automatic: instant on confirm, retried by
+                        // the hourly cron if that attempt didn't go through.
+                        <span
                           title={
                             order.steadfastLastError
-                              ? `Last attempt failed: ${order.steadfastLastError} — click to retry`
-                              : "Send this order to Steadfast"
+                              ? `Last attempt failed: ${order.steadfastLastError} — retrying automatically within the hour`
+                              : "Waiting for automatic Steadfast entry"
                           }
-                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-bold transition disabled:opacity-50 ${
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-bold ${
                             order.steadfastLastError
-                              ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300"
-                              : "border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300"
+                              : "border-border bg-muted/50 text-muted-foreground"
                           }`}
                         >
-                          {sendingSteadfastId === order._id ? (
-                            <Loader2 className="animate-spin" size={12} />
-                          ) : (
-                            <Truck size={12} />
-                          )}
-                          {order.steadfastLastError ? "Retry" : "Send"}
-                        </button>
+                          <Truck size={12} />
+                          {order.steadfastLastError ? "Retrying" : "Queued"}
+                        </span>
                       ) : (
                         <span className="text-xs text-muted-foreground">-</span>
                       )}
@@ -1468,9 +1454,19 @@ export default function AdminOrdersPage() {
                 <label className="block font-bold text-foreground mb-1">Flavour</label>
                 <select
                   value={addForm.flavour}
-                  onChange={(e) =>
-                    setAddForm((prev) => ({ ...prev, flavour: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    const picked = e.target.value;
+                    // Pull the catalog price for the chosen flavour; the admin
+                    // can still override it in the price field below.
+                    const match = flavors.find(
+                      (f) => f.nameEn === picked || f.name === picked
+                    );
+                    setAddForm((prev) => ({
+                      ...prev,
+                      flavour: picked,
+                      price: match ? String(match.salePrice) : prev.price,
+                    }));
+                  }}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
                 >
                   {availableFlavors.map((flv) => (

@@ -17,7 +17,8 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { flavors, singleJarPrice } from "@/lib/content";
+import { singleJarPrice } from "@/lib/content";
+import { useFlavors } from "@/lib/use-flavours";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { getFbBrowserIds, trackInitiateCheckout } from "@/lib/fbpixel";
 import { cn } from "@/lib/utils";
@@ -51,9 +52,9 @@ const initialForm: FormState = {
 
 export function OrderSection() {
   const router = useRouter();
-  const [selectedFlavorId, setSelectedFlavorId] = useState(
-    flavors.find((flavor) => flavor.popular)?.id ?? flavors[0].id
-  );
+  // Admin-managed catalog; falls back to the hardcoded flavours until loaded.
+  const flavors = useFlavors();
+  const [selectedFlavorId, setSelectedFlavorId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
@@ -91,9 +92,14 @@ export function OrderSection() {
     return () => clearInterval(interval);
   }, [otpResendTimer]);
 
+  // null selection (initial, or the catalog was swapped under us after the
+  // API load) resolves to the tagged/popular flavour.
   const selectedFlavor = useMemo(
-    () => flavors.find((flavor) => flavor.id === selectedFlavorId) ?? flavors[0],
-    [selectedFlavorId]
+    () =>
+      flavors.find((flavor) => flavor.id === selectedFlavorId) ??
+      flavors.find((flavor) => flavor.popular) ??
+      flavors[0],
+    [flavors, selectedFlavorId]
   );
 
   async function triggerPhoneIpCheck(phoneNum: string) {
@@ -276,7 +282,7 @@ export function OrderSection() {
       address: form.address.trim() || "",
       flavour: selectedFlavor.nameEn || selectedFlavor.name,
       paymentMethod: form.payment === "bkash" ? "bKash" : "COD",
-      price: singleJarPrice.salePrice,
+      price: selectedFlavor.salePrice,
       transactionId: form.payment === "bkash" ? form.trxId.trim() : undefined,
       pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
       orderTime: new Date().toISOString(),
@@ -291,7 +297,7 @@ export function OrderSection() {
       if (result.status === 201 && !checkoutTracked.current) {
         checkoutTracked.current = true;
         trackInitiateCheckout({
-          value: singleJarPrice.salePrice,
+          value: selectedFlavor.salePrice,
           currency: "BDT",
         });
       }
@@ -375,7 +381,7 @@ export function OrderSection() {
 
             <RevealGroup className="col-span-full grid grid-cols-1 gap-3.5 sm:grid-cols-2">
               {flavors.map((flavor) => {
-                const isSelected = flavor.id === selectedFlavorId;
+                const isSelected = flavor.id === selectedFlavor.id;
                 return (
                   <RevealItem key={flavor.id} className="h-full">
                     <button
@@ -427,11 +433,13 @@ export function OrderSection() {
                         </p>
                         <div className="mt-1.5 flex items-center gap-2">
                           <span className="font-heading text-sm font-extrabold text-primary">
-                            ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
+                            ৳{flavor.salePrice.toLocaleString("bn-BD")}
                           </span>
-                          <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/70">
-                            ৳{singleJarPrice.regularPrice.toLocaleString("bn-BD")}
-                          </span>
+                          {flavor.regularPrice > flavor.salePrice && (
+                            <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/70">
+                              ৳{flavor.regularPrice.toLocaleString("bn-BD")}
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -545,11 +553,13 @@ export function OrderSection() {
                 </span>
                 <div className="text-right">
                   <span className="block font-semibold text-foreground">
-                    ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
+                    ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
                   </span>
-                  <span className="block text-xs text-muted-foreground line-through">
-                    ৳{singleJarPrice.regularPrice.toLocaleString("bn-BD")}
-                  </span>
+                  {selectedFlavor.regularPrice > selectedFlavor.salePrice && (
+                    <span className="block text-xs text-muted-foreground line-through">
+                      ৳{selectedFlavor.regularPrice.toLocaleString("bn-BD")}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -561,7 +571,7 @@ export function OrderSection() {
               <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                 <span className="font-semibold text-foreground">সর্বমোট</span>
                 <span className="font-heading text-xl font-extrabold text-primary">
-                  ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
+                  ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
                 </span>
               </div>
 
@@ -666,7 +676,7 @@ export function OrderSection() {
                         <li>
                           মোট পরিমাণ:{" "}
                           <strong className="font-bold text-brand-crimson">
-                            {singleJarPrice.salePrice}/=
+                            {selectedFlavor.salePrice}/=
                           </strong>{" "}
                           টাকা দিয়ে পিন দিন।
                         </li>

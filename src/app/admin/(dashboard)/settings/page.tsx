@@ -13,6 +13,7 @@ import {
   PlugZap,
   Eye,
   EyeOff,
+  Package,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,9 @@ import {
   testSteadfastConnection,
   getStoredUser,
 } from "@/lib/admin-api";
+import { ProductsPanel } from "./products-panel";
 
-type Tab = "general" | "steadfast";
+type Tab = "general" | "steadfast" | "products";
 
 export default function AdminSettingsPage() {
   const currentUser = getStoredUser();
@@ -127,7 +129,7 @@ export default function AdminSettingsPage() {
     "w-full rounded-xl border border-input bg-background py-3 pr-4 pl-10 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60";
 
   return (
-    <div className="max-w-xl">
+    <div className={activeTab === "products" ? "max-w-4xl" : "max-w-xl"}>
       <h1 className="mb-6 text-2xl font-bold text-foreground">Settings</h1>
 
       {isModerator && (
@@ -142,7 +144,7 @@ export default function AdminSettingsPage() {
           <Loader2 className="animate-spin text-primary" size={32} />
         </div>
       ) : (
-        <form onSubmit={handleSave}>
+        <>
           <div className="mb-4 flex gap-1 rounded-2xl border border-border bg-card p-1.5">
             <button
               type="button"
@@ -168,8 +170,24 @@ export default function AdminSettingsPage() {
               <Truck size={15} />
               Steadfast Courier
             </button>
+            <button
+              type="button"
+              onClick={() => switchTab("products")}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                activeTab === "products"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <Package size={15} />
+              Products
+            </button>
           </div>
 
+          {activeTab === "products" ? (
+            <ProductsPanel isModerator={isModerator} />
+          ) : (
+          <form onSubmit={handleSave}>
           <div className="space-y-5 rounded-2xl border border-border bg-card p-6">
             {activeTab === "general" && (
               <>
@@ -322,7 +340,9 @@ export default function AdminSettingsPage() {
               {saving ? "Saving..." : isModerator ? "Read-Only (Moderator)" : "Save Settings"}
             </Button>
           </div>
-        </form>
+          </form>
+          )}
+        </>
       )}
     </div>
   );

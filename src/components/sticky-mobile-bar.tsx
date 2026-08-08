@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ShoppingBag, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { singleJarPrice } from "@/lib/content";
+import { useFlavors } from "@/lib/use-flavours";
 import { cn } from "@/lib/utils";
 
 function getMidnightTarget() {
@@ -41,6 +41,13 @@ function pad(value: number) {
 export function StickyMobileBar() {
   const [scrolled, setScrolled] = useState(false);
   const countdown = useCountdown();
+  // Price of the featured (tagged/popular) flavour from the dynamic catalog.
+  const flavors = useFlavors();
+  const featured = flavors.find((f) => f.popular) ?? flavors[0];
+  const discountPct =
+    featured.regularPrice > featured.salePrice
+      ? Math.round((1 - featured.salePrice / featured.regularPrice) * 100)
+      : 0;
 
   useEffect(() => {
     const onScroll = () => {
@@ -65,14 +72,18 @@ export function StickyMobileBar() {
         <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
           <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
             <span className="font-heading text-sm xs:text-base font-bold text-brand-crimson leading-none whitespace-nowrap">
-              ৳{singleJarPrice.salePrice.toLocaleString("bn-BD")}
+              ৳{featured.salePrice.toLocaleString("bn-BD")}
             </span>
-            <span className="text-[10px] xs:text-xs text-muted-foreground line-through decoration-muted-foreground/70 leading-none whitespace-nowrap">
-              ৳{singleJarPrice.regularPrice.toLocaleString("bn-BD")}
-            </span>
-            <span className="rounded bg-brand-crimson/10 px-1 py-0.5 text-[9px] xs:text-[10px] font-bold text-brand-crimson leading-none whitespace-nowrap">
-              ৪৪% ছাড়
-            </span>
+            {featured.regularPrice > featured.salePrice && (
+              <span className="text-[10px] xs:text-xs text-muted-foreground line-through decoration-muted-foreground/70 leading-none whitespace-nowrap">
+                ৳{featured.regularPrice.toLocaleString("bn-BD")}
+              </span>
+            )}
+            {discountPct > 0 && (
+              <span className="rounded bg-brand-crimson/10 px-1 py-0.5 text-[9px] xs:text-[10px] font-bold text-brand-crimson leading-none whitespace-nowrap">
+                {discountPct.toLocaleString("bn-BD")}% ছাড়
+              </span>
+            )}
           </div>
 
           {countdown && (
