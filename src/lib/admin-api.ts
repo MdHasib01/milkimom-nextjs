@@ -147,14 +147,40 @@ export function bulkDeleteOrders(ids: string[]) {
   });
 }
 
-export function fetchSettings() {
-  return authRequest<{ adminEmail: string; adminMobile: string }>(API_ENDPOINTS.settings);
+export interface GlobalSettings {
+  adminEmail: string;
+  adminMobile: string;
+  steadfastEnabled: boolean;
+  steadfastApiKey: string;
+  steadfastSecretKey: string;
 }
 
-export function saveSettings(data: { adminEmail?: string; adminMobile?: string }) {
-  return authRequest(API_ENDPOINTS.settings, {
+export function fetchSettings() {
+  return authRequest<GlobalSettings>(API_ENDPOINTS.settings);
+}
+
+export function saveSettings(data: Partial<GlobalSettings>) {
+  return authRequest<GlobalSettings>(API_ENDPOINTS.settings, {
     method: "PUT",
     body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Verifies Steadfast API credentials by fetching the merchant balance.
+ * Pass keys to test unsaved values; omit to test the stored ones.
+ */
+export function testSteadfastConnection(data?: { apiKey?: string; secretKey?: string }) {
+  return authRequest<{ balance: number }>(API_ENDPOINTS.steadfastTest, {
+    method: "POST",
+    body: JSON.stringify(data || {}),
+  });
+}
+
+/** Manually (re)sends a Confirmed/Shipped order to Steadfast. */
+export function sendOrderToSteadfast(id: string) {
+  return authRequest(API_ENDPOINTS.orderSteadfast(id), {
+    method: "POST",
   });
 }
 

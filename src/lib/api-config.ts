@@ -23,6 +23,8 @@ export const API_ENDPOINTS = {
   login: `${API_BASE_URL}/api/auth/login`,
   me: `${API_BASE_URL}/api/auth/me`,
   settings: `${API_BASE_URL}/api/settings`,
+  steadfastTest: `${API_BASE_URL}/api/settings/steadfast/test`,
+  orderSteadfast: (id: string) => `${API_BASE_URL}/api/orders/${id}/steadfast`,
   adminUsers: `${API_BASE_URL}/api/admin-users`,
   adminUserById: (id: string) => `${API_BASE_URL}/api/admin-users/${id}`,
   motherCount: `${API_BASE_URL}/api/stats/mother-count`,

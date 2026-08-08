@@ -19,6 +19,7 @@ import {
   ShoppingCart,
   ShieldAlert,
   Trash2,
+  Truck,
   X,
 } from "lucide-react";
 
@@ -33,6 +34,7 @@ import {
   changeUnfinishedOrderStatus,
   deleteUnfinishedOrder,
   bulkDeleteUnfinishedOrders,
+  sendOrderToSteadfast,
   getStoredUser,
   type UnfinishedOrder,
 } from "@/lib/admin-api";
@@ -70,6 +72,10 @@ interface Order {
   createdAt: string;
   /** 'admin' = manually entered (message-campaign sale); undefined/'web' = site order */
   source?: "web" | "admin";
+  steadfastConsignmentId?: string;
+  steadfastTrackingCode?: string;
+  steadfastStatus?: string;
+  steadfastLastError?: string;
 }
 
 interface Pagination {
@@ -91,6 +97,7 @@ export default function AdminOrdersPage() {
   const [limit, setLimit] = useState(20);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [sendingSteadfastId, setSendingSteadfastId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isExporting, setIsExporting] = useState(false);
@@ -269,10 +276,31 @@ export default function AdminOrdersPage() {
           return o;
         })
       );
+      // Confirming triggers the automatic Steadfast entry server-side; pull
+      // the list again shortly so the new tracking code shows up.
+      if (status === "Confirmed") {
+        setTimeout(() => loadOrders(), 4000);
+      }
     } else {
       alert(typeof result.error === "string" ? result.error : "Failed to update status");
     }
     setUpdatingId(null);
+  }
+
+  async function handleSendToSteadfast(order: Order) {
+    if (sendingSteadfastId) return;
+    setSendingSteadfastId(order._id);
+    const result = await sendOrderToSteadfast(order._id);
+    if (result.success && result.data) {
+      const updated = result.data as Order;
+      setOrders((prev) => prev.map((o) => (o._id === order._id ? { ...o, ...updated } : o)));
+      setSuccessMsg(
+        `Order #${order._id.slice(-6)} sent to Steadfast (tracking: ${updated.steadfastTrackingCode || updated.steadfastConsignmentId}).`
+      );
+    } else {
+      alert(typeof result.error === "string" ? result.error : "Failed to send order to Steadfast");
+    }
+    setSendingSteadfastId(null);
   }
 
   // Open Edit Modal
@@ -921,6 +949,7 @@ export default function AdminOrdersPage() {
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Payment</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Total</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Status</th>
+                <th className="px-2.5 py-2.5 whitespace-nowrap">Courier</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Updated By</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Update Time</th>
                 <th className="px-2.5 py-2.5 text-center whitespace-nowrap">Actions</th>
@@ -1038,6 +1067,52 @@ export default function AdminOrdersPage() {
                             <Loader2 className="animate-spin text-muted-foreground" size={14} />
                           )}
                         </div>
+                      )}
+                    </td>
+
+                    {/* Courier (Steadfast) */}
+                    <td className="px-2.5 py-2.5 whitespace-nowrap">
+                      {order.steadfastTrackingCode || order.steadfastConsignmentId ? (
+                        <div>
+                          <a
+                            href={`https://steadfast.com.bd/t/${order.steadfastTrackingCode || order.steadfastConsignmentId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Track parcel on Steadfast"
+                            className="font-mono text-xs font-semibold text-primary hover:underline"
+                          >
+                            {order.steadfastTrackingCode || order.steadfastConsignmentId}
+                          </a>
+                          {order.steadfastStatus && (
+                            <p className="text-[10px] text-muted-foreground">
+                              {order.steadfastStatus.replace(/_/g, " ")}
+                            </p>
+                          )}
+                        </div>
+                      ) : !isModerator && ["Confirmed", "Shipped"].includes(order.status) ? (
+                        <button
+                          onClick={() => handleSendToSteadfast(order)}
+                          disabled={sendingSteadfastId === order._id}
+                          title={
+                            order.steadfastLastError
+                              ? `Last attempt failed: ${order.steadfastLastError} — click to retry`
+                              : "Send this order to Steadfast"
+                          }
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-bold transition disabled:opacity-50 ${
+                            order.steadfastLastError
+                              ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300"
+                              : "border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          {sendingSteadfastId === order._id ? (
+                            <Loader2 className="animate-spin" size={12} />
+                          ) : (
+                            <Truck size={12} />
+                          )}
+                          {order.steadfastLastError ? "Retry" : "Send"}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
                       )}
                     </td>
 
