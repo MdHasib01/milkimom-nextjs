@@ -24,6 +24,10 @@ import {
   X,
   MapPin,
   Globe,
+  Eye,
+  Clock,
+  User,
+  CreditCard,
 } from "lucide-react";
 
 import {
@@ -179,6 +183,38 @@ export default function AdminOrdersPage() {
   const [dynamicIpLocs, setDynamicIpLocs] = useState<Record<string, IpLocation>>({});
   const [fetchingIpId, setFetchingIpId] = useState<string | null>(null);
 
+  // Right-side Drawer States
+  const [drawerOrder, setDrawerOrder] = useState<Order | null>(null);
+  const [drawerUnfinishedOrder, setDrawerUnfinishedOrder] = useState<UnfinishedOrder | null>(null);
+
+  // ESC Key listener to close side drawer
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setDrawerOrder(null);
+        setDrawerUnfinishedOrder(null);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  function handleRowClick(e: React.MouseEvent, order: Order) {
+    const target = e.target as HTMLElement;
+    if (target.closest("button, a, input, select, label, [role='button']")) {
+      return;
+    }
+    setDrawerOrder(order);
+  }
+
+  function handleUnfinishedRowClick(e: React.MouseEvent, uOrder: UnfinishedOrder) {
+    const target = e.target as HTMLElement;
+    if (target.closest("button, a, input, select, label, [role='button']")) {
+      return;
+    }
+    setDrawerUnfinishedOrder(uOrder);
+  }
+
   async function handleLookupIp(id: string, ip: string, type: "orders" | "unfinished") {
     if (!ip || fetchingIpId === id) return;
     setFetchingIpId(id);
@@ -292,6 +328,17 @@ export default function AdminOrdersPage() {
             : o
         )
       );
+      setDrawerUnfinishedOrder((prev) => {
+        if (prev && prev._id === id) {
+          return {
+            ...prev,
+            status: (updatedOrder?.status || status) as UnfinishedOrder["status"],
+            statusUpdatedBy: updatedOrder?.statusUpdatedBy || prev.statusUpdatedBy,
+            statusUpdatedAt: updatedOrder?.statusUpdatedAt || prev.statusUpdatedAt,
+          };
+        }
+        return prev;
+      });
       setSuccessMsg("Unfinished order status updated");
     } else {
       alert(typeof result.error === "string" ? result.error : "Failed to update status");
@@ -305,6 +352,7 @@ export default function AdminOrdersPage() {
     const result = await deleteUnfinishedOrder(id);
     if (result.success) {
       setUnfinishedOrders((prev) => prev.filter((o) => o._id !== id));
+      if (drawerUnfinishedOrder?._id === id) setDrawerUnfinishedOrder(null);
       setSuccessMsg("Unfinished order deleted");
     } else {
       alert(typeof result.error === "string" ? result.error : "Failed to delete record");
@@ -342,6 +390,17 @@ export default function AdminOrdersPage() {
           return o;
         })
       );
+      setDrawerOrder((prev) => {
+        if (prev && prev._id === id) {
+          return {
+            ...prev,
+            status,
+            statusUpdatedBy: updatedOrder?.statusUpdatedBy || prev.statusUpdatedBy,
+            statusUpdatedAt: updatedOrder?.statusUpdatedAt || prev.statusUpdatedAt,
+          };
+        }
+        return prev;
+      });
       // Confirming triggers the automatic Steadfast entry server-side; pull
       // the list again shortly so the new tracking code shows up.
       if (status === "Confirmed") {
@@ -365,6 +424,7 @@ export default function AdminOrdersPage() {
           o._id === id ? { ...o, steadfastFraud: updatedOrder.steadfastFraud } : o
         )
       );
+      setDrawerOrder((prev) => (prev && prev._id === id ? { ...prev, steadfastFraud: updatedOrder.steadfastFraud } : prev));
       setSuccessMsg("Steadfast fraud check updated");
     } else {
       alert(typeof result.error === "string" ? result.error : "Failed to retrieve Steadfast fraud data");
@@ -403,6 +463,7 @@ export default function AdminOrdersPage() {
     if (result.success && result.data) {
       const updated = result.data as Order;
       setOrders((prev) => prev.map((o) => (o._id === editOrder._id ? updated : o)));
+      setDrawerOrder((prev) => (prev && prev._id === editOrder._id ? updated : prev));
       setSuccessMsg(`Order #${editOrder._id.slice(-6)} updated successfully.`);
       setEditOrder(null);
     } else {
@@ -861,7 +922,9 @@ export default function AdminOrdersPage() {
                   return (
                     <tr
                       key={u._id}
-                      className="border-b border-border/60 transition last:border-0 hover:bg-muted/60"
+                      onClick={(e) => handleUnfinishedRowClick(e, u)}
+                      title="Click row to view details in side drawer"
+                      className="border-b border-border/60 transition last:border-0 hover:bg-muted/70 cursor-pointer"
                     >
                       {/* Time */}
                       <td className="px-3 py-3 text-xs whitespace-nowrap">
@@ -1040,14 +1103,23 @@ export default function AdminOrdersPage() {
 
                       {/* Actions */}
                       <td className="px-3 py-3 text-center whitespace-nowrap">
-                        <button
-                          onClick={() => handleDeleteUnfinished(u._id)}
-                          disabled={isUpdating}
-                          title="Delete Record"
-                          className="inline-flex size-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-950/40"
-                        >
-                          {isUpdating ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                        </button>
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => setDrawerUnfinishedOrder(u)}
+                            title="View All Details in Side Drawer"
+                            className="inline-flex size-8 items-center justify-center rounded-lg border border-border text-primary hover:bg-primary/10 transition"
+                          >
+                            <Eye size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUnfinished(u._id)}
+                            disabled={isUpdating}
+                            title="Delete Record"
+                            className="inline-flex size-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-950/40"
+                          >
+                            {isUpdating ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1070,7 +1142,7 @@ export default function AdminOrdersPage() {
             <thead>
               <tr className="border-b border-border bg-muted/30 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                 {/* Header Checkmark */}
-                <th className="w-8 px-2 py-2.5 text-center">
+                <th className="w-8 px-2 py-3 text-center">
                   <input
                     type="checkbox"
                     checked={isAllCancelledSelected}
@@ -1084,20 +1156,12 @@ export default function AdminOrdersPage() {
                     className="h-4 w-4 cursor-pointer rounded border-input text-primary accent-primary focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-40"
                   />
                 </th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Date</th>
-                <th className="max-w-[150px] px-2.5 py-2.5">Customer</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Phone</th>
-                <th className="max-w-[110px] px-2.5 py-2.5">Location</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Flavour</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Payment</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Total</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Client IP</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Status</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Courier</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Courier History</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Updated By</th>
-                <th className="px-2.5 py-2.5 whitespace-nowrap">Update Time</th>
-                <th className="px-2.5 py-2.5 text-center whitespace-nowrap">Actions</th>
+                <th className="px-3.5 py-3 whitespace-nowrap">Date</th>
+                <th className="px-3.5 py-3">Customer & Phone</th>
+                <th className="px-3.5 py-3 whitespace-nowrap">Flavour & Price</th>
+                <th className="px-3.5 py-3 whitespace-nowrap">Payment</th>
+                <th className="px-3.5 py-3 whitespace-nowrap">Status</th>
+                <th className="px-3.5 py-3 text-center whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -1108,12 +1172,14 @@ export default function AdminOrdersPage() {
                 return (
                   <tr
                     key={order._id}
-                    className={`border-b border-border/60 transition last:border-0 hover:bg-muted/60 ${
+                    onClick={(e) => handleRowClick(e, order)}
+                    title="Click row to view complete order details in side drawer"
+                    className={`border-b border-border/60 transition last:border-0 hover:bg-muted/70 cursor-pointer ${
                       isSelected ? "bg-red-50/50 dark:bg-red-950/20" : ""
                     }`}
                   >
                     {/* Checkmark selection column */}
-                    <td className="w-8 px-2 py-2.5 text-center">
+                    <td className="w-8 px-2 py-3 text-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -1129,21 +1195,28 @@ export default function AdminOrdersPage() {
                     </td>
 
                     {/* Date */}
-                    <td className="px-2.5 py-2.5 whitespace-nowrap text-xs text-muted-foreground">
-                      {new Date(order.orderTime || order.createdAt).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
+                    <td className="px-3.5 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                      <span className="font-semibold text-foreground block">
+                        {new Date(order.orderTime || order.createdAt).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "2-digit",
+                        })}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">
+                        {new Date(order.orderTime || order.createdAt).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </span>
                     </td>
 
-                    {/* Customer */}
-                    <td className="max-w-[150px] px-2.5 py-2.5">
+                    {/* Customer & Phone */}
+                    <td className="px-3.5 py-3">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="truncate text-xs font-semibold text-foreground" title={order.customerName}>
-                          {order.customerName}
+                        <span className="font-bold text-xs text-foreground truncate max-w-[170px]" title={order.customerName}>
+                          {order.customerName || "Customer"}
                         </span>
                         {order.source === "admin" && (
                           <span className="shrink-0 inline-flex items-center rounded border border-violet-200 bg-violet-100 px-1.5 py-px text-[10px] font-bold text-violet-700 dark:border-violet-800/40 dark:bg-violet-950/50 dark:text-violet-300">
@@ -1151,94 +1224,42 @@ export default function AdminOrdersPage() {
                           </span>
                         )}
                       </div>
-                      <p className="truncate text-[11px] text-muted-foreground" title={order.address}>
-                        {order.address}
-                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-mono text-xs font-semibold text-foreground/80">{order.phone}</span>
+                        {order.steadfastFraud?.totalFraudReports && order.steadfastFraud.totalFraudReports > 0 ? (
+                          <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 px-1.5 py-px rounded">
+                            <AlertTriangle size={10} /> Risk
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
 
-                    {/* Phone */}
-                    <td className="px-2.5 py-2.5 font-mono text-xs text-foreground/80 whitespace-nowrap">{order.phone}</td>
-
-                    {/* Location */}
-                    <td className="max-w-[150px] px-2.5 py-2.5 text-xs text-muted-foreground truncate" title={order.address || [order.thana, order.district].filter(Boolean).join(", ")}>
-                      {order.address || [order.thana, order.district].filter(Boolean).join(", ") || "-"}
+                    {/* Flavour & Price */}
+                    <td className="px-3.5 py-3 whitespace-nowrap">
+                      <span className="text-xs font-semibold text-foreground block">{order.flavour || "Dark Chocolate"}</span>
+                      <span className="text-xs font-bold text-primary">৳{order.price}</span>
                     </td>
-
-                    {/* Flavour */}
-                    <td className="px-2.5 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{order.flavour}</td>
 
                     {/* Payment */}
-                    <td className="px-2.5 py-2.5 whitespace-nowrap">
+                    <td className="px-3.5 py-3 whitespace-nowrap">
                       <span
-                        className={`text-[11px] font-bold ${
-                          order.paymentStatus === "Paid" ? "text-green-600" : "text-muted-foreground"
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                          order.paymentStatus === "Paid"
+                            ? "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300"
+                            : "bg-muted text-muted-foreground border border-border/60"
                         }`}
                       >
                         {order.paymentStatus === "Paid" ? "Paid (bKash)" : "COD"}
                       </span>
                       {order.transactionId && (
-                        <p className="font-mono text-[10px] text-muted-foreground truncate max-w-[90px]">{order.transactionId}</p>
+                        <p className="font-mono text-[10px] text-muted-foreground truncate max-w-[100px] mt-0.5">
+                          {order.transactionId}
+                        </p>
                       )}
                     </td>
 
-                    {/* Price */}
-                    <td className="px-2.5 py-2.5 font-bold whitespace-nowrap text-xs text-foreground">৳{order.price}</td>
-
-                    {/* Client IP & Location Tracking */}
-                    <td className="px-2.5 py-2.5 font-mono text-xs text-muted-foreground whitespace-nowrap">
-                      {(() => {
-                        const ip = order.ipAddress;
-                        const ipLoc = dynamicIpLocs[order._id] || order.ipLocation;
-                        const mapUrl = getIpMapUrl(ipLoc, ip);
-                        const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
-
-                        return (
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-1.5">
-                              <span>{ip || "Unknown"}</span>
-                              {mapUrl && (
-                                <a
-                                  href={mapUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  title={
-                                    ipLoc?.loc
-                                      ? `Open exact IP coordinates (${ipLoc.loc}) on Google Maps`
-                                      : ipLoc?.city
-                                      ? `Open IP location (${[ipLoc.city, ipLoc.country].filter(Boolean).join(", ")}) on Google Maps`
-                                      : `View IP geolocation details for ${ip}`
-                                  }
-                                  className="inline-flex items-center gap-0.5 rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800/40 dark:bg-blue-950/60 dark:text-blue-300"
-                                >
-                                  <MapPin size={10} />
-                                  <span>Map</span>
-                                </a>
-                              )}
-                            </div>
-
-                            {ipLoc?.city || ipLoc?.country ? (
-                              <span className="text-[10px] font-sans font-semibold text-emerald-700 dark:text-emerald-400 truncate max-w-[130px]" title={[ipLoc.city, ipLoc.region, ipLoc.country].filter(Boolean).join(", ")}>
-                                📍 {[ipLoc.city, ipLoc.country].filter(Boolean).join(", ")}
-                              </span>
-                            ) : ip && !isLocal ? (
-                              <button
-                                type="button"
-                                onClick={() => handleLookupIp(order._id, ip, "orders")}
-                                disabled={fetchingIpId === order._id}
-                                className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-muted-foreground hover:text-primary underline cursor-pointer"
-                                title="Lookup IP geolocation via ipinfo.io"
-                              >
-                                {fetchingIpId === order._id ? <Loader2 size={10} className="animate-spin" /> : <Globe size={10} />}
-                                <span>{fetchingIpId === order._id ? "Locating..." : "Fetch Loc"}</span>
-                              </button>
-                            ) : null}
-                          </div>
-                        );
-                      })()}
-                    </td>
-
                     {/* Status dropdown */}
-                    <td className="px-2.5 py-2.5">
+                    <td className="px-3.5 py-3 whitespace-nowrap">
                       {isModerator ? (
                         <span
                           className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-bold ${
@@ -1248,12 +1269,12 @@ export default function AdminOrdersPage() {
                           {order.status}
                         </span>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <select
                             value={order.status}
                             disabled={updatingId === order._id}
                             onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                            className={`cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-bold outline-none disabled:opacity-50 ${
+                            className={`cursor-pointer rounded-lg border px-2 py-1 text-xs font-bold outline-none disabled:opacity-50 ${
                               STATUS_COLORS[order.status] || "border-border bg-muted text-foreground"
                             }`}
                           >
@@ -1270,179 +1291,32 @@ export default function AdminOrdersPage() {
                       )}
                     </td>
 
-                    {/* Courier (Steadfast Consignment) */}
-                    <td className="px-2.5 py-2.5 whitespace-nowrap">
-                      {order.steadfastTrackingCode || order.steadfastConsignmentId ? (
-                        <div>
-                          <a
-                            href={`https://steadfast.com.bd/t/${order.steadfastTrackingCode || order.steadfastConsignmentId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Track parcel on Steadfast"
-                            className="font-mono text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-                          >
-                            <Truck size={12} />
-                            {order.steadfastTrackingCode || order.steadfastConsignmentId}
-                          </a>
-                          {order.steadfastStatus && (
-                            <p className="text-[10px] text-muted-foreground capitalize">
-                              {order.steadfastStatus.replace(/_/g, " ")}
-                            </p>
-                          )}
-                        </div>
-                      ) : ["Confirmed", "Shipped"].includes(order.status) ? (
-                        <span
-                          title={
-                            order.steadfastLastError
-                              ? `Last attempt failed: ${order.steadfastLastError} — retrying automatically within the hour`
-                              : "Waiting for automatic Steadfast entry"
-                          }
-                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-bold ${
-                            order.steadfastLastError
-                              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300"
-                              : "border-border bg-muted/50 text-muted-foreground"
-                          }`}
-                        >
-                          <Truck size={12} />
-                          {order.steadfastLastError ? "Retrying" : "Queued"}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">-</span>
-                      )}
-                    </td>
-
-                    {/* Dedicated Column: Courier History / Fraud Check */}
-                    <td className="px-2.5 py-2.5 whitespace-nowrap">
-                      {(() => {
-                        const fraud = order.steadfastFraud;
-
-                        if (!fraud || fraud.checkedAt === undefined || fraud.checkedAt === null) {
-                          return (
-                            <button
-                              onClick={() => handleCheckFraud(order._id)}
-                              disabled={checkingFraudId === order._id}
-                              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
-                              title="Check customer delivery history & fraud reports via Steadfast API"
-                            >
-                              {checkingFraudId === order._id ? (
-                                <Loader2 size={10} className="animate-spin" />
-                              ) : (
-                                <ShieldAlert size={10} />
-                              )}
-                              <span>Check Fraud</span>
-                            </button>
-                          );
-                        }
-
-                        if (fraud.error) {
-                          return (
-                            <div className="flex items-center gap-1 text-[11px]">
-                              <span className="text-red-500 font-medium truncate max-w-[110px]" title={fraud.error}>
-                                {fraud.error}
-                              </span>
-                              <button
-                                onClick={() => handleCheckFraud(order._id)}
-                                disabled={checkingFraudId === order._id}
-                                className="text-blue-600 hover:underline"
-                                title="Retry fraud check"
-                              >
-                                <RefreshCw size={10} className={checkingFraudId === order._id ? "animate-spin" : ""} />
-                              </button>
-                            </div>
-                          );
-                        }
-
-                        const totalParcels = fraud.totalParcels ?? 0;
-                        const totalDelivered = fraud.totalDelivered ?? 0;
-                        const totalCancelled = fraud.totalCancelled ?? 0;
-                        const totalReports = fraud.totalFraudReports ?? 0;
-                        const successRate = fraud.successRate ?? null;
-
-                        if (totalParcels <= 0) {
-                          return (
-                            <div
-                              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
-                              title="No previous delivery history found for this phone number on Steadfast"
-                            >
-                              <ShieldCheck size={11} />
-                              <span>New Customer (0 history)</span>
-                            </div>
-                          );
-                        }
-
-                        const isHighRisk = totalReports > 0 || (successRate !== null && successRate < 50);
-                        const isGood = successRate !== null && successRate >= 75 && totalReports === 0;
-
-                        return (
-                          <div className="flex flex-col gap-0.5">
-                            {/* Main Pill: Success Rate / Fraud Alert */}
-                            <div
-                              className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border w-fit ${
-                                isHighRisk
-                                  ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/50"
-                                  : isGood
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/50"
-                                  : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/50"
-                              }`}
-                              title={`Delivery History: ${totalDelivered}/${totalParcels} Delivered, ${totalCancelled} Cancelled, ${totalReports} Fraud Reports`}
-                            >
-                              {totalReports > 0 ? (
-                                <AlertTriangle size={11} className="text-red-600 animate-pulse" />
-                              ) : isGood ? (
-                                <ShieldCheck size={11} className="text-emerald-600" />
-                              ) : (
-                                <AlertCircle size={11} className="text-amber-600" />
-                              )}
-                              <span>
-                                {totalReports > 0
-                                  ? `Fraud Report (${totalReports})`
-                                  : `${successRate}% Delivered (${totalDelivered}/${totalParcels})`}
-                              </span>
-                            </div>
-
-                            {/* Detailed breakdown: Cancelled orders & Delivered counts */}
-                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
-                              <span className={totalCancelled > 0 ? "font-bold text-red-600 dark:text-red-400" : ""}>
-                                ❌ {totalCancelled} Cancelled
-                              </span>
-                              <span>•</span>
-                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
-                                ✓ {totalDelivered} Delivered
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </td>
-
-                    {/* Updated By */}
-                    <td className="px-2.5 py-2.5 text-xs whitespace-nowrap">
-                      <span className="font-semibold text-foreground">
-                        {order.statusUpdatedBy || "-"}
-                      </span>
-                    </td>
-
-                    {/* Update Time */}
-                    <td className="px-2.5 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
-                      {order.statusUpdatedAt
-                        ? new Date(order.statusUpdatedAt).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })
-                        : "-"}
-                    </td>
-
-                    {/* Actions Column: Edit, Track, Print Invoice, Delete */}
-                    <td className="px-2.5 py-2.5 text-center">
+                    {/* Actions Column */}
+                    <td className="px-3.5 py-3 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1">
-                        {/* Edit Order Button (Admins/Superadmins only) */}
+                        {/* View Drawer Button */}
+                        <button
+                          onClick={() => setDrawerOrder(order)}
+                          title="View All Details in Side Drawer"
+                          className="inline-flex items-center justify-center rounded-lg p-1.5 text-primary transition hover:bg-primary/10"
+                        >
+                          <Eye size={15} />
+                        </button>
+
+                        {/* Print Invoice Button */}
+                        <button
+                          onClick={() => setInvoiceOrder(order)}
+                          title="Print Invoice"
+                          className="inline-flex items-center justify-center rounded-lg p-1.5 text-purple-600 transition hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-950/50"
+                        >
+                          <Printer size={15} />
+                        </button>
+
+                        {/* Edit Order Button */}
                         {!isModerator && (
                           <button
                             onClick={() => handleOpenEdit(order)}
-                            title="Edit Order (Name, Location, Flavour)"
+                            title="Edit Order Details"
                             className="inline-flex items-center justify-center rounded-lg p-1.5 text-amber-600 transition hover:bg-amber-100 hover:text-amber-700 dark:hover:bg-amber-950/50"
                           >
                             <Pencil size={15} />
@@ -1460,16 +1334,7 @@ export default function AdminOrdersPage() {
                           <ExternalLink size={15} />
                         </Link>
 
-                        {/* Print Invoice Button */}
-                        <button
-                          onClick={() => setInvoiceOrder(order)}
-                          title="Print Invoice"
-                          className="inline-flex items-center justify-center rounded-lg p-1.5 text-purple-600 transition hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-950/50"
-                        >
-                          <Printer size={15} />
-                        </button>
-
-                        {/* Delete Button (Only Admins and Superadmins) */}
+                        {/* Delete Button */}
                         {canDelete && (
                           <button
                             disabled={!isCancelled}
@@ -2093,6 +1958,737 @@ export default function AdminOrdersPage() {
                 </p>
                 <p>For any queries, call helpline: {siteConfig.phoneDisplay}</p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Right-Side Slide-Over Drawer for Order Details */}
+      {drawerOrder && (
+        <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0"
+            onClick={() => setDrawerOrder(null)}
+            aria-hidden="true"
+          />
+
+          <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
+            <div className="w-screen max-w-xl border-l border-border bg-card shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+              
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-muted/30">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <ShoppingCart size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold font-mono text-foreground">
+                        Order #{drawerOrder._id.slice(-6).toUpperCase()}
+                      </h2>
+                      {drawerOrder.source === "admin" ? (
+                        <span className="rounded border border-violet-200 bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700 dark:border-violet-800/40 dark:bg-violet-950/50 dark:text-violet-300">
+                          Manual Sale
+                        </span>
+                      ) : (
+                        <span className="rounded border border-blue-200 bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:border-blue-800/40 dark:bg-blue-950/50 dark:text-blue-300">
+                          Website Order
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <Clock size={12} />
+                      {new Date(drawerOrder.orderTime || drawerOrder.createdAt).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setDrawerOrder(null)}
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
+                  title="Close Drawer (Esc)"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Drawer Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                
+                {/* Card 1: Customer Details */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <User size={16} className="text-primary" />
+                      <span>Customer Information</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <a
+                        href={`tel:${drawerOrder.phone}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 transition"
+                        title="Call Customer"
+                      >
+                        <PhoneCall size={12} />
+                        <span>Call</span>
+                      </a>
+                      <a
+                        href={`https://wa.me/${drawerOrder.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                          "আসসালামু আলাইকুম, মিল্কিমম থেকে যোগাযোগ করা হচ্ছে।"
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-300 transition"
+                        title="WhatsApp Chat"
+                      >
+                        <ExternalLink size={12} />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Customer Name</span>
+                      <span className="font-bold text-foreground text-sm">{drawerOrder.customerName || "N/A"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Phone Number</span>
+                      <span className="font-mono font-bold text-foreground text-sm">{drawerOrder.phone}</span>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <span className="text-muted-foreground font-medium block">Delivery Address</span>
+                      <p className="font-semibold text-foreground mt-0.5 bg-background p-2.5 rounded-lg border border-border/60">
+                        {drawerOrder.address || "Address not provided"}
+                        {(drawerOrder.thana || drawerOrder.district) && (
+                          <span className="block text-muted-foreground font-normal mt-1">
+                            {[drawerOrder.thana, drawerOrder.district].filter(Boolean).join(", ")}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 2: Steadfast Delivery History & Fraud Reports (Under Customer Info) */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <ShieldCheck size={16} className="text-primary" />
+                      <span>Courier History & Fraud Check</span>
+                    </div>
+                    <button
+                      onClick={() => handleCheckFraud(drawerOrder._id)}
+                      disabled={checkingFraudId === drawerOrder._id}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-950/60 dark:text-blue-300 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {checkingFraudId === drawerOrder._id ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <RefreshCw size={12} />
+                      )}
+                      <span>Check Fraud</span>
+                    </button>
+                  </div>
+
+                  <div className="text-xs">
+                    {(() => {
+                      const fraud = drawerOrder.steadfastFraud;
+                      if (!fraud || fraud.checkedAt === undefined || fraud.checkedAt === null) {
+                        return (
+                          <p className="text-muted-foreground">
+                            Click "Check Fraud" to query Steadfast API for previous delivery success rate & fraud reports.
+                          </p>
+                        );
+                      }
+
+                      if (fraud.error) {
+                        return <p className="text-red-500 font-semibold">{fraud.error}</p>;
+                      }
+
+                      const totalParcels = fraud.totalParcels ?? 0;
+                      const totalDelivered = fraud.totalDelivered ?? 0;
+                      const totalCancelled = fraud.totalCancelled ?? 0;
+                      const totalReports = fraud.totalFraudReports ?? 0;
+                      const successRate = fraud.successRate ?? null;
+
+                      if (totalParcels <= 0) {
+                        return (
+                          <div className="p-3 bg-card rounded-lg border border-border/60 flex items-center gap-2 text-muted-foreground font-semibold">
+                            <ShieldCheck size={16} className="text-emerald-500" />
+                            <span>New Customer — No prior delivery history recorded on Steadfast.</span>
+                          </div>
+                        );
+                      }
+
+                      const isHighRisk = totalReports > 0 || (successRate !== null && successRate < 50);
+
+                      return (
+                        <div className="space-y-3">
+                          <div
+                            className={`p-3 rounded-lg border flex items-center justify-between ${
+                              isHighRisk
+                                ? "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-900/50"
+                                : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 font-bold">
+                              {isHighRisk ? <AlertTriangle size={18} className="text-red-600" /> : <ShieldCheck size={18} className="text-emerald-600" />}
+                              <span>{isHighRisk ? "Risk Alert" : "Good Customer Standing"}</span>
+                            </div>
+                            <span className="text-sm font-black">{successRate !== null ? `${successRate}% Delivered` : "-"}</span>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-2 text-center font-semibold">
+                            <div className="p-2 bg-background rounded-lg border border-border/60">
+                              <span className="text-muted-foreground text-[10px] block">Parcels</span>
+                              <span className="text-foreground text-sm font-bold">{totalParcels}</span>
+                            </div>
+                            <div className="p-2 bg-background rounded-lg border border-border/60">
+                              <span className="text-emerald-600 dark:text-emerald-400 text-[10px] block">Delivered</span>
+                              <span className="text-emerald-700 dark:text-emerald-300 text-sm font-bold">{totalDelivered}</span>
+                            </div>
+                            <div className="p-2 bg-background rounded-lg border border-border/60">
+                              <span className="text-red-600 dark:text-red-400 text-[10px] block">Cancelled</span>
+                              <span className="text-red-700 dark:text-red-300 text-sm font-bold">{totalCancelled}</span>
+                            </div>
+                            <div className="p-2 bg-background rounded-lg border border-border/60">
+                              <span className="text-amber-600 dark:text-amber-400 text-[10px] block">Reports</span>
+                              <span className="text-amber-700 dark:text-amber-300 text-sm font-bold">{totalReports}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Card 3: Client IP & Geolocation (Under Fraud Check) */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <Globe size={16} className="text-primary" />
+                      <span>Client IP & Geolocation</span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs space-y-2">
+                    {(() => {
+                      const ip = drawerOrder.ipAddress;
+                      const ipLoc = dynamicIpLocs[drawerOrder._id] || drawerOrder.ipLocation;
+                      const mapUrl = getIpMapUrl(ipLoc, ip);
+                      const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
+
+                      return (
+                        <div className="flex items-center justify-between bg-background p-3 rounded-lg border border-border/60">
+                          <div>
+                            <span className="text-muted-foreground font-medium block">IP Address</span>
+                            <span className="font-mono font-bold text-foreground">{ip || "Unknown"}</span>
+                            {ipLoc?.city || ipLoc?.country ? (
+                              <span className="block text-emerald-700 dark:text-emerald-400 font-semibold text-[11px] mt-0.5">
+                                📍 {[ipLoc.city, ipLoc.region, ipLoc.country].filter(Boolean).join(", ")}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {ip && !isLocal && !ipLoc?.city && (
+                              <button
+                                type="button"
+                                onClick={() => handleLookupIp(drawerOrder._id, ip, "orders")}
+                                disabled={fetchingIpId === drawerOrder._id}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg border border-input bg-card text-foreground hover:bg-muted cursor-pointer"
+                              >
+                                {fetchingIpId === drawerOrder._id ? <Loader2 size={12} className="animate-spin" /> : <Globe size={12} />}
+                                <span>Locate</span>
+                              </button>
+                            )}
+                            {mapUrl && (
+                              <a
+                                href={mapUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-950/60 dark:text-blue-300"
+                              >
+                                <MapPin size={12} />
+                                <span>Google Maps</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Card 4: Product & Payment Information */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <CreditCard size={16} className="text-primary" />
+                      <span>Product & Payment</span>
+                    </div>
+                    <span
+                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                        drawerOrder.paymentStatus === "Paid"
+                          ? "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300"
+                          : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                      }`}
+                    >
+                      {drawerOrder.paymentStatus === "Paid" ? "Paid (bKash)" : "Cash on Delivery (COD)"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Selected Flavour</span>
+                      <span className="font-bold text-foreground">{drawerOrder.flavour || "Dark Chocolate"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Total Price</span>
+                      <span className="font-bold text-primary text-base">৳{drawerOrder.price}</span>
+                    </div>
+                    {drawerOrder.transactionId && (
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground font-medium block">bKash TrxID</span>
+                        <span className="font-mono font-bold text-foreground bg-background px-2 py-1 rounded border border-border/60 inline-block">
+                          {drawerOrder.transactionId}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card 5: Order Status & Audit Trail */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <RefreshCw size={16} className="text-primary" />
+                      <span>Order Status & Audit</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground font-medium block mb-1">Update Status</span>
+                      {isModerator ? (
+                        <span
+                          className={`inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-bold ${
+                            STATUS_COLORS[drawerOrder.status] || "border-border bg-muted text-foreground"
+                          }`}
+                        >
+                          {drawerOrder.status}
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={drawerOrder.status}
+                            disabled={updatingId === drawerOrder._id}
+                            onChange={(e) => handleStatusChange(drawerOrder._id, e.target.value)}
+                            className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs font-bold outline-none disabled:opacity-50 ${
+                              STATUS_COLORS[drawerOrder.status] || "border-border bg-muted text-foreground"
+                            }`}
+                          >
+                            {STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                          {updatingId === drawerOrder._id && (
+                            <Loader2 className="animate-spin text-muted-foreground" size={14} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/40 text-xs">
+                      <div>
+                        <span className="text-muted-foreground font-medium block">Updated By</span>
+                        <span className="font-semibold text-foreground">{drawerOrder.statusUpdatedBy || "System / Initial"}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground font-medium block">Updated At</span>
+                        <span className="font-semibold text-foreground">
+                          {drawerOrder.statusUpdatedAt
+                            ? new Date(drawerOrder.statusUpdatedAt).toLocaleString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              })
+                            : "-"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 6: Steadfast Courier & Shipping */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <Truck size={16} className="text-primary" />
+                      <span>Steadfast Courier Shipping</span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs space-y-2">
+                    {drawerOrder.steadfastTrackingCode || drawerOrder.steadfastConsignmentId ? (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground font-medium">Tracking Code / CID:</span>
+                          <a
+                            href={`https://steadfast.com.bd/t/${drawerOrder.steadfastTrackingCode || drawerOrder.steadfastConsignmentId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono font-bold text-primary hover:underline inline-flex items-center gap-1 bg-background px-2.5 py-1 rounded border border-border/60"
+                          >
+                            <Truck size={13} />
+                            {drawerOrder.steadfastTrackingCode || drawerOrder.steadfastConsignmentId}
+                            <ExternalLink size={11} />
+                          </a>
+                        </div>
+                        {drawerOrder.steadfastStatus && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground font-medium">Courier Status:</span>
+                            <span className="font-bold text-foreground capitalize">
+                              {drawerOrder.steadfastStatus.replace(/_/g, " ")}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ) : ["Confirmed", "Shipped"].includes(drawerOrder.status) ? (
+                      <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 font-medium">
+                        <span>
+                          {drawerOrder.steadfastLastError
+                            ? `Last error: ${drawerOrder.steadfastLastError}`
+                            : "Queued for Steadfast automatic delivery entry"}
+                        </span>
+                        <span className="text-xs font-bold px-2 py-0.5 bg-amber-200/60 dark:bg-amber-900/60 rounded">
+                          {drawerOrder.steadfastLastError ? "Retrying" : "Queued"}
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground italic">No courier consignment assigned yet.</p>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Drawer Action Footer */}
+              <div className="border-t border-border px-6 py-4 bg-muted/40 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  {!isModerator && (
+                    <button
+                      onClick={() => {
+                        handleOpenEdit(drawerOrder);
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-300 transition cursor-pointer"
+                    >
+                      <Pencil size={14} /> Edit Details
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setInvoiceOrder(drawerOrder)}
+                    className="flex items-center gap-1.5 rounded-lg border border-purple-300 bg-purple-50 px-3 py-2 text-xs font-bold text-purple-800 hover:bg-purple-100 dark:border-purple-800/40 dark:bg-purple-950/40 dark:text-purple-300 transition cursor-pointer"
+                  >
+                    <Printer size={14} /> Invoice
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/track/${drawerOrder._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 rounded-lg border border-input bg-card px-3 py-2 text-xs font-bold text-foreground hover:bg-muted transition"
+                  >
+                    <ExternalLink size={14} /> Track Page
+                  </Link>
+
+                  {canDelete && drawerOrder.status === "Cancelled" && (
+                    <button
+                      onClick={() => setSingleDeleteOrder(drawerOrder)}
+                      className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white hover:bg-red-700 transition shadow-xs cursor-pointer"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Right-Side Slide-Over Drawer for Unfinished Order Details */}
+      {drawerUnfinishedOrder && (
+        <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0"
+            onClick={() => setDrawerUnfinishedOrder(null)}
+            aria-hidden="true"
+          />
+
+          <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
+            <div className="w-screen max-w-xl border-l border-border bg-card shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+              
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-amber-500/10">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-600">
+                    <AlertCircle size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-foreground">
+                        Unfinished Order
+                      </h2>
+                      <span className="rounded border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/50 dark:text-amber-300">
+                        Incomplete Checkout
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <Clock size={12} />
+                      {new Date(drawerUnfinishedOrder.updatedAt || drawerUnfinishedOrder.createdAt).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setDrawerUnfinishedOrder(null)}
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
+                  title="Close Drawer (Esc)"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Drawer Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                
+                {/* Customer Info */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <User size={16} className="text-amber-600" />
+                      <span>Customer & Contact</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <a
+                        href={`tel:${drawerUnfinishedOrder.phone}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 transition"
+                        title="Call Customer"
+                      >
+                        <PhoneCall size={12} />
+                        <span>Call</span>
+                      </a>
+                      <a
+                        href={`https://wa.me/${drawerUnfinishedOrder.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                          "আসসালামু আলাইকুম, মিল্কিমম থেকে যোগাযোগ করা হচ্ছে।"
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-300 transition"
+                        title="WhatsApp Chat"
+                      >
+                        <ExternalLink size={12} />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Customer Name</span>
+                      <span className="font-bold text-foreground text-sm">{drawerUnfinishedOrder.customerName || "Customer"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Phone Number</span>
+                      <span className="font-mono font-bold text-foreground text-sm">{drawerUnfinishedOrder.phone}</span>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <span className="text-muted-foreground font-medium block">Entered Address</span>
+                      <p className="font-semibold text-foreground mt-0.5 bg-background p-2.5 rounded-lg border border-border/60">
+                        {drawerUnfinishedOrder.address || "Address not provided"}
+                        {(drawerUnfinishedOrder.thana || drawerUnfinishedOrder.district) && (
+                          <span className="block text-muted-foreground font-normal mt-1">
+                            {[drawerUnfinishedOrder.thana, drawerUnfinishedOrder.district].filter(Boolean).join(", ")}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Client IP & Geolocation (Under Customer Info) */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <Globe size={16} className="text-amber-600" />
+                      <span>Client IP & Location</span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs space-y-2">
+                    {(() => {
+                      const ip = drawerUnfinishedOrder.ipAddress;
+                      const ipLoc = dynamicIpLocs[drawerUnfinishedOrder._id] || drawerUnfinishedOrder.ipLocation;
+                      const mapUrl = getIpMapUrl(ipLoc, ip);
+                      const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
+
+                      return (
+                        <div className="flex items-center justify-between bg-background p-3 rounded-lg border border-border/60">
+                          <div>
+                            <span className="text-muted-foreground font-medium block">IP Address</span>
+                            <span className="font-mono font-bold text-foreground">{ip || "Unknown"}</span>
+                            {ipLoc?.city || ipLoc?.country ? (
+                              <span className="block text-emerald-700 dark:text-emerald-400 font-semibold text-[11px] mt-0.5">
+                                📍 {[ipLoc.city, ipLoc.region, ipLoc.country].filter(Boolean).join(", ")}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {ip && !isLocal && !ipLoc?.city && (
+                              <button
+                                type="button"
+                                onClick={() => handleLookupIp(drawerUnfinishedOrder._id, ip, "unfinished")}
+                                disabled={fetchingIpId === drawerUnfinishedOrder._id}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg border border-input bg-card text-foreground hover:bg-muted cursor-pointer"
+                              >
+                                {fetchingIpId === drawerUnfinishedOrder._id ? <Loader2 size={12} className="animate-spin" /> : <Globe size={12} />}
+                                <span>Locate</span>
+                              </button>
+                            )}
+                            {mapUrl && (
+                              <a
+                                href={mapUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-950/60 dark:text-blue-300"
+                              >
+                                <MapPin size={12} />
+                                <span>Google Maps</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Product & Price */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <ShoppingCart size={16} className="text-amber-600" />
+                      <span>Selected Product</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Flavour</span>
+                      <span className="font-bold text-foreground">{drawerUnfinishedOrder.flavour || "Dark Chocolate"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground font-medium block">Price</span>
+                      <span className="font-bold text-amber-600 text-base">
+                        ৳{(drawerUnfinishedOrder.price || 4990).toLocaleString("bn-BD")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status & Audit */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <RefreshCw size={16} className="text-amber-600" />
+                      <span>Status Tag</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <select
+                        value={drawerUnfinishedOrder.status}
+                        disabled={updatingId === drawerUnfinishedOrder._id}
+                        onChange={(e) => handleUnfinishedStatusChange(drawerUnfinishedOrder._id, e.target.value)}
+                        className={cn(
+                          "rounded-lg px-3 py-1.5 text-xs font-bold border outline-none cursor-pointer transition-all",
+                          UNFINISHED_STATUS_COLORS[drawerUnfinishedOrder.status] || "bg-muted text-muted-foreground"
+                        )}
+                      >
+                        <option value="Pending">Pending (পেন্ডিং)</option>
+                        <option value="Called User">Called User (কল করা হয়েছে)</option>
+                        <option value="Cancelled">Cancelled (বাতিল)</option>
+                        <option value="Spam">Spam (স্প্যাম)</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/40 text-xs">
+                      <div>
+                        <span className="text-muted-foreground font-medium block">Updated By</span>
+                        <span className="font-semibold text-foreground">{drawerUnfinishedOrder.statusUpdatedBy || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground font-medium block">Updated At</span>
+                        <span className="font-semibold text-foreground">
+                          {drawerUnfinishedOrder.statusUpdatedAt
+                            ? new Date(drawerUnfinishedOrder.statusUpdatedAt).toLocaleString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              })
+                            : "-"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Drawer Action Footer */}
+              <div className="border-t border-border px-6 py-4 bg-muted/40 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    handleDeleteUnfinished(drawerUnfinishedOrder._id);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-400 transition cursor-pointer"
+                >
+                  <Trash2 size={14} /> Delete Record
+                </button>
+                <button
+                  onClick={() => setDrawerUnfinishedOrder(null)}
+                  className="rounded-lg border border-input bg-card px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
