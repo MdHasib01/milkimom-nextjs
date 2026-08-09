@@ -22,6 +22,8 @@ import {
   Trash2,
   Truck,
   X,
+  MapPin,
+  Globe,
 } from "lucide-react";
 
 import {
@@ -36,8 +38,10 @@ import {
   changeUnfinishedOrderStatus,
   deleteUnfinishedOrder,
   bulkDeleteUnfinishedOrders,
+  lookupIpInfo,
   getStoredUser,
   type UnfinishedOrder,
+  type IpLocation,
 } from "@/lib/admin-api";
 import { siteConfig } from "@/lib/content";
 import { useFlavors } from "@/lib/use-flavours";
@@ -75,6 +79,7 @@ interface Order {
   /** 'admin' = manually entered (message-campaign sale); undefined/'web' = site order */
   source?: "web" | "admin";
   ipAddress?: string;
+  ipLocation?: IpLocation;
   steadfastConsignmentId?: string;
   steadfastTrackingCode?: string;
   steadfastStatus?: string;
@@ -169,6 +174,33 @@ export default function AdminOrdersPage() {
     Cancelled: "bg-red-100 text-red-800 border-red-200 dark:bg-red-950/60 dark:text-red-300",
     Spam: "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300",
   };
+
+  // Dynamic IP Location state for on-demand lookups
+  const [dynamicIpLocs, setDynamicIpLocs] = useState<Record<string, IpLocation>>({});
+  const [fetchingIpId, setFetchingIpId] = useState<string | null>(null);
+
+  async function handleLookupIp(id: string, ip: string) {
+    if (!ip || fetchingIpId === id) return;
+    setFetchingIpId(id);
+    const res = await lookupIpInfo(ip);
+    if (res.success && res.data) {
+      setDynamicIpLocs((prev) => ({ ...prev, [id]: res.data as IpLocation }));
+    } else {
+      alert(typeof res.error === "string" ? res.error : "Failed to fetch IP location");
+    }
+    setFetchingIpId(null);
+  }
+
+  function getMapUrl(ipLoc?: IpLocation, address?: string, thana?: string, district?: string): string | null {
+    if (ipLoc?.loc && ipLoc.loc.trim()) {
+      return `https://www.google.com/maps?q=${encodeURIComponent(ipLoc.loc.trim())}`;
+    }
+    const queryParts = [address, thana, district, "Bangladesh"].filter((s) => s && s.trim());
+    if (queryParts.length > 1 || (queryParts.length === 1 && queryParts[0] !== "Bangladesh")) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryParts.join(", "))}`;
+    }
+    return null;
+  }
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -897,9 +929,51 @@ export default function AdminOrdersPage() {
                         })()}
                       </td>
 
-                      {/* Client IP */}
+                      {/* Client IP & Location Tracking */}
                       <td className="px-3 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">
-                        {u.ipAddress || "Unknown"}
+                        {(() => {
+                          const ip = u.ipAddress;
+                          const ipLoc = dynamicIpLocs[u._id] || u.ipLocation;
+                          const mapUrl = getMapUrl(ipLoc, u.address, u.thana, u.district);
+                          const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
+
+                          return (
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1.5">
+                                <span>{ip || "Unknown"}</span>
+                                {mapUrl && (
+                                  <a
+                                    href={mapUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title={ipLoc?.loc ? `Open exact coordinates (${ipLoc.loc}) on Google Maps` : "Search address on Google Maps"}
+                                    className="inline-flex items-center gap-0.5 rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800/40 dark:bg-blue-950/60 dark:text-blue-300"
+                                  >
+                                    <MapPin size={10} />
+                                    <span>Map</span>
+                                  </a>
+                                )}
+                              </div>
+
+                              {ipLoc?.city || ipLoc?.country ? (
+                                <span className="text-[10px] font-sans font-semibold text-emerald-700 dark:text-emerald-400 truncate max-w-[130px]" title={[ipLoc.city, ipLoc.region, ipLoc.country].filter(Boolean).join(", ")}>
+                                  📍 {[ipLoc.city, ipLoc.country].filter(Boolean).join(", ")}
+                                </span>
+                              ) : ip && !isLocal ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleLookupIp(u._id, ip)}
+                                  disabled={fetchingIpId === u._id}
+                                  className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-muted-foreground hover:text-primary underline cursor-pointer"
+                                  title="Lookup IP geolocation via ipinfo.io"
+                                >
+                                  {fetchingIpId === u._id ? <Loader2 size={10} className="animate-spin" /> : <Globe size={10} />}
+                                  <span>{fetchingIpId === u._id ? "Locating..." : "Fetch Loc"}</span>
+                                </button>
+                              ) : null}
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       {/* Status Tag Selection */}
@@ -1082,9 +1156,51 @@ export default function AdminOrdersPage() {
                     {/* Price */}
                     <td className="px-2.5 py-2.5 font-bold whitespace-nowrap text-xs text-foreground">৳{order.price}</td>
 
-                    {/* Client IP */}
+                    {/* Client IP & Location Tracking */}
                     <td className="px-2.5 py-2.5 font-mono text-xs text-muted-foreground whitespace-nowrap">
-                      {order.ipAddress || "Unknown"}
+                      {(() => {
+                        const ip = order.ipAddress;
+                        const ipLoc = dynamicIpLocs[order._id] || order.ipLocation;
+                        const mapUrl = getMapUrl(ipLoc, order.address, order.thana, order.district);
+                        const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
+
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1.5">
+                              <span>{ip || "Unknown"}</span>
+                              {mapUrl && (
+                                <a
+                                  href={mapUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title={ipLoc?.loc ? `Open exact coordinates (${ipLoc.loc}) on Google Maps` : "Search address on Google Maps"}
+                                  className="inline-flex items-center gap-0.5 rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800/40 dark:bg-blue-950/60 dark:text-blue-300"
+                                >
+                                  <MapPin size={10} />
+                                  <span>Map</span>
+                                </a>
+                              )}
+                            </div>
+
+                            {ipLoc?.city || ipLoc?.country ? (
+                              <span className="text-[10px] font-sans font-semibold text-emerald-700 dark:text-emerald-400 truncate max-w-[130px]" title={[ipLoc.city, ipLoc.region, ipLoc.country].filter(Boolean).join(", ")}>
+                                📍 {[ipLoc.city, ipLoc.country].filter(Boolean).join(", ")}
+                              </span>
+                            ) : ip && !isLocal ? (
+                              <button
+                                type="button"
+                                onClick={() => handleLookupIp(order._id, ip)}
+                                disabled={fetchingIpId === order._id}
+                                className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-muted-foreground hover:text-primary underline cursor-pointer"
+                                title="Lookup IP geolocation via ipinfo.io"
+                              >
+                                {fetchingIpId === order._id ? <Loader2 size={10} className="animate-spin" /> : <Globe size={10} />}
+                                <span>{fetchingIpId === order._id ? "Locating..." : "Fetch Loc"}</span>
+                              </button>
+                            ) : null}
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     {/* Status dropdown */}

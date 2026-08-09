@@ -13,6 +13,8 @@ import {
   PlugZap,
   Eye,
   EyeOff,
+  MapPin,
+  Globe,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,10 +22,11 @@ import {
   fetchSettings,
   saveSettings,
   testSteadfastConnection,
+  testIpinfoConnection,
   getStoredUser,
 } from "@/lib/admin-api";
 
-type Tab = "general" | "steadfast";
+type Tab = "general" | "steadfast" | "ipinfo";
 
 export default function AdminSettingsPage() {
   const currentUser = getStoredUser();
@@ -39,9 +42,14 @@ export default function AdminSettingsPage() {
   const [steadfastSecretKey, setSteadfastSecretKey] = useState("");
   const [showSecret, setShowSecret] = useState(false);
 
+  const [ipinfoEnabled, setIpinfoEnabled] = useState(false);
+  const [ipinfoToken, setIpinfoToken] = useState("");
+  const [showIpinfoToken, setShowIpinfoToken] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [testingIpinfo, setTestingIpinfo] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
@@ -53,6 +61,8 @@ export default function AdminSettingsPage() {
         setSteadfastEnabled(Boolean(result.data.steadfastEnabled));
         setSteadfastApiKey(result.data.steadfastApiKey || "");
         setSteadfastSecretKey(result.data.steadfastSecretKey || "");
+        setIpinfoEnabled(Boolean(result.data.ipinfoEnabled));
+        setIpinfoToken(result.data.ipinfoToken || "");
       }
       setLoading(false);
     })();
@@ -84,6 +94,8 @@ export default function AdminSettingsPage() {
       steadfastEnabled,
       steadfastApiKey: steadfastApiKey.trim(),
       steadfastSecretKey: steadfastSecretKey.trim(),
+      ipinfoEnabled,
+      ipinfoToken: ipinfoToken.trim(),
     });
     setSaving(false);
     if (result.success) {
@@ -119,6 +131,28 @@ export default function AdminSettingsPage() {
       setMessage({
         type: "error",
         text: typeof result.error === "string" ? result.error : "Could not connect to Steadfast",
+      });
+    }
+  }
+
+  async function handleTestIpinfo() {
+    if (isModerator) return;
+    setTestingIpinfo(true);
+    setMessage(null);
+
+    const result = await testIpinfoConnection({ token: ipinfoToken.trim() });
+    setTestingIpinfo(false);
+
+    if (result.success && result.data) {
+      const loc = result.data.city || result.data.country ? `${result.data.city || ''}, ${result.data.country || ''}` : 'Location verified';
+      setMessage({
+        type: "success",
+        text: `Connected to ipinfo.io successfully! IP: ${result.data.ip} (${loc}).`,
+      });
+    } else {
+      setMessage({
+        type: "error",
+        text: typeof result.error === "string" ? result.error : "Could not connect to ipinfo.io",
       });
     }
   }
@@ -168,164 +202,245 @@ export default function AdminSettingsPage() {
               <Truck size={15} />
               Steadfast Courier
             </button>
+            <button
+              type="button"
+              onClick={() => switchTab("ipinfo")}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                activeTab === "ipinfo"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <MapPin size={15} />
+              ipinfo.io (Location)
+            </button>
           </div>
 
           <form onSubmit={handleSave}>
-          <div className="space-y-5 rounded-2xl border border-border bg-card p-6">
-            {activeTab === "general" && (
-              <>
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Admin Email</label>
-                  <p className="mb-2 text-xs text-muted-foreground">
-                    New order notification emails are sent to this address.
-                  </p>
-                  <div className="relative">
-                    <Mail size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="email"
-                      value={adminEmail}
-                      onChange={(e) => setAdminEmail(e.target.value)}
-                      disabled={isModerator}
-                      placeholder="admin@milkimom.com"
-                      className={inputClass}
-                    />
+            <div className="space-y-5 rounded-2xl border border-border bg-card p-6">
+              {activeTab === "general" && (
+                <>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-foreground">Admin Email</label>
+                    <p className="mb-2 text-xs text-muted-foreground">
+                      New order notification emails are sent to this address.
+                    </p>
+                    <div className="relative">
+                      <Mail size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="email"
+                        value={adminEmail}
+                        onChange={(e) => setAdminEmail(e.target.value)}
+                        disabled={isModerator}
+                        placeholder="admin@milkimom.com"
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Admin Mobile</label>
-                  <p className="mb-2 text-xs text-muted-foreground">
-                    New order notification SMS is sent to this number.
-                  </p>
-                  <div className="relative">
-                    <Smartphone size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="tel"
-                      value={adminMobile}
-                      onChange={(e) => setAdminMobile(e.target.value)}
-                      disabled={isModerator}
-                      placeholder="01XXXXXXXXX"
-                      className={`${inputClass} font-mono`}
-                    />
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-foreground">Admin Mobile</label>
+                    <p className="mb-2 text-xs text-muted-foreground">
+                      New order notification SMS is sent to this number.
+                    </p>
+                    <div className="relative">
+                      <Smartphone size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="tel"
+                        value={adminMobile}
+                        onChange={(e) => setAdminMobile(e.target.value)}
+                        disabled={isModerator}
+                        placeholder="01XXXXXXXXX"
+                        className={`${inputClass} font-mono`}
+                      />
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
-
-            {activeTab === "steadfast" && (
-              <>
-                <div className="rounded-xl border border-border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">
-                  When enabled, every order that is marked <strong className="text-foreground">Confirmed</strong> is
-                  automatically entered as a consignment in your Steadfast merchant account, and the courier&apos;s
-                  delivery status is synced back every 30 minutes — orders are auto-marked{" "}
-                  <strong className="text-foreground">Delivered</strong> or{" "}
-                  <strong className="text-foreground">Cancelled</strong>. Get your API keys from the{" "}
-                  <a
-                    href="https://steadfast.com.bd/user/api"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-semibold text-primary underline"
-                  >
-                    Steadfast merchant panel → API
-                  </a>
-                  .
-                </div>
-
-                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-background px-4 py-3.5">
-                  <span>
-                    <span className="block text-sm font-semibold text-foreground">Enable Steadfast Integration</span>
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      Auto entry on confirm + automatic delivery status updates
-                    </span>
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={steadfastEnabled}
-                    onChange={(e) => setSteadfastEnabled(e.target.checked)}
-                    disabled={isModerator}
-                    className="size-5 shrink-0 accent-primary disabled:cursor-not-allowed"
-                  />
-                </label>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-foreground">API Key</label>
-                  <div className="relative">
-                    <KeyRound size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="text"
-                      value={steadfastApiKey}
-                      onChange={(e) => setSteadfastApiKey(e.target.value)}
-                      disabled={isModerator}
-                      placeholder="Your Steadfast API Key"
-                      autoComplete="off"
-                      className={`${inputClass} font-mono`}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Secret Key</label>
-                  <div className="relative">
-                    <Lock size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type={showSecret ? "text" : "password"}
-                      value={steadfastSecretKey}
-                      onChange={(e) => setSteadfastSecretKey(e.target.value)}
-                      disabled={isModerator}
-                      placeholder="Your Steadfast Secret Key"
-                      autoComplete="off"
-                      className={`${inputClass} pr-11 font-mono`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSecret((v) => !v)}
-                      className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      aria-label={showSecret ? "Hide secret key" : "Show secret key"}
-                    >
-                      {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleTestConnection}
-                  disabled={testing || isModerator}
-                  className="gap-2 rounded-xl"
-                >
-                  {testing ? <Loader2 className="size-4 animate-spin" /> : <PlugZap size={16} />}
-                  {testing ? "Testing..." : "Test Connection"}
-                </Button>
-              </>
-            )}
-
-            {message && (
-              <p
-                className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
-                  message.type === "success"
-                    ? "border-green-200 bg-green-50 text-green-700"
-                    : "border-destructive/20 bg-destructive/10 text-destructive"
-                }`}
-              >
-                {message.text}
-              </p>
-            )}
-
-            <Button type="submit" disabled={saving || isModerator} className="gap-2 rounded-xl px-6 py-3">
-              {saving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : isModerator ? (
-                <Lock size={16} />
-              ) : (
-                <Save size={16} />
+                </>
               )}
-              {saving ? "Saving..." : isModerator ? "Read-Only (Moderator)" : "Save Settings"}
-            </Button>
-          </div>
+
+              {activeTab === "steadfast" && (
+                <>
+                  <div className="rounded-xl border border-border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">
+                    When enabled, every order that is marked <strong className="text-foreground">Confirmed</strong> is
+                    automatically entered as a consignment in your Steadfast merchant account, and the courier&apos;s
+                    delivery status is synced back every 30 minutes — orders are auto-marked{" "}
+                    <strong className="text-foreground">Delivered</strong> or{" "}
+                    <strong className="text-foreground">Cancelled</strong>. Get your API keys from the{" "}
+                    <a
+                      href="https://steadfast.com.bd/user/api"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-primary underline"
+                    >
+                      Steadfast merchant panel → API
+                    </a>
+                    .
+                  </div>
+
+                  <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-background px-4 py-3.5">
+                    <span>
+                      <span className="block text-sm font-semibold text-foreground">Enable Steadfast Integration</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        Auto entry on confirm + automatic delivery status updates
+                      </span>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={steadfastEnabled}
+                      onChange={(e) => setSteadfastEnabled(e.target.checked)}
+                      disabled={isModerator}
+                      className="size-5 shrink-0 accent-primary disabled:cursor-not-allowed"
+                    />
+                  </label>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-foreground">API Key</label>
+                    <div className="relative">
+                      <KeyRound size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={steadfastApiKey}
+                        onChange={(e) => setSteadfastApiKey(e.target.value)}
+                        disabled={isModerator}
+                        placeholder="Your Steadfast API Key"
+                        autoComplete="off"
+                        className={`${inputClass} font-mono`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-foreground">Secret Key</label>
+                    <div className="relative">
+                      <Lock size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type={showSecret ? "text" : "password"}
+                        value={steadfastSecretKey}
+                        onChange={(e) => setSteadfastSecretKey(e.target.value)}
+                        disabled={isModerator}
+                        placeholder="Your Steadfast Secret Key"
+                        autoComplete="off"
+                        className={`${inputClass} pr-11 font-mono`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSecret((v) => !v)}
+                        className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showSecret ? "Hide secret key" : "Show secret key"}
+                      >
+                        {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTestConnection}
+                    disabled={testing || isModerator}
+                    className="gap-2 rounded-xl"
+                  >
+                    {testing ? <Loader2 className="size-4 animate-spin" /> : <PlugZap size={16} />}
+                    {testing ? "Testing..." : "Test Connection"}
+                  </Button>
+                </>
+              )}
+
+              {activeTab === "ipinfo" && (
+                <>
+                  <div className="rounded-xl border border-border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">
+                    Integration with <strong className="text-foreground">ipinfo.io</strong> allows automatic IP geolocation lookup (City, Region, Coordinates) for orders placed by customers. It also enables direct <strong className="text-foreground">Google Maps links</strong> on orders in your admin dashboard. Get your free token (50,000 req/mo) from{" "}
+                    <a
+                      href="https://ipinfo.io/signup"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-primary underline"
+                    >
+                      ipinfo.io → Token Dashboard
+                    </a>
+                    .
+                  </div>
+
+                  <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-background px-4 py-3.5">
+                    <span>
+                      <span className="block text-sm font-semibold text-foreground">Enable ipinfo.io Location Tracking</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        Automatically fetch IP geolocation and map coordinates for customer orders
+                      </span>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={ipinfoEnabled}
+                      onChange={(e) => setIpinfoEnabled(e.target.checked)}
+                      disabled={isModerator}
+                      className="size-5 shrink-0 accent-primary disabled:cursor-not-allowed"
+                    />
+                  </label>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-foreground">API Key / Access Token</label>
+                    <div className="relative">
+                      <Globe size={16} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type={showIpinfoToken ? "text" : "password"}
+                        value={ipinfoToken}
+                        onChange={(e) => setIpinfoToken(e.target.value)}
+                        disabled={isModerator}
+                        placeholder="Your ipinfo.io access token (e.g. 1a2b3c4d5e)"
+                        autoComplete="off"
+                        className={`${inputClass} pr-11 font-mono`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowIpinfoToken((v) => !v)}
+                        className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showIpinfoToken ? "Hide access token" : "Show access token"}
+                      >
+                        {showIpinfoToken ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTestIpinfo}
+                    disabled={testingIpinfo || isModerator}
+                    className="gap-2 rounded-xl"
+                  >
+                    {testingIpinfo ? <Loader2 className="size-4 animate-spin" /> : <PlugZap size={16} />}
+                    {testingIpinfo ? "Testing ipinfo.io..." : "Test IPInfo API Connection"}
+                  </Button>
+                </>
+              )}
+
+              {message && (
+                <p
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+                    message.type === "success"
+                      ? "border-green-200 bg-green-50 text-green-700"
+                      : "border-destructive/20 bg-destructive/10 text-destructive"
+                  }`}
+                >
+                  {message.text}
+                </p>
+              )}
+
+              <Button type="submit" disabled={saving || isModerator} className="gap-2 rounded-xl px-6 py-3">
+                {saving ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : isModerator ? (
+                  <Lock size={16} />
+                ) : (
+                  <Save size={16} />
+                )}
+                {saving ? "Saving..." : isModerator ? "Read-Only (Moderator)" : "Save Settings"}
+              </Button>
+            </div>
           </form>
         </>
       )}
     </div>
   );
 }
+

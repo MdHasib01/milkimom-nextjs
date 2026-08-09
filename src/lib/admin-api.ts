@@ -153,12 +153,24 @@ export function bulkDeleteOrders(ids: string[]) {
   });
 }
 
+export interface IpLocation {
+  city?: string;
+  region?: string;
+  country?: string;
+  loc?: string;
+  org?: string;
+  postal?: string;
+  timezone?: string;
+}
+
 export interface GlobalSettings {
   adminEmail: string;
   adminMobile: string;
   steadfastEnabled: boolean;
   steadfastApiKey: string;
   steadfastSecretKey: string;
+  ipinfoEnabled: boolean;
+  ipinfoToken: string;
 }
 
 export function fetchSettings() {
@@ -181,6 +193,23 @@ export function testSteadfastConnection(data?: { apiKey?: string; secretKey?: st
     method: "POST",
     body: JSON.stringify(data || {}),
   });
+}
+
+/**
+ * Verifies ipinfo.io API token by querying location info for caller IP.
+ */
+export function testIpinfoConnection(data?: { token?: string }) {
+  return authRequest<IpLocation & { ip?: string }>(API_ENDPOINTS.ipinfoTest, {
+    method: "POST",
+    body: JSON.stringify(data || {}),
+  });
+}
+
+/**
+ * Performs on-demand IP geolocation lookup via server proxy.
+ */
+export function lookupIpInfo(ip: string) {
+  return authRequest<IpLocation & { ip?: string }>(API_ENDPOINTS.ipinfoLookup(ip));
 }
 
 /**
@@ -270,6 +299,7 @@ export interface UnfinishedOrder {
   flavour?: string;
   price?: number;
   ipAddress?: string;
+  ipLocation?: IpLocation;
   status: "Pending" | "Called User" | "Cancelled" | "Spam";
   statusUpdatedBy?: string;
   statusUpdatedAt?: string;

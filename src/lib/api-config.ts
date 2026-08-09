@@ -25,6 +25,8 @@ export const API_ENDPOINTS = {
   me: `${API_BASE_URL}/api/auth/me`,
   settings: `${API_BASE_URL}/api/settings`,
   steadfastTest: `${API_BASE_URL}/api/settings/steadfast/test`,
+  ipinfoTest: `${API_BASE_URL}/api/settings/ipinfo/test`,
+  ipinfoLookup: (ip: string) => `${API_BASE_URL}/api/settings/ipinfo/lookup/${encodeURIComponent(ip)}`,
   flavours: `${API_BASE_URL}/api/flavours`,
   flavoursAdmin: `${API_BASE_URL}/api/flavours/admin`,
   flavourById: (id: string) => `${API_BASE_URL}/api/flavours/${id}`,
