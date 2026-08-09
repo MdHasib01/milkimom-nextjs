@@ -118,6 +118,12 @@ export function changeOrderStatus(id: string, status: string) {
   });
 }
 
+export function checkOrderFraud(id: string) {
+  return authRequest(API_ENDPOINTS.orderCheckFraud(id), {
+    method: "POST",
+  });
+}
+
 export function updateOrderDetails(
   id: string,
   data: {

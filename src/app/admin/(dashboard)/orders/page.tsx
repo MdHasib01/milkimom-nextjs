@@ -18,6 +18,7 @@ import {
   Search,
   ShoppingCart,
   ShieldAlert,
+  ShieldCheck,
   Trash2,
   Truck,
   X,
@@ -27,6 +28,7 @@ import {
   fetchOrders,
   createOrderAdmin,
   changeOrderStatus,
+  checkOrderFraud,
   updateOrderDetails,
   deleteOrder,
   bulkDeleteOrders,
@@ -76,6 +78,15 @@ interface Order {
   steadfastTrackingCode?: string;
   steadfastStatus?: string;
   steadfastLastError?: string;
+  steadfastFraud?: {
+    totalParcels?: number | null;
+    totalDelivered?: number | null;
+    totalCancelled?: number | null;
+    totalFraudReports?: number | null;
+    successRate?: number | null;
+    checkedAt?: string | null;
+    error?: string;
+  };
 }
 
 interface Pagination {
@@ -287,6 +298,25 @@ export default function AdminOrdersPage() {
       alert(typeof result.error === "string" ? result.error : "Failed to update status");
     }
     setUpdatingId(null);
+  }
+
+  const [checkingFraudId, setCheckingFraudId] = useState<string | null>(null);
+
+  async function handleCheckFraud(id: string) {
+    setCheckingFraudId(id);
+    const result = await checkOrderFraud(id);
+    if (result.success && result.data) {
+      const updatedOrder = result.data as Order;
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === id ? { ...o, steadfastFraud: updatedOrder.steadfastFraud } : o
+        )
+      );
+      setSuccessMsg("Steadfast fraud check updated");
+    } else {
+      alert(typeof result.error === "string" ? result.error : "Failed to retrieve Steadfast fraud data");
+    }
+    setCheckingFraudId(null);
   }
 
   // Open Edit Modal
@@ -940,6 +970,7 @@ export default function AdminOrdersPage() {
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Total</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Status</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Courier</th>
+                <th className="px-2.5 py-2.5 whitespace-nowrap">Courier History</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Updated By</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Update Time</th>
                 <th className="px-2.5 py-2.5 text-center whitespace-nowrap">Actions</th>
@@ -1060,7 +1091,7 @@ export default function AdminOrdersPage() {
                       )}
                     </td>
 
-                    {/* Courier (Steadfast) */}
+                    {/* Courier (Steadfast Consignment) */}
                     <td className="px-2.5 py-2.5 whitespace-nowrap">
                       {order.steadfastTrackingCode || order.steadfastConsignmentId ? (
                         <div>
@@ -1069,19 +1100,18 @@ export default function AdminOrdersPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Track parcel on Steadfast"
-                            className="font-mono text-xs font-semibold text-primary hover:underline"
+                            className="font-mono text-xs font-semibold text-primary hover:underline flex items-center gap-1"
                           >
+                            <Truck size={12} />
                             {order.steadfastTrackingCode || order.steadfastConsignmentId}
                           </a>
                           {order.steadfastStatus && (
-                            <p className="text-[10px] text-muted-foreground">
+                            <p className="text-[10px] text-muted-foreground capitalize">
                               {order.steadfastStatus.replace(/_/g, " ")}
                             </p>
                           )}
                         </div>
                       ) : ["Confirmed", "Shipped"].includes(order.status) ? (
-                        // Entry is automatic: instant on confirm, retried by
-                        // the hourly cron if that attempt didn't go through.
                         <span
                           title={
                             order.steadfastLastError
@@ -1100,6 +1130,110 @@ export default function AdminOrdersPage() {
                       ) : (
                         <span className="text-xs text-muted-foreground">-</span>
                       )}
+                    </td>
+
+                    {/* Dedicated Column: Courier History / Fraud Check */}
+                    <td className="px-2.5 py-2.5 whitespace-nowrap">
+                      {(() => {
+                        const fraud = order.steadfastFraud;
+
+                        if (!fraud || fraud.checkedAt === undefined || fraud.checkedAt === null) {
+                          return (
+                            <button
+                              onClick={() => handleCheckFraud(order._id)}
+                              disabled={checkingFraudId === order._id}
+                              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
+                              title="Check customer delivery history & fraud reports via Steadfast API"
+                            >
+                              {checkingFraudId === order._id ? (
+                                <Loader2 size={10} className="animate-spin" />
+                              ) : (
+                                <ShieldAlert size={10} />
+                              )}
+                              <span>Check Fraud</span>
+                            </button>
+                          );
+                        }
+
+                        if (fraud.error) {
+                          return (
+                            <div className="flex items-center gap-1 text-[11px]">
+                              <span className="text-red-500 font-medium truncate max-w-[110px]" title={fraud.error}>
+                                {fraud.error}
+                              </span>
+                              <button
+                                onClick={() => handleCheckFraud(order._id)}
+                                disabled={checkingFraudId === order._id}
+                                className="text-blue-600 hover:underline"
+                                title="Retry fraud check"
+                              >
+                                <RefreshCw size={10} className={checkingFraudId === order._id ? "animate-spin" : ""} />
+                              </button>
+                            </div>
+                          );
+                        }
+
+                        const totalParcels = fraud.totalParcels ?? 0;
+                        const totalDelivered = fraud.totalDelivered ?? 0;
+                        const totalCancelled = fraud.totalCancelled ?? 0;
+                        const totalReports = fraud.totalFraudReports ?? 0;
+                        const successRate = fraud.successRate ?? null;
+
+                        if (totalParcels <= 0) {
+                          return (
+                            <div
+                              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+                              title="No previous delivery history found for this phone number on Steadfast"
+                            >
+                              <ShieldCheck size={11} />
+                              <span>New Customer (0 history)</span>
+                            </div>
+                          );
+                        }
+
+                        const isHighRisk = totalReports > 0 || (successRate !== null && successRate < 50);
+                        const isGood = successRate !== null && successRate >= 75 && totalReports === 0;
+
+                        return (
+                          <div className="flex flex-col gap-0.5">
+                            {/* Main Pill: Success Rate / Fraud Alert */}
+                            <div
+                              className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border w-fit ${
+                                isHighRisk
+                                  ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/50"
+                                  : isGood
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/50"
+                                  : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/50"
+                              }`}
+                              title={`Delivery History: ${totalDelivered}/${totalParcels} Delivered, ${totalCancelled} Cancelled, ${totalReports} Fraud Reports`}
+                            >
+                              {totalReports > 0 ? (
+                                <AlertTriangle size={11} className="text-red-600 animate-pulse" />
+                              ) : isGood ? (
+                                <ShieldCheck size={11} className="text-emerald-600" />
+                              ) : (
+                                <AlertCircle size={11} className="text-amber-600" />
+                              )}
+                              <span>
+                                {totalReports > 0
+                                  ? `Fraud Report (${totalReports})`
+                                  : `${successRate}% Delivered (${totalDelivered}/${totalParcels})`}
+                              </span>
+                            </div>
+
+                            {/* Detailed breakdown: Cancelled orders & Delivered counts */}
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+                              <span className={totalCancelled > 0 ? "font-bold text-red-600 dark:text-red-400" : ""}>
+                                ❌ {totalCancelled} Cancelled
+                              </span>
+                              <span>•</span>
+                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                                ✓ {totalDelivered} Delivered
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     {/* Updated By */}
