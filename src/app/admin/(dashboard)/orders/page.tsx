@@ -179,25 +179,45 @@ export default function AdminOrdersPage() {
   const [dynamicIpLocs, setDynamicIpLocs] = useState<Record<string, IpLocation>>({});
   const [fetchingIpId, setFetchingIpId] = useState<string | null>(null);
 
-  async function handleLookupIp(id: string, ip: string) {
+  async function handleLookupIp(id: string, ip: string, type: "orders" | "unfinished") {
     if (!ip || fetchingIpId === id) return;
     setFetchingIpId(id);
-    const res = await lookupIpInfo(ip);
+    const res = await lookupIpInfo(ip, id, type);
     if (res.success && res.data) {
-      setDynamicIpLocs((prev) => ({ ...prev, [id]: res.data as IpLocation }));
+      const locData = res.data as IpLocation;
+      setDynamicIpLocs((prev) => ({ ...prev, [id]: locData }));
+      if (type === "unfinished") {
+        setUnfinishedOrders((prev) =>
+          prev.map((o) => (o._id === id ? { ...o, ipLocation: locData } : o))
+        );
+      } else {
+        setOrders((prev) =>
+          prev.map((o) => (o._id === id ? { ...o, ipLocation: locData } : o))
+        );
+      }
     } else {
       alert(typeof res.error === "string" ? res.error : "Failed to fetch IP location");
     }
     setFetchingIpId(null);
   }
 
-  function getMapUrl(ipLoc?: IpLocation, address?: string, thana?: string, district?: string): string | null {
+  function getIpMapUrl(ipLoc?: IpLocation, ipAddress?: string): string | null {
     if (ipLoc?.loc && ipLoc.loc.trim()) {
       return `https://www.google.com/maps?q=${encodeURIComponent(ipLoc.loc.trim())}`;
     }
-    const queryParts = [address, thana, district, "Bangladesh"].filter((s) => s && s.trim());
-    if (queryParts.length > 1 || (queryParts.length === 1 && queryParts[0] !== "Bangladesh")) {
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryParts.join(", "))}`;
+    const locParts = [ipLoc?.city, ipLoc?.region, ipLoc?.country].filter((s) => s && s.trim());
+    if (locParts.length > 0) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locParts.join(", "))}`;
+    }
+    const cleanIp = (ipAddress || "").trim();
+    if (
+      cleanIp &&
+      cleanIp !== "127.0.0.1" &&
+      cleanIp !== "::1" &&
+      !cleanIp.startsWith("192.168.") &&
+      !cleanIp.startsWith("10.")
+    ) {
+      return `https://ipinfo.io/${encodeURIComponent(cleanIp)}`;
     }
     return null;
   }
@@ -934,7 +954,7 @@ export default function AdminOrdersPage() {
                         {(() => {
                           const ip = u.ipAddress;
                           const ipLoc = dynamicIpLocs[u._id] || u.ipLocation;
-                          const mapUrl = getMapUrl(ipLoc, u.address, u.thana, u.district);
+                          const mapUrl = getIpMapUrl(ipLoc, ip);
                           const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
 
                           return (
@@ -946,7 +966,13 @@ export default function AdminOrdersPage() {
                                     href={mapUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    title={ipLoc?.loc ? `Open exact coordinates (${ipLoc.loc}) on Google Maps` : "Search address on Google Maps"}
+                                    title={
+                                      ipLoc?.loc
+                                        ? `Open exact IP coordinates (${ipLoc.loc}) on Google Maps`
+                                        : ipLoc?.city
+                                        ? `Open IP location (${[ipLoc.city, ipLoc.country].filter(Boolean).join(", ")}) on Google Maps`
+                                        : `View IP geolocation details for ${ip}`
+                                    }
                                     className="inline-flex items-center gap-0.5 rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800/40 dark:bg-blue-950/60 dark:text-blue-300"
                                   >
                                     <MapPin size={10} />
@@ -962,7 +988,7 @@ export default function AdminOrdersPage() {
                               ) : ip && !isLocal ? (
                                 <button
                                   type="button"
-                                  onClick={() => handleLookupIp(u._id, ip)}
+                                  onClick={() => handleLookupIp(u._id, ip, "unfinished")}
                                   disabled={fetchingIpId === u._id}
                                   className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-muted-foreground hover:text-primary underline cursor-pointer"
                                   title="Lookup IP geolocation via ipinfo.io"
@@ -1161,7 +1187,7 @@ export default function AdminOrdersPage() {
                       {(() => {
                         const ip = order.ipAddress;
                         const ipLoc = dynamicIpLocs[order._id] || order.ipLocation;
-                        const mapUrl = getMapUrl(ipLoc, order.address, order.thana, order.district);
+                        const mapUrl = getIpMapUrl(ipLoc, ip);
                         const isLocal = ip === "127.0.0.1" || ip === "::1" || ipLoc?.city === "Local Host";
 
                         return (
@@ -1173,7 +1199,13 @@ export default function AdminOrdersPage() {
                                   href={mapUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  title={ipLoc?.loc ? `Open exact coordinates (${ipLoc.loc}) on Google Maps` : "Search address on Google Maps"}
+                                  title={
+                                    ipLoc?.loc
+                                      ? `Open exact IP coordinates (${ipLoc.loc}) on Google Maps`
+                                      : ipLoc?.city
+                                      ? `Open IP location (${[ipLoc.city, ipLoc.country].filter(Boolean).join(", ")}) on Google Maps`
+                                      : `View IP geolocation details for ${ip}`
+                                  }
                                   className="inline-flex items-center gap-0.5 rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800/40 dark:bg-blue-950/60 dark:text-blue-300"
                                 >
                                   <MapPin size={10} />
@@ -1189,7 +1221,7 @@ export default function AdminOrdersPage() {
                             ) : ip && !isLocal ? (
                               <button
                                 type="button"
-                                onClick={() => handleLookupIp(order._id, ip)}
+                                onClick={() => handleLookupIp(order._id, ip, "orders")}
                                 disabled={fetchingIpId === order._id}
                                 className="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-muted-foreground hover:text-primary underline cursor-pointer"
                                 title="Lookup IP geolocation via ipinfo.io"

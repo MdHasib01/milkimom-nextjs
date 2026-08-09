@@ -26,7 +26,13 @@ export const API_ENDPOINTS = {
   settings: `${API_BASE_URL}/api/settings`,
   steadfastTest: `${API_BASE_URL}/api/settings/steadfast/test`,
   ipinfoTest: `${API_BASE_URL}/api/settings/ipinfo/test`,
-  ipinfoLookup: (ip: string) => `${API_BASE_URL}/api/settings/ipinfo/lookup/${encodeURIComponent(ip)}`,
+  ipinfoLookup: (ip: string, orderId?: string, type?: string) => {
+    const query = new URLSearchParams();
+    if (orderId) query.set("orderId", orderId);
+    if (type) query.set("type", type);
+    const qs = query.toString();
+    return `${API_BASE_URL}/api/settings/ipinfo/lookup/${encodeURIComponent(ip)}${qs ? `?${qs}` : ""}`;
+  },
   flavours: `${API_BASE_URL}/api/flavours`,
   flavoursAdmin: `${API_BASE_URL}/api/flavours/admin`,
   flavourById: (id: string) => `${API_BASE_URL}/api/flavours/${id}`,

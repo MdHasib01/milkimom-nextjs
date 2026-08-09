@@ -207,9 +207,10 @@ export function testIpinfoConnection(data?: { token?: string }) {
 
 /**
  * Performs on-demand IP geolocation lookup via server proxy.
+ * Saves the location data to the database for the given orderId.
  */
-export function lookupIpInfo(ip: string) {
-  return authRequest<IpLocation & { ip?: string }>(API_ENDPOINTS.ipinfoLookup(ip));
+export function lookupIpInfo(ip: string, orderId?: string, type?: "orders" | "unfinished") {
+  return authRequest<IpLocation & { ip?: string }>(API_ENDPOINTS.ipinfoLookup(ip, orderId, type));
 }
 
 /**
