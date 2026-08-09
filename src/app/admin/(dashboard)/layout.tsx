@@ -7,6 +7,7 @@ import Image from "next/image";
 import {
   LayoutDashboard,
   ShoppingCart,
+  Package,
   Settings,
   Users,
   LogOut,
@@ -25,6 +26,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", Icon: ShoppingCart },
+  { href: "/admin/products", label: "Products", Icon: Package },
   { href: "/admin/users", label: "User Management", Icon: Users },
   { href: "/admin/settings", label: "Settings", Icon: Settings },
 ];
