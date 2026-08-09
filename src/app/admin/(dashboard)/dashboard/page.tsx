@@ -36,6 +36,7 @@ export interface Order {
   statusUpdatedAt?: string;
   orderTime?: string;
   createdAt: string;
+  source?: "web" | "admin";
 }
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
@@ -612,7 +613,16 @@ export default function AdminDashboardOverviewPage() {
                   return (
                     <tr key={order._id} className="hover:bg-muted/40 transition">
                       <td className="px-4 py-3.5 font-bold text-foreground">
-                        {order.customerName}
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="truncate text-xs font-bold text-foreground" title={order.customerName}>
+                            {order.customerName}
+                          </span>
+                          {order.source === "admin" && (
+                            <span className="shrink-0 inline-flex items-center rounded border border-violet-200 bg-violet-100 px-1.5 py-px text-[10px] font-bold text-violet-700 dark:border-violet-800/40 dark:bg-violet-950/50 dark:text-violet-300">
+                              Manual
+                            </span>
+                          )}
+                        </div>
                         <span className="block text-[11px] font-normal text-muted-foreground truncate max-w-[160px]">
                           {order.address || "No address"}
                         </span>

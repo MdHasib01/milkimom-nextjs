@@ -1085,7 +1085,7 @@ export default function AdminOrdersPage() {
                   />
                 </th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Date</th>
-                <th className="max-w-[130px] px-2.5 py-2.5">Customer</th>
+                <th className="max-w-[150px] px-2.5 py-2.5">Customer</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Phone</th>
                 <th className="max-w-[110px] px-2.5 py-2.5">Location</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Flavour</th>
@@ -1140,15 +1140,17 @@ export default function AdminOrdersPage() {
                     </td>
 
                     {/* Customer */}
-                    <td className="max-w-[130px] px-2.5 py-2.5">
-                      <p className="truncate text-xs font-semibold text-foreground" title={order.customerName}>
-                        {order.customerName}
+                    <td className="max-w-[150px] px-2.5 py-2.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="truncate text-xs font-semibold text-foreground" title={order.customerName}>
+                          {order.customerName}
+                        </span>
                         {order.source === "admin" && (
-                          <span className="ml-1.5 inline-flex items-center rounded border border-violet-200 bg-violet-100 px-1.5 py-px text-[10px] font-bold text-violet-700 align-middle dark:border-violet-800/40 dark:bg-violet-950/50 dark:text-violet-300">
+                          <span className="shrink-0 inline-flex items-center rounded border border-violet-200 bg-violet-100 px-1.5 py-px text-[10px] font-bold text-violet-700 dark:border-violet-800/40 dark:bg-violet-950/50 dark:text-violet-300">
                             Manual
                           </span>
                         )}
-                      </p>
+                      </div>
                       <p className="truncate text-[11px] text-muted-foreground" title={order.address}>
                         {order.address}
                       </p>
