@@ -74,6 +74,7 @@ interface Order {
   createdAt: string;
   /** 'admin' = manually entered (message-campaign sale); undefined/'web' = site order */
   source?: "web" | "admin";
+  ipAddress?: string;
   steadfastConsignmentId?: string;
   steadfastTrackingCode?: string;
   steadfastStatus?: string;
@@ -464,6 +465,7 @@ export default function AdminOrdersPage() {
         "Payment Method",
         "Payment Status",
         "Transaction ID",
+        "Client IP",
         "Status",
         "Source",
         "Courier Tracking",
@@ -485,6 +487,7 @@ export default function AdminOrdersPage() {
         o.paymentStatus === "Paid" ? "bKash" : "COD",
         o.paymentStatus || "Pending",
         o.transactionId ? `"${o.transactionId}"` : "",
+        `"${o.ipAddress || ""}"`,
         o.status,
         o.source === "admin" ? "Manual" : "Web",
         `"${o.steadfastTrackingCode || o.steadfastConsignmentId || ""}"`,
@@ -988,6 +991,7 @@ export default function AdminOrdersPage() {
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Flavour</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Payment</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Total</th>
+                <th className="px-2.5 py-2.5 whitespace-nowrap">Client IP</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Status</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Courier</th>
                 <th className="px-2.5 py-2.5 whitespace-nowrap">Courier History</th>
@@ -1077,6 +1081,11 @@ export default function AdminOrdersPage() {
 
                     {/* Price */}
                     <td className="px-2.5 py-2.5 font-bold whitespace-nowrap text-xs text-foreground">৳{order.price}</td>
+
+                    {/* Client IP */}
+                    <td className="px-2.5 py-2.5 font-mono text-xs text-muted-foreground whitespace-nowrap">
+                      {order.ipAddress || "Unknown"}
+                    </td>
 
                     {/* Status dropdown */}
                     <td className="px-2.5 py-2.5">

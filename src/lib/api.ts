@@ -13,6 +13,7 @@ export interface OrderPayload {
   transactionId?: string;
   pageUrl?: string;
   orderTime?: string;
+  ipAddress?: string;
   /** Meta browser id cookies, stored so the delivered-order Purchase (sent
    *  server-side via the Conversions API) can be matched to the ad click. */
   fbp?: string;
