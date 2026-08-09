@@ -81,13 +81,22 @@ export interface CheckIpResult {
   requiresOtp: boolean;
 }
 
+export interface UnfinishedPayload {
+  flavour?: string;
+  price?: number;
+  customerName?: string;
+  district?: string;
+  thana?: string;
+  address?: string;
+}
+
 /**
  * Checks client IP address & logs phone check. Returns whether IP is already in DB.
  */
-export function checkIpAndFraud(phone: string) {
+export function checkIpAndFraud(phone: string, payload?: UnfinishedPayload) {
   return request<CheckIpResult>(API_ENDPOINTS.fraudCheckIp, {
     method: "POST",
-    body: JSON.stringify({ phone }),
+    body: JSON.stringify({ phone, ...payload }),
   });
 }
 

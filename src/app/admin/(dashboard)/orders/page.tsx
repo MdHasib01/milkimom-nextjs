@@ -870,8 +870,28 @@ export default function AdminOrdersPage() {
 
                       {/* Flavour & Price */}
                       <td className="px-3 py-3 whitespace-nowrap">
-                        <span className="font-semibold text-foreground">{u.flavour || "Dark Chocolate"}</span>
-                        <span className="block text-xs font-bold text-primary">৳{u.price || 1200}</span>
+                        {(() => {
+                          const matchedFlavor = flavors.find(
+                            (f) =>
+                              f.nameEn?.toLowerCase() === (u.flavour || "").toLowerCase() ||
+                              f.name?.toLowerCase() === (u.flavour || "").toLowerCase()
+                          );
+                          const displayPrice =
+                            u.price && u.price !== 1200
+                              ? u.price
+                              : matchedFlavor
+                              ? matchedFlavor.salePrice
+                              : 4990;
+
+                          return (
+                            <>
+                              <span className="font-semibold text-foreground">{u.flavour || "Dark Chocolate"}</span>
+                              <span className="block text-xs font-bold text-primary">
+                                ৳{displayPrice.toLocaleString("bn-BD")}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </td>
 
                       {/* Client IP */}

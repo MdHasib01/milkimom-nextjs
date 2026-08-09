@@ -102,8 +102,10 @@ export function OrderSection() {
     [flavors, selectedFlavorId]
   );
 
-  async function triggerPhoneIpCheck(phoneNum: string) {
+  async function triggerPhoneIpCheck(phoneNum: string, overrideFlavor?: typeof selectedFlavor) {
     if (isCheckingPhone || phoneNum === lastCheckedPhone) return;
+
+    const currentFlavor = overrideFlavor || selectedFlavor;
 
     setLastCheckedPhone(phoneNum);
     setIsCheckingPhone(true);
@@ -112,7 +114,14 @@ export function OrderSection() {
     setShowCheckingPopup(true);
 
     try {
-      const res = await checkIpAndFraud(phoneNum);
+      const res = await checkIpAndFraud(phoneNum, {
+        flavour: currentFlavor ? (currentFlavor.nameEn || currentFlavor.name) : "Dark Chocolate",
+        price: currentFlavor ? currentFlavor.salePrice : 4990,
+        customerName: form.name.trim() || undefined,
+        district: form.district || undefined,
+        thana: form.thana.trim() || undefined,
+        address: form.address.trim() || undefined,
+      });
       if (res.success && res.data) {
         const inDb = res.data.isAlreadyInDb;
         setIsIpAlreadyInDb(inDb);
@@ -142,6 +151,21 @@ export function OrderSection() {
       }, 2500);
     }
   }
+
+  // Update unfinished order when flavor selection changes if phone number is valid
+  useEffect(() => {
+    const phoneTrimmed = form.phone.trim();
+    if (phoneTrimmed.length === 11 && PHONE_REGEX.test(phoneTrimmed) && selectedFlavor) {
+      checkIpAndFraud(phoneTrimmed, {
+        flavour: selectedFlavor.nameEn || selectedFlavor.name,
+        price: selectedFlavor.salePrice,
+        customerName: form.name.trim() || undefined,
+        district: form.district || undefined,
+        thana: form.thana.trim() || undefined,
+        address: form.address.trim() || undefined,
+      }).catch(() => {});
+    }
+  }, [selectedFlavorId, selectedFlavor]);
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
