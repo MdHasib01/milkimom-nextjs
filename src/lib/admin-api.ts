@@ -227,6 +227,8 @@ export interface Flavour {
   weight: number;
   invoiceCode: string;
   tag: string;
+  image?: string;
+  smoothflowImage?: string;
   active: boolean;
   sortOrder: number;
   createdAt?: string;

@@ -27,6 +27,7 @@ export interface DisplayFlavor {
   regularPrice: number;
   icon: (typeof fallbackFlavors)[number]["icon"];
   image: string;
+  smoothflowImage?: string;
   accentBg: string;
   accentGradient: string;
 }
@@ -39,6 +40,8 @@ interface ApiFlavour {
   price: number;
   offerPrice?: number | null;
   tag?: string;
+  image?: string;
+  smoothflowImage?: string;
 }
 
 export const FALLBACK_FLAVORS: DisplayFlavor[] = fallbackFlavors.map((f) => ({
@@ -52,6 +55,7 @@ export const FALLBACK_FLAVORS: DisplayFlavor[] = fallbackFlavors.map((f) => ({
   regularPrice: singleJarPrice.regularPrice,
   icon: f.icon,
   image: f.image,
+  smoothflowImage: "",
   accentBg: f.accentBg,
   accentGradient: f.accentGradient,
 }));
@@ -79,7 +83,8 @@ function mapApiFlavour(f: ApiFlavour, index: number): DisplayFlavor {
     salePrice: sale,
     regularPrice: regular,
     icon: visual.icon,
-    image: visual.image,
+    image: f.image ? f.image : visual.image,
+    smoothflowImage: f.smoothflowImage || "",
     accentBg: visual.accentBg,
     accentGradient: visual.accentGradient,
   };

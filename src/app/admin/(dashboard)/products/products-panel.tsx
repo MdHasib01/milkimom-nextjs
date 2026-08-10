@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Save, Trash2, Package, X } from "lucide-react";
+import { Loader2, Plus, Save, Trash2, Package, X, Upload, ImageIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   createFlavour,
   updateFlavour,
   deleteFlavour,
+  uploadAssetImage,
   type Flavour,
 } from "@/lib/admin-api";
 
@@ -22,6 +23,8 @@ interface FlavourForm {
   weight: string;
   invoiceCode: string;
   tag: string;
+  image: string;
+  smoothflowImage: string;
   active: boolean;
   sortOrder: string;
 }
@@ -35,6 +38,8 @@ const emptyForm: FlavourForm = {
   weight: "0.5",
   invoiceCode: "",
   tag: "",
+  image: "",
+  smoothflowImage: "",
   active: true,
   sortOrder: "0",
 };
@@ -49,6 +54,8 @@ function toForm(f: Flavour): FlavourForm {
     weight: String(f.weight ?? 0.5),
     invoiceCode: f.invoiceCode || "",
     tag: f.tag || "",
+    image: f.image || "",
+    smoothflowImage: f.smoothflowImage || "",
     active: f.active !== false,
     sortOrder: String(f.sortOrder ?? 0),
   };
@@ -64,6 +71,8 @@ function toPayload(form: FlavourForm) {
     weight: form.weight.trim() === "" ? 0.5 : Number(form.weight),
     invoiceCode: form.invoiceCode.trim(),
     tag: form.tag.trim(),
+    image: form.image.trim(),
+    smoothflowImage: form.smoothflowImage.trim(),
     active: form.active,
     sortOrder: Number(form.sortOrder) || 0,
   };
@@ -82,11 +91,36 @@ function FlavourFields({
   setForm: (updater: (prev: FlavourForm) => FlavourForm) => void;
   disabled: boolean;
 }) {
+  const [uploadingField, setUploadingField] = useState<"image" | "smoothflowImage" | null>(null);
+
   const set = (key: keyof FlavourForm, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "image" | "smoothflowImage"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingField(field);
+    try {
+      const res = await uploadAssetImage("flavours", file);
+      if (res.success && res.data?.url) {
+        set(field, res.data.url);
+      } else {
+        alert(res.error || "Image upload failed");
+      }
+    } catch {
+      alert("Image upload failed");
+    } finally {
+      setUploadingField(null);
+      e.target.value = "";
+    }
+  };
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2">
       <div>
         <label className={labelClass}>Name (Bangla) *</label>
         <input
@@ -121,6 +155,90 @@ function FlavourFields({
           placeholder="রিচ, গভীর ও চকলেটি মজায় ভরপুর"
           className={inputClass}
         />
+      </div>
+
+      {/* Standard Product Image Upload */}
+      <div className="rounded-xl border border-border bg-muted/20 p-3 sm:col-span-1">
+        <label className={labelClass}>Standard Flavour Image (Milkimom Page)</label>
+        <p className="mb-2 text-[11px] text-muted-foreground">
+          Displayed on the main Milkimom product page.
+        </p>
+        <div className="flex items-center gap-3">
+          <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-card">
+            {form.image ? (
+              <img src={form.image} alt="Standard" className="size-full object-contain" />
+            ) : (
+              <ImageIcon className="size-6 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-1.5 min-w-0">
+            <input
+              type="text"
+              value={form.image}
+              onChange={(e) => set("image", e.target.value)}
+              disabled={disabled}
+              placeholder="/images/product-jar.webp or https://..."
+              className={inputClass}
+            />
+            <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-3 py-1.5 text-xs font-semibold text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground disabled:opacity-50 w-fit">
+              {uploadingField === "image" ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Upload className="size-3.5 text-primary" />
+              )}
+              <span>{uploadingField === "image" ? "Uploading..." : "Upload Image"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, "image")}
+                disabled={disabled || uploadingField === "image"}
+                className="sr-only"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* SmoothFlow Product Image Upload */}
+      <div className="rounded-xl border border-border bg-muted/20 p-3 sm:col-span-1">
+        <label className={labelClass}>SmoothFlow Flavour Image (SmoothFlow Page)</label>
+        <p className="mb-2 text-[11px] text-muted-foreground">
+          Displayed on the SmoothFlow (/smoothflow) product page.
+        </p>
+        <div className="flex items-center gap-3">
+          <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-card">
+            {form.smoothflowImage || form.image ? (
+              <img src={form.smoothflowImage || form.image} alt="SmoothFlow" className="size-full object-contain" />
+            ) : (
+              <ImageIcon className="size-6 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-1.5 min-w-0">
+            <input
+              type="text"
+              value={form.smoothflowImage}
+              onChange={(e) => set("smoothflowImage", e.target.value)}
+              disabled={disabled}
+              placeholder="Blank = use Standard Image"
+              className={inputClass}
+            />
+            <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-3 py-1.5 text-xs font-semibold text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground disabled:opacity-50 w-fit">
+              {uploadingField === "smoothflowImage" ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Upload className="size-3.5 text-primary" />
+              )}
+              <span>{uploadingField === "smoothflowImage" ? "Uploading..." : "Upload Image"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, "smoothflowImage")}
+                disabled={disabled || uploadingField === "smoothflowImage"}
+                className="sr-only"
+              />
+            </label>
+          </div>
+        </div>
       </div>
 
       <div>
