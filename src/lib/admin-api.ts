@@ -407,6 +407,13 @@ export interface DoctorItemData {
   sortOrder?: number;
 }
 
+export interface BenefitItemData {
+  id?: string | number;
+  accent: string;
+  rest: string;
+  sortOrder?: number;
+}
+
 export interface LandingPageContentData {
   _id?: string;
   productSlug: string;
@@ -435,6 +442,11 @@ export interface LandingPageContentData {
   footerPhone?: string;
   footerEmail?: string;
   footerAddress?: string;
+  howItWorksBadge?: string;
+  howItWorksTitle?: string;
+  howItWorksSubtitle?: string;
+  howItWorksImage?: string;
+  benefitsItems?: BenefitItemData[];
   carouselItems?: CarouselItemData[];
   doctorItems?: DoctorItemData[];
   createdAt?: string;

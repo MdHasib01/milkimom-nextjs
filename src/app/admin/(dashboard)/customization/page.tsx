@@ -49,6 +49,7 @@ import {
   type LandingPageContentData,
   type CarouselItemData,
   type DoctorItemData,
+  type BenefitItemData,
 } from "@/lib/admin-api";
 
 // Exact live site components for section previews
@@ -131,6 +132,14 @@ const DEFAULT_DOCTORS_LIST: DoctorItemData[] = [
   },
 ];
 
+const DEFAULT_BENEFITS_LIST: BenefitItemData[] = [
+  { id: "1", accent: "২৪ ঘন্টায়", rest: "শক্ত চাকা ও নালীর জমাট ব্লক দূর করে", sortOrder: 1 },
+  { id: "2", accent: "ব্যথাহীন ও সহজ", rest: "ব্রেস্টফিডিং অনুভূতি এনে দেয়", sortOrder: 2 },
+  { id: "3", accent: "ব্রেস্টের ভারীভাব ও চাপ", rest: "দ্রুত উপশম করে", sortOrder: 3 },
+  { id: "4", accent: "স্মুথ ও নিরবচ্ছিন্ন", rest: "দুধের প্রবাহ বজায় রাখে", sortOrder: 4 },
+  { id: "5", accent: "১০০% প্রাকৃতিক ও", rest: "সম্পূর্ণ সাইডইফেক্ট মুক্ত", sortOrder: 5 },
+];
+
 function LiveSectionFrame({
   title,
   subtitle,
@@ -203,6 +212,11 @@ export default function AdminCustomizationPage() {
     footerPhone: "",
     footerEmail: "",
     footerAddress: "",
+    howItWorksBadge: "কি কাজ করে?",
+    howItWorksTitle: "একটি ডোজে ৫টি উপকারিতা",
+    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
+    howItWorksImage: "",
+    benefitsItems: DEFAULT_BENEFITS_LIST,
     carouselItems: DEFAULT_CAROUSEL_SLIDES,
     doctorItems: DEFAULT_DOCTORS_LIST,
   });
@@ -214,6 +228,7 @@ export default function AdminCustomizationPage() {
   const [sectionPreviewsToggle, setSectionPreviewsToggle] = useState<{ [key: string]: boolean }>({
     branding: true,
     hero: true,
+    howItWorks: true,
     doctor: true,
     carousel: true,
     order: true,
@@ -274,6 +289,10 @@ export default function AdminCustomizationPage() {
         ? data.doctorItems
         : DEFAULT_DOCTORS_LIST;
 
+      const benefitsData = Array.isArray(data.benefitsItems) && data.benefitsItems.length > 0
+        ? data.benefitsItems
+        : DEFAULT_BENEFITS_LIST;
+
       setContentData({
         productSlug: slug,
         productName: data.productName || "",
@@ -301,6 +320,11 @@ export default function AdminCustomizationPage() {
         footerPhone: data.footerPhone || "",
         footerEmail: data.footerEmail || "",
         footerAddress: data.footerAddress || "",
+        howItWorksBadge: data.howItWorksBadge || "কি কাজ করে?",
+        howItWorksTitle: data.howItWorksTitle || "একটি ডোজে ৫টি উপকারিতা",
+        howItWorksSubtitle: data.howItWorksSubtitle || "",
+        howItWorksImage: data.howItWorksImage || "",
+        benefitsItems: benefitsData,
         carouselItems: carouselData,
         doctorItems: doctorData,
       });
@@ -504,6 +528,58 @@ export default function AdminCustomizationPage() {
     }
   }
 
+  // Dynamic Benefit Cards Handlers
+  function handleAddBenefit() {
+    if (isModerator) return;
+    const newBenefit: BenefitItemData = {
+      id: `benefit_${Date.now()}`,
+      accent: "নতুন সুবিধা শিরোনাম",
+      rest: "উপকারিতার বিস্তারিত বর্ণনা...",
+      sortOrder: (contentData.benefitsItems?.length || 0) + 1,
+    };
+    setContentData((prev) => ({
+      ...prev,
+      benefitsItems: [...(prev.benefitsItems || []), newBenefit],
+    }));
+  }
+
+  function handleUpdateBenefit(index: number, updatedField: Partial<BenefitItemData>) {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.benefitsItems || [])];
+      list[index] = { ...list[index], ...updatedField };
+      return { ...prev, benefitsItems: list };
+    });
+  }
+
+  function handleRemoveBenefit(index: number) {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.benefitsItems || [])];
+      list.splice(index, 1);
+      return { ...prev, benefitsItems: list };
+    });
+  }
+
+  function handleMoveBenefit(index: number, direction: "up" | "down") {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.benefitsItems || [])];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= list.length) return prev;
+
+      const temp = list[index];
+      list[index] = list[targetIndex];
+      list[targetIndex] = temp;
+
+      list.forEach((item, idx) => {
+        item.sortOrder = idx + 1;
+      });
+
+      return { ...prev, benefitsItems: list };
+    });
+  }
+
   async function handleSaveTheme(e: FormEvent) {
     e.preventDefault();
     if (isModerator) return;
@@ -622,6 +698,13 @@ export default function AdminCustomizationPage() {
         footerPhone: data.footerPhone || "",
         footerEmail: data.footerEmail || "",
         footerAddress: data.footerAddress || "",
+        howItWorksBadge: data.howItWorksBadge || "কি কাজ করে?",
+        howItWorksTitle: data.howItWorksTitle || "একটি ডোজে ৫টি উপকারিতা",
+        howItWorksSubtitle: data.howItWorksSubtitle || "",
+        howItWorksImage: data.howItWorksImage || "",
+        benefitsItems: Array.isArray(data.benefitsItems) && data.benefitsItems.length > 0
+          ? data.benefitsItems
+          : DEFAULT_BENEFITS_LIST,
         carouselItems: Array.isArray(data.carouselItems) && data.carouselItems.length > 0
           ? data.carouselItems
           : DEFAULT_CAROUSEL_SLIDES,
@@ -638,7 +721,7 @@ export default function AdminCustomizationPage() {
     }
   }
 
-  async function handleImageUpload(e: ChangeEvent<HTMLInputElement>, fieldName: "heroImage" | "doctorImage" | "logoImage") {
+  async function handleImageUpload(e: ChangeEvent<HTMLInputElement>, fieldName: "heroImage" | "doctorImage" | "logoImage" | "howItWorksImage") {
     const file = e.target.files?.[0];
     if (!file || isModerator) return;
 
@@ -1136,6 +1219,253 @@ export default function AdminCustomizationPage() {
               <div style={previewCssVars} className="bg-background text-foreground">
                 <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
                   <HeroSection />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+
+        {/* How It Works & 5 Benefits Section (কি কাজ করে? / একটি ডোজে ৫টি উপকারিতা) */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+              <Sparkles size={16} className="text-primary" />
+              How It Works & Benefits Section (কি কাজ করে?)
+            </h3>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={() => handleSaveContent(undefined, "Benefits Section")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+              >
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Benefits Section</span>
+              </Button>
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("howItWorks")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.howItWorks ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Section Subtitle Tag (Crimson Badge Text)
+              </label>
+              <input
+                type="text"
+                value={contentData.howItWorksBadge || ""}
+                onChange={(e) => setContentData({ ...contentData, howItWorksBadge: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. কি কাজ করে?"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Section Main Title / Headline
+              </label>
+              <input
+                type="text"
+                value={contentData.howItWorksTitle || ""}
+                onChange={(e) => setContentData({ ...contentData, howItWorksTitle: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. একটি ডোজে ৫টি উপকারিতা"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs font-bold text-foreground outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">
+              Section Subtitle / Description Text
+            </label>
+            <textarea
+              rows={2}
+              value={contentData.howItWorksSubtitle || ""}
+              onChange={(e) => setContentData({ ...contentData, howItWorksSubtitle: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।"
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          {/* Section Center Image Upload Box */}
+          <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-3">
+            <label className="block text-xs font-bold text-foreground">
+              Center Orbit Product Jar Image Asset Upload (VPS Server Path)
+            </label>
+            <p className="text-[11px] text-muted-foreground">
+              Upload a specific jar/product image for this benefits orbit section. If empty, it will automatically fallback to the main hero product image.
+            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="relative size-20 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
+                {contentData.howItWorksImage || contentData.heroImage ? (
+                  <img
+                    src={getFullImageUrl(contentData.howItWorksImage || contentData.heroImage)}
+                    alt="Center Benefits Orbit Product"
+                    className="size-full object-contain p-1"
+                  />
+                ) : (
+                  <ImageIcon size={24} className="text-muted-foreground" />
+                )}
+              </div>
+
+              <div className="flex-1 space-y-2 w-full">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={contentData.howItWorksImage || ""}
+                    onChange={(e) => setContentData({ ...contentData, howItWorksImage: e.target.value })}
+                    disabled={isModerator}
+                    placeholder="/uploads/smoothflow/orbit-jar.png (or leave blank for hero image)"
+                    className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
+                    {uploadingField === "howItWorksImage" ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Upload size={14} />
+                    )}
+                    <span>
+                      {uploadingField === "howItWorksImage" ? "Uploading to Server..." : "Upload Orbit Image"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={isModerator || uploadingField === "howItWorksImage"}
+                      onChange={(e) => handleImageUpload(e, "howItWorksImage")}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <span className="text-[11px] text-muted-foreground">
+                    Directly saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Benefits Items Dynamic List */}
+          <div className="space-y-4 pt-3 border-t border-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  Dynamic Benefit Cards List ({(contentData.benefitsItems || DEFAULT_BENEFITS_LIST).length} Items)
+                </h4>
+                <p className="text-[11px] text-muted-foreground">
+                  Customize each radial benefit card (Bold Highlight Text & Normal Text).
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={handleAddBenefit}
+                disabled={isModerator}
+                size="sm"
+                variant="outline"
+                className="gap-1.5 rounded-xl text-xs font-bold"
+              >
+                <Plus size={14} />
+                <span>Add Benefit Card</span>
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {(contentData.benefitsItems || DEFAULT_BENEFITS_LIST).map((benefit, index) => (
+                <div
+                  key={benefit.id || index}
+                  className="rounded-xl border border-border/80 bg-background p-3.5 space-y-3 shadow-2xs"
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2 text-xs">
+                    <span className="font-bold text-primary flex items-center gap-1.5">
+                      <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-extrabold">
+                        {index + 1}
+                      </span>
+                      Benefit Card #{index + 1}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveBenefit(index, "up")}
+                        disabled={isModerator || index === 0}
+                        className="rounded-md p-1 hover:bg-muted text-muted-foreground disabled:opacity-30"
+                        title="Move Up"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveBenefit(index, "down")}
+                        disabled={isModerator || index === (contentData.benefitsItems || DEFAULT_BENEFITS_LIST).length - 1}
+                        className="rounded-md p-1 hover:bg-muted text-muted-foreground disabled:opacity-30"
+                        title="Move Down"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBenefit(index)}
+                        disabled={isModerator}
+                        className="rounded-md p-1 hover:bg-destructive/10 text-destructive disabled:opacity-30"
+                        title="Remove Item"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-foreground mb-1">
+                        Accent / Highlight Text (Bold Crimson)
+                      </label>
+                      <input
+                        type="text"
+                        value={benefit.accent || ""}
+                        onChange={(e) => handleUpdateBenefit(index, { accent: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. ২৪ ঘন্টায়"
+                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-foreground mb-1">
+                        Rest of Description Text
+                      </label>
+                      <input
+                        type="text"
+                        value={benefit.rest || ""}
+                        onChange={(e) => handleUpdateBenefit(index, { rest: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. শক্ত চাকা ও নালীর জমাট ব্লক দূর করে"
+                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.howItWorks && (
+            <LiveSectionFrame title="Live How It Works / Benefits Section Component">
+              <div style={previewCssVars} className="bg-background text-foreground">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <HowItWorksSection />
                 </LandingPageContentProvider>
               </div>
             </LiveSectionFrame>

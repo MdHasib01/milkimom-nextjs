@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { API_ENDPOINTS, API_BASE_URL } from "@/lib/api-config";
 
-import { type CarouselItemData, type DoctorItemData } from "@/lib/admin-api";
+import { type CarouselItemData, type DoctorItemData, type BenefitItemData } from "@/lib/admin-api";
 
 export interface LandingPageSectionContent {
   productSlug: string;
@@ -32,6 +32,11 @@ export interface LandingPageSectionContent {
   footerPhone: string;
   footerEmail: string;
   footerAddress: string;
+  howItWorksBadge?: string;
+  howItWorksTitle?: string;
+  howItWorksSubtitle?: string;
+  howItWorksImage?: string;
+  benefitsItems?: BenefitItemData[];
   carouselItems?: CarouselItemData[];
   doctorItems?: DoctorItemData[];
 }
@@ -92,6 +97,22 @@ const DEFAULT_DOCTOR_ITEMS: DoctorItemData[] = [
   },
 ];
 
+const DEFAULT_BENEFITS_MILKIMOM: BenefitItemData[] = [
+  { id: "1", accent: "বুকের দুধ", rest: "স্থায়ীভাবে বাড়ায়", sortOrder: 1 },
+  { id: "2", accent: "বন্ধ হয়ে যাওয়া", rest: "বুকের দুধ পুনরায় তৈরি করে", sortOrder: 2 },
+  { id: "3", accent: "বুকের দুধের", rest: "সব পুষ্টিগুণ বজায় রাখে", sortOrder: 3 },
+  { id: "4", accent: "বুকের দুধ", rest: "পাতলা হলে ঘন করে", sortOrder: 4 },
+  { id: "5", accent: "ফর্মুলা দুধের", rest: "খরচ বাঁচায়", sortOrder: 5 },
+];
+
+const DEFAULT_BENEFITS_SMOOTHFLOW: BenefitItemData[] = [
+  { id: "1", accent: "২৪ ঘন্টায়", rest: "শক্ত চাকা ও নালীর জমাট ব্লক দূর করে", sortOrder: 1 },
+  { id: "2", accent: "ব্যথাহীন ও সহজ", rest: "ব্রেস্টফিডিং অনুভূতি এনে দেয়", sortOrder: 2 },
+  { id: "3", accent: "ব্রেস্টের ভারীভাব ও চাপ", rest: "দ্রুত উপশম করে", sortOrder: 3 },
+  { id: "4", accent: "স্মুথ ও নিরবচ্ছিন্ন", rest: "দুধের প্রবাহ বজায় রাখে", sortOrder: 4 },
+  { id: "5", accent: "১০০% প্রাকৃতিক ও", rest: "সম্পূর্ণ সাইডইফেক্ট মুক্ত", sortOrder: 5 },
+];
+
 const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
   milkimom: {
     productSlug: "milkimom",
@@ -120,6 +141,11 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     footerPhone: "01517-102603",
     footerEmail: "milkimominfo@gmail.com",
     footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
+    howItWorksBadge: "কি কাজ করে?",
+    howItWorksTitle: "একটি ডোজে ৫টি উপকারিতা",
+    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি মিল্কিমম মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
+    howItWorksImage: "",
+    benefitsItems: DEFAULT_BENEFITS_MILKIMOM,
     carouselItems: DEFAULT_CAROUSEL_ITEMS,
     doctorItems: DEFAULT_DOCTOR_ITEMS,
   },
@@ -150,6 +176,11 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     footerPhone: "01517-102603",
     footerEmail: "smoothflow@milkimom.com",
     footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
+    howItWorksBadge: "কি কাজ করে?",
+    howItWorksTitle: "একটি ডোজে ৫টি উপকারিতা",
+    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
+    howItWorksImage: "",
+    benefitsItems: DEFAULT_BENEFITS_SMOOTHFLOW,
     carouselItems: DEFAULT_CAROUSEL_ITEMS,
     doctorItems: DEFAULT_DOCTOR_ITEMS,
   },
@@ -218,6 +249,13 @@ export function LandingPageContentProvider({
               footerPhone: json.data.footerPhone || initialContent.footerPhone,
               footerEmail: json.data.footerEmail || initialContent.footerEmail,
               footerAddress: json.data.footerAddress || initialContent.footerAddress,
+              howItWorksBadge: json.data.howItWorksBadge || initialContent.howItWorksBadge,
+              howItWorksTitle: json.data.howItWorksTitle || initialContent.howItWorksTitle,
+              howItWorksSubtitle: json.data.howItWorksSubtitle || initialContent.howItWorksSubtitle,
+              howItWorksImage: json.data.howItWorksImage || initialContent.howItWorksImage,
+              benefitsItems: Array.isArray(json.data.benefitsItems) && json.data.benefitsItems.length > 0
+                ? json.data.benefitsItems
+                : initialContent.benefitsItems,
               carouselItems: Array.isArray(json.data.carouselItems) && json.data.carouselItems.length > 0
                 ? json.data.carouselItems
                 : initialContent.carouselItems,
