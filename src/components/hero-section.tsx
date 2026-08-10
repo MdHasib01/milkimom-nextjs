@@ -53,7 +53,7 @@ export function HeroSection() {
   const subtitleHighlight = content.heroSubtitleHighlight !== undefined ? content.heroSubtitleHighlight : "মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে";
 
   const ctaText = content.heroCtaText || "এখনই অর্ডার করুন";
-  const heroImgSrc = getImageUrl(content.heroImage || "/images/product-jar.webp");
+  const heroImgSrc = getImageUrl(content.heroImage, "/images/product-jar.webp");
 
   return (
     <section id="top" className="relative overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-24">
@@ -148,6 +148,9 @@ export function HeroSection() {
               <img
                 src={heroImgSrc}
                 alt="Product Jar"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/product-jar.webp";
+                }}
                 className="relative z-10 h-auto w-56 max-h-[380px] object-contain drop-shadow-2xl sm:w-72"
               />
               <FloatingBadges />

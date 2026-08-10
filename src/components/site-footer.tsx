@@ -15,19 +15,26 @@ export function SiteFooter() {
   const phoneDisplay = content.footerPhone || siteConfig.phoneDisplay;
   const email = content.footerEmail || siteConfig.email;
   const address = content.footerAddress || siteConfig.address;
+  const brandName = content.productName ? `${content.productName}™` : siteConfig.name;
 
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
-            <Image
-              src="/images/logo.webp"
-              alt={siteConfig.name}
-              width={140}
-              height={92}
-              className="h-14 w-auto"
-            />
+            {content.productSlug === "smoothflow" ? (
+              <span className="font-heading text-2xl font-extrabold text-primary tracking-tight block mb-2">
+                {brandName}
+              </span>
+            ) : (
+              <Image
+                src="/images/logo.webp"
+                alt={brandName}
+                width={140}
+                height={92}
+                className="h-14 w-auto"
+              />
+            )}
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               {footerText}
             </p>
@@ -91,7 +98,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          © {year} {siteConfig.name}™. সর্বস্বত্ব সংরক্ষিত।
+          © {year} {brandName}. সর্বস্বত্ব সংরক্ষিত।
         </div>
       </div>
     </footer>

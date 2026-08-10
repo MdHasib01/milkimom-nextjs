@@ -450,6 +450,9 @@ export function OrderSection() {
                         <img
                           src={flavor.image || "/images/product-jar.webp"}
                           alt={flavor.name}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/product-jar.webp";
+                          }}
                           className="h-full w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-110"
                         />
                       </div>

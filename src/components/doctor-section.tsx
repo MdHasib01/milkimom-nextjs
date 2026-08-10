@@ -47,7 +47,7 @@ export function DoctorSection() {
     {
       id: "custom-doctor",
       name: content.doctorName,
-      image: getImageUrl(content.doctorImage || "/assets/doctor/doctor.png"),
+      image: getImageUrl(content.doctorImage, "/assets/doctor/doctor.png"),
       title: content.doctorDegree || "বিশেষজ্ঞ ডাক্তারের পরামর্শ",
       subtitle: content.doctorTitle || "চিকিৎসকের সুপারিশকৃত প্রোডাক্ট",
       description: content.doctorQuote || "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি। এটি সম্পূর্ণ প্রাকৃতিক উপাদানে তৈরি যা নিরাপদভাবে কার্যকর সাহায্য করে।",

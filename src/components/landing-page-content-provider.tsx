@@ -87,11 +87,11 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
 
 const LandingPageContentContext = createContext<{
   content: LandingPageSectionContent;
-  getImageUrl: (url?: string) => string;
+  getImageUrl: (url?: string, fallbackUrl?: string) => string;
   replaceBrandName: (text: string) => string;
 }>({
   content: DEFAULT_SECTION_CONTENTS.milkimom,
-  getImageUrl: (url?: string) => url || "",
+  getImageUrl: (url?: string, fallbackUrl: string = "/images/product-jar.webp") => url || fallbackUrl,
   replaceBrandName: (text: string) => text,
 });
 
@@ -154,10 +154,23 @@ export function LandingPageContentProvider({
     };
   }, [productSlug, initialContent]);
 
-  function getImageUrl(url?: string): string {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return `${API_BASE_URL}${url}`;
+  function getImageUrl(url?: string, fallbackUrl: string = "/images/product-jar.webp"): string {
+    if (!url || !url.trim()) return fallbackUrl;
+    const trimmed = url.trim();
+    if (
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://") ||
+      trimmed.startsWith("/images/") ||
+      trimmed.startsWith("/assets/") ||
+      trimmed.startsWith("data:")
+    ) {
+      return trimmed;
+    }
+    if (trimmed.startsWith("/uploads/") || trimmed.startsWith("uploads/")) {
+      const cleanPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+      return `${API_BASE_URL}${cleanPath}`;
+    }
+    return trimmed;
   }
 
   function replaceBrandName(text: string): string {
