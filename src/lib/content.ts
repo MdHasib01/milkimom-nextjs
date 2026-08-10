@@ -161,3 +161,104 @@ export const singleJarPrice = {
   salePrice: 4990,
   perJarDays: 15,
 };
+
+export const smoothflowSingleJarPrice = {
+  label: "১ জার",
+  regularPrice: 3290,
+  salePrice: 1999,
+  saving: 1291,
+  perJarDays: 15,
+};
+
+export const smoothflowBenefits = [
+  {
+    accent: "২৪ ঘন্টায়",
+    rest: "শক্ত চাকা ও নালীর জমাট ব্লক দূর করে",
+  },
+  {
+    accent: "ব্যথাহীন ও সহজ",
+    rest: "ব্রেস্টফিডিং অনুভূতি এনে দেয়",
+  },
+  {
+    accent: "ব্রেস্টের ভারীভাব",
+    rest: "ও চাপ দ্রুত উপশম করে",
+  },
+  {
+    accent: "স্মুথ ও নিরবচ্ছিন্ন",
+    rest: "দুধের প্রবাহ বজায় রাখে",
+  },
+  {
+    accent: "১০০% প্রাকৃতিক",
+    rest: "ও সম্পূর্ণ সাইডইফেক্ট মুক্ত",
+  },
+];
+
+export const smoothflowTestimonials = [
+  {
+    name: "রেহানা পারভীন",
+    location: "ঢাকা",
+    rating: 5,
+    text: "বুকের এক পাশে শক্ত চাকার মতো হয়ে তীব্র ব্যথা করছিল, বাবুকে দুধ খাওয়াতেই ভয় পেতাম। স্মুথফ্লো নেওয়ার ২৪ ঘণ্টার মধ্যেই চাকা একদম সফট হয়ে যায় এবং ব্যথা নাই হয়ে গেছে!",
+    avatar: "/assets/reviewer/girl1.jpeg",
+    verifiedPurchase: true,
+    babyAge: "১.৫ মাস",
+    problemType: "ব্রেস্টে শক্ত চাকা ও ফিডিং-এ তীব্র ব্যথা",
+    usageDuration: "২৪ ঘন্টা (১ দিন)",
+  },
+  {
+    name: "সাবিহা সুলতানা",
+    location: "চট্টগ্রাম",
+    rating: 5,
+    text: "ক্লগড ডাক্টের কারণে ফিডিং করানোর সময় চোখ দিয়ে পানি চলে আসতো। স্মুথফ্লো ব্যবহারে ২ দিনের মধ্যে নালীর ব্লক পুরোপুরি ক্লিন হয়ে দুধের প্রবাহ একদম স্মুথ হয়েছে।",
+    avatar: "/assets/reviewer/girl2.jpeg",
+    verifiedPurchase: true,
+    babyAge: "২ মাস",
+    problemType: "ক্লগড ডাক্ট ও ব্রেস্টের ভারীভাব",
+    usageDuration: "২ দিন",
+  },
+  {
+    name: "নুসরাত জাহান",
+    location: "সিলেট",
+    rating: 5,
+    text: "বুকের ভারী ভাব ও ফোলা অনুভূতির জন্য রাতে ঘুমাতেই পারতাম না। মাত্র ১ দিনেই ব্রেস্টের চাপ একদম হালকা হয়ে গেছে, আলহামদুলিল্লাহ।",
+    avatar: "/assets/reviewer/girl3.jpeg",
+    verifiedPurchase: true,
+    babyAge: "৩ মাস",
+    problemType: "ব্রেস্টে প্রচণ্ড চাপ ও অস্বস্তি",
+    usageDuration: "২৪ ঘন্টা",
+  },
+  {
+    name: "মেহজাবীন চৌধুরী",
+    location: "উত্তরা, ঢাকা",
+    rating: 5,
+    text: "আগে ফিডিং করানোর আগে মানসিকভাবে ভয় পেতাম। স্মুথফ্লো সেবনের ৩ দিনের মধ্যে কোনো ব্যথা ছাড়াই বাবু সুন্দরভাবে দুধ খাচ্ছে।",
+    avatar: "/assets/reviewer/girl4.jpeg",
+    verifiedPurchase: true,
+    babyAge: "১ মাস",
+    problemType: "ফিডিং এর সময় অসহ্য পেইন",
+    usageDuration: "৩ দিন",
+  },
+  {
+    name: "আফরোজা খানম",
+    location: "কুমিল্লা",
+    rating: 5,
+    text: "ডাক্তারের পরামর্শে স্মুথফ্লো ট্রাই করি। ২ দিনের মধ্যে চাকা ভাব কেটে গেছে এবং বুকে জমাট বাঁধা দুধ স্বাচ্ছন্দ্যে রিলিজ হয়েছে।",
+    avatar: "/assets/reviewer/girl1.jpeg",
+    verifiedPurchase: true,
+    babyAge: "৪ মাস",
+    problemType: "শক্ত চাকা অনুভূতি ও ফিডিং এ সমস্যা",
+    usageDuration: "২ দিন",
+  },
+  {
+    name: "তানজিনা আক্তার",
+    location: "রাজশাহী",
+    rating: 5,
+    text: "সত্যিই জাদুকরী কাজ করে! মাত্র ২৪ ঘন্টায় আমার বুকের তীব্র ব্যথা কমে স্বস্তি এসেছে। আপনারা নিশ্চিন্তে ব্যবহার করতে পারেন।",
+    avatar: "/assets/reviewer/girl2.jpeg",
+    verifiedPurchase: true,
+    babyAge: "২.৫ মাস",
+    problemType: "ক্লগড ডাক্ট ও দুগ্ধনালীর ব্লক",
+    usageDuration: "২৪ ঘন্টা",
+  },
+];
+

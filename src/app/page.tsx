@@ -27,8 +27,8 @@ export default function Home() {
         <ComparisonSection />
         <DoctorSection />
         <TestimonialsSection />
-        <FaqSection />
         <OrderSection />
+        <FaqSection />
         <GuaranteeSection />
       </main>
       <SiteFooter />

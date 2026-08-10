@@ -4,12 +4,14 @@ import { LandingPageContentProvider } from "@/components/landing-page-content-pr
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
+import { MotherVisionSection } from "@/components/mother-vision-section";
 import { TrustBadgesBar } from "@/components/trust-badges";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { SpecialtiesSection } from "@/components/specialties-section";
 import { ComparisonSection } from "@/components/comparison-section";
 import { DoctorSection } from "@/components/doctor-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
+import { PainEmpathyBanner } from "@/components/pain-empathy-banner";
 import { OrderSection } from "@/components/order-section";
 import { GuaranteeSection } from "@/components/guarantee-section";
 import { FaqSection } from "@/components/faq-section";
@@ -18,13 +20,13 @@ import { StickyMobileBar } from "@/components/sticky-mobile-bar";
 import { FloatingActions } from "@/components/floating-actions";
 
 export const metadata: Metadata = {
-  title: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান! | স্মুথফ্লো™",
+  title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | স্মুথফ্লো™",
   description:
-    "প্রাকৃতিক উপাদানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশুর জন্য নিয়ে এলো অতুলনীয় পুষ্টি সুরক্ষা ও স্থায়ী ফলাফল।",
+    "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান স্মুথফ্লো™ দিয়ে।",
   openGraph: {
-    title: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান! | স্মুথফ্লো™",
+    title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | স্মুথফ্লো™",
     description:
-      "প্রাকৃতিক উপাদানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশুর জন্য নিয়ে এলো অতুলনীয় পুষ্টি সুরক্ষা ও স্থায়ী ফলাফল।",
+      "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান স্মুথফ্লো™ দিয়ে।",
     siteName: "স্মুথফ্লো™",
     locale: "bn_BD",
     type: "website",
@@ -40,14 +42,16 @@ export default function SmoothFlowLandingPage() {
           <SiteHeader />
           <main className="pb-24 sm:pb-0">
             <HeroSection />
+            <MotherVisionSection />
             <TrustBadgesBar />
             <HowItWorksSection />
             <SpecialtiesSection />
             <ComparisonSection />
             <DoctorSection />
             <TestimonialsSection />
-            <FaqSection />
+            <PainEmpathyBanner />
             <OrderSection />
+            <FaqSection />
             <GuaranteeSection />
           </main>
           <SiteFooter />

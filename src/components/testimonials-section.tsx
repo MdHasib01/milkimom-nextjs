@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Reveal } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
-import { testimonials } from "@/lib/content";
+import { testimonials as defaultTestimonials, smoothflowTestimonials } from "@/lib/content";
 import { FALLBACK_MOTHER_COUNT, useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
+import { CheckCircle2, ShieldCheck, Clock, Baby } from "lucide-react";
 
 import { useLandingPageContent } from "./landing-page-content-provider";
 
@@ -177,6 +178,10 @@ function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: n
 export function TestimonialsSection() {
   const [showAll, setShowAll] = useState(false);
   const motherCount = useMotherCount();
+  const { content } = useLandingPageContent();
+
+  const isSmoothflow = content.productSlug === "smoothflow";
+  const testimonialList = isSmoothflow ? smoothflowTestimonials : defaultTestimonials;
 
   return (
     <section id="reviews" className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
@@ -185,7 +190,7 @@ export function TestimonialsSection() {
           মায়েদের অভিজ্ঞতা
         </span>
         <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
-          সন্তুষ্ট মায়েদের রিভিউ
+          {isSmoothflow ? "“আপনার মতো অন্য মায়েরাও এই একই জায়গায় ছিলেন।”" : "সন্তুষ্ট মায়েদের রিভিউ"}
         </h2>
       </Reveal>
 
@@ -209,7 +214,7 @@ export function TestimonialsSection() {
             ))}
           </div>
           <span className="text-sm font-semibold text-foreground">
-          ৩০,০০০+ রিভিউ
+            {isSmoothflow ? "ভেরিফাইড কাস্টমার রিভিউ" : "৩০,০০০+ রিভিউ"}
           </span>
         </div>
       </Reveal>
@@ -217,25 +222,57 @@ export function TestimonialsSection() {
       <div className="relative mt-10">
         <div
           className={`grid grid-cols-1 gap-5 sm:grid-cols-2 transition-all duration-500 ease-in-out ${
-            !showAll ? "max-h-[460px] sm:max-h-[480px] overflow-hidden" : ""
+            !showAll ? "max-h-[580px] sm:max-h-[620px] overflow-hidden" : ""
           }`}
         >
-          {testimonials.map((testimonial) => (
+          {testimonialList.map((testimonial: any, idx: number) => (
             <div
-              key={testimonial.name}
-              className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
+              key={testimonial.name + idx}
+              className="flex h-full flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
             >
-              <div className="flex items-center gap-1 text-brand-gold">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star
-                    key={index}
-                    className="size-4 fill-current text-brand-gold"
-                  />
-                ))}
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 text-brand-gold">
+                    {Array.from({ length: testimonial.rating || 5 }).map((_, index) => (
+                      <Star
+                        key={index}
+                        className="size-4 fill-current text-brand-gold"
+                      />
+                    ))}
+                  </div>
+                  {testimonial.verifiedPurchase && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <ShieldCheck className="size-3.5" /> Verified Purchase
+                    </span>
+                  )}
+                </div>
+
+                {/* Metadata tags for smoothflow */}
+                {(testimonial.babyAge || testimonial.problemType || testimonial.usageDuration) && (
+                  <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold">
+                    {testimonial.babyAge && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-muted-foreground">
+                        <Baby className="size-3 text-primary" /> Baby Age: {testimonial.babyAge}
+                      </span>
+                    )}
+                    {testimonial.usageDuration && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-muted-foreground">
+                        <Clock className="size-3 text-primary" /> ব্যবহার: {testimonial.usageDuration}
+                      </span>
+                    )}
+                    {testimonial.problemType && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-primary w-full">
+                        ✓ সমস্যা: {testimonial.problemType}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90 font-medium">
+                  &ldquo;{testimonial.text}&rdquo;
+                </p>
               </div>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/90">
-                &ldquo;{testimonial.text}&rdquo;
-              </p>
+
               <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
                 <span className="flex size-9 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-crimson">
                   {testimonial.name.charAt(0)}

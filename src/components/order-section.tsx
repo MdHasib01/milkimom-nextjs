@@ -17,7 +17,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { singleJarPrice } from "@/lib/content";
+import { singleJarPrice, smoothflowSingleJarPrice } from "@/lib/content";
 import { useFlavors } from "@/lib/use-flavours";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { getFbBrowserIds, trackInitiateCheckout } from "@/lib/fbpixel";
@@ -95,14 +95,27 @@ export function OrderSection() {
     return () => clearInterval(interval);
   }, [otpResendTimer]);
 
+  const isSmoothflow = content.productSlug === "smoothflow";
+
+  const effectiveFlavors = useMemo(() => {
+    if (isSmoothflow) {
+      return flavors.map((f) => ({
+        ...f,
+        regularPrice: f.regularPrice === 8990 || !f.regularPrice ? smoothflowSingleJarPrice.regularPrice : f.regularPrice,
+        salePrice: f.salePrice === 4990 || !f.salePrice ? smoothflowSingleJarPrice.salePrice : f.salePrice,
+      }));
+    }
+    return flavors;
+  }, [flavors, isSmoothflow]);
+
   // null selection (initial, or the catalog was swapped under us after the
   // API load) resolves to the tagged/popular flavour.
   const selectedFlavor = useMemo(
     () =>
-      flavors.find((flavor) => flavor.id === selectedFlavorId) ??
-      flavors.find((flavor) => flavor.popular) ??
-      flavors[0],
-    [flavors, selectedFlavorId]
+      effectiveFlavors.find((flavor) => flavor.id === selectedFlavorId) ??
+      effectiveFlavors.find((flavor) => flavor.popular) ??
+      effectiveFlavors[0],
+    [effectiveFlavors, selectedFlavorId]
   );
 
   async function triggerPhoneIpCheck(phoneNum: string, overrideFlavor?: typeof selectedFlavor) {
@@ -411,7 +424,7 @@ export function OrderSection() {
             </div>
 
             <RevealGroup className="col-span-full grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-              {flavors.map((flavor) => {
+              {effectiveFlavors.map((flavor) => {
                 const isSelected = flavor.id === selectedFlavor.id;
                 return (
                   <RevealItem key={flavor.id} className="h-full">

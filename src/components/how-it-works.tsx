@@ -6,7 +6,7 @@ import { Float, Reveal } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
 import { SectionCta } from "@/components/section-cta";
 import { GridPattern } from "@/components/grid-pattern";
-import { benefits } from "@/lib/content";
+import { benefits as defaultBenefits, smoothflowBenefits } from "@/lib/content";
 import { useLandingPageContent } from "./landing-page-content-provider";
 
 const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
@@ -25,6 +25,9 @@ export function HowItWorksSection() {
   const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
   const brandName = content.productName || "মিল্কিমম";
   const heroImg = content.heroImage ? getImageUrl(content.heroImage) : "/images/product-jar.webp";
+
+  const benefitsList = content.productSlug === "smoothflow" ? smoothflowBenefits : defaultBenefits;
+
 
   return (
     <section id="benefits" className="relative overflow-hidden mx-auto max-w-6xl px-4 py-16 sm:py-24">
@@ -57,8 +60,8 @@ export function HowItWorksSection() {
           </Float>
         </div>
 
-        {benefits.map((benefit, index) => {
-          const position = polarPosition(index, benefits.length);
+        {benefitsList.map((benefit, index) => {
+          const position = polarPosition(index, benefitsList.length);
           return (
             <div
               key={benefit.accent + benefit.rest}
