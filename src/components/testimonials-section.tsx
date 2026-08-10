@@ -14,42 +14,56 @@ import { formatBengaliNumber } from "@/lib/number-utils";
 import { useLandingPageContent } from "./landing-page-content-provider";
 
 function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: number }) {
-  const { content, replaceBrandName } = useLandingPageContent();
-  const brandName = content.productName || "মিল্কিমম";
+  const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
   const formattedCount = `${formatBengaliNumber(motherCount)}`;
 
-  const carouselItems = [
+  const defaultItems = [
     {
-      id: 1,
+      id: "1",
       image: "/assets/carousel/doctor.webp",
-      alt: `ডাক্তারের পরামর্শ ও মা ও শিশুর যত্ন`,
+      imageMobile: "/assets/carousel/doctor.webp",
+      imageSide: "left" as const,
+      sortOrder: 1,
+      tag: "ডাক্তারের পরামর্শ",
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
-      tag: "ডাক্তারের পরামর্শ",
     },
     {
-      id: 2,
+      id: "2",
       image: "/assets/carousel/pic2.webp",
-      alt: `মায়ের স্বাস্থ্যে ${brandName}`,
+      imageMobile: "/assets/carousel/pic2.webp",
+      imageSide: "right" as const,
+      sortOrder: 2,
+      tag: "প্রাকৃতিক সুরক্ষা",
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
-      tag: "প্রাকৃতিক সুরক্ষা",
     },
     {
-      id: 3,
+      id: "3",
       image: "/assets/carousel/pic3.webp",
-      alt: "শিশুর হাসি ও মায়ের তৃপ্তি",
+      imageMobile: "/assets/carousel/pic3.webp",
+      imageSide: "left" as const,
+      sortOrder: 3,
+      tag: "বিশ্বস্ত পছন্দ",
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: `${formattedCount} মায়েদের বিশ্বস্ততা ও শিশুর সঠিক পুষ্টির সাথে গড়ে উঠুক সুন্দর ভবিষ্যৎ।`,
-      tag: "বিশ্বস্ত পছন্দ",
     },
   ];
 
+  const items = content.carouselItems && content.carouselItems.length > 0 ? content.carouselItems : defaultItems;
+
+  // Dynamically sort slides by sortOrder
+  const carouselItems = [...items].sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+
+  const activeSlide = carouselItems[currentIndex] || carouselItems[0];
+  const desktopImg = getImageUrl(activeSlide.image, "/assets/carousel/doctor.webp");
+  const mobileImg = getImageUrl(activeSlide.imageMobile || activeSlide.image, "/assets/carousel/doctor.webp");
+
   useEffect(() => {
-    if (isHovered) return;
+    if (isHovered || carouselItems.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
     }, 4000);
@@ -63,6 +77,13 @@ function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: n
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + carouselItems.length) % carouselItems.length);
   };
+
+  const alignClass =
+    activeSlide.imageSide === "right"
+      ? "items-end text-right ml-auto"
+      : activeSlide.imageSide === "center"
+      ? "items-center text-center mx-auto"
+      : "items-start text-left";
 
   return (
     <div
@@ -80,66 +101,74 @@ function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: n
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-            <Image
-              src={carouselItems[currentIndex].image}
-              alt={carouselItems[currentIndex].alt}
-              fill
-              priority={currentIndex === 0}
-              className="object-cover object-center"
-              sizes="(min-width: 1024px) 72rem, 100vw"
-            />
+            {/* Responsive Images: Mobile Viewport vs Desktop Viewport */}
+            <picture className="block size-full">
+              <source media="(max-width: 640px)" srcSet={mobileImg} />
+              <img
+                src={desktopImg}
+                alt={activeSlide.title || "Care Carousel Slide"}
+                className="size-full object-cover object-center"
+              />
+            </picture>
+
             {/* Overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
 
             {/* Content overlay */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 text-white max-w-3xl">
-              <span className="mb-2 inline-block w-fit rounded-full bg-brand-crimson/90 px-3 py-1 text-xs font-semibold tracking-wider text-white shadow-sm backdrop-blur-sm">
-                {carouselItems[currentIndex].tag}
-              </span>
+            <div className={`absolute inset-0 flex flex-col justify-end p-6 sm:p-10 text-white max-w-3xl ${alignClass}`}>
+              {activeSlide.tag && (
+                <span className="mb-2 inline-block rounded-full bg-brand-crimson/90 px-3 py-1 text-xs font-semibold tracking-wider text-white shadow-sm backdrop-blur-sm">
+                  {activeSlide.tag}
+                </span>
+              )}
               <h3 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-md">
-                &ldquo;{carouselItems[currentIndex].title}&rdquo;
+                &ldquo;{replaceBrandName(activeSlide.title || "")}&rdquo;
               </h3>
               <p className="mt-2 text-xs sm:text-sm md:text-base text-gray-200 line-clamp-2 sm:line-clamp-none max-w-2xl drop-shadow">
-                {carouselItems[currentIndex].description}
+                {replaceBrandName(activeSlide.description || "")}
               </p>
             </div>
           </motion.div>
         </AnimatePresence>
 
         {/* Navigation Arrows */}
-        <button
-          type="button"
-          onClick={handlePrev}
-          aria-label="Previous Slide"
-          className="absolute left-3 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 transition-all hover:bg-brand-crimson hover:scale-105 active:scale-95 cursor-pointer z-10 opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
-        >
-          <ChevronLeft className="size-5" />
-        </button>
-        <button
-          type="button"
-          onClick={handleNext}
-          aria-label="Next Slide"
-          className="absolute right-3 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 transition-all hover:bg-brand-crimson hover:scale-105 active:scale-95 cursor-pointer z-10 opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
-        >
-          <ChevronRight className="size-5" />
-        </button>
-
-        {/* Pagination Dots */}
-        <div className="absolute bottom-4 right-6 sm:right-10 z-10 flex items-center gap-2">
-          {carouselItems.map((_, index) => (
+        {carouselItems.length > 1 && (
+          <>
             <button
-              key={index}
               type="button"
-              onClick={() => setCurrentIndex(index)}
-              aria-label={`Go to slide ${index + 1}`}
-              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                index === currentIndex
-                  ? "w-8 bg-brand-crimson"
-                  : "w-2.5 bg-white/50 hover:bg-white/80"
-              }`}
-            />
-          ))}
-        </div>
+              onClick={handlePrev}
+              aria-label="Previous Slide"
+              className="absolute left-3 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 transition-all hover:bg-brand-crimson hover:scale-105 active:scale-95 cursor-pointer z-10 opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Next Slide"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 transition-all hover:bg-brand-crimson hover:scale-105 active:scale-95 cursor-pointer z-10 opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-4 right-6 sm:right-10 z-10 flex items-center gap-2">
+              {carouselItems.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentIndex(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                  className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    index === currentIndex
+                      ? "w-8 bg-brand-crimson"
+                      : "w-2.5 bg-white/50 hover:bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

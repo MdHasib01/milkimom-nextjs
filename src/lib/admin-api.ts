@@ -383,6 +383,28 @@ export function createCustomizationTheme(data: Partial<LandingPageTheme>) {
   });
 }
 
+export interface CarouselItemData {
+  id: string | number;
+  title: string;
+  description: string;
+  tag?: string;
+  image: string;
+  imageMobile?: string;
+  imageSide?: "left" | "right" | "center";
+  sortOrder?: number;
+}
+
+export interface DoctorItemData {
+  id: string | number;
+  name: string;
+  degree?: string;
+  title?: string;
+  subtitle?: string;
+  description: string;
+  image: string;
+  sortOrder?: number;
+}
+
 export interface LandingPageContentData {
   _id?: string;
   productSlug: string;
@@ -409,6 +431,8 @@ export interface LandingPageContentData {
   footerPhone?: string;
   footerEmail?: string;
   footerAddress?: string;
+  carouselItems?: CarouselItemData[];
+  doctorItems?: DoctorItemData[];
   createdAt?: string;
   updatedAt?: string;
 }

@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { API_ENDPOINTS, API_BASE_URL } from "@/lib/api-config";
 
+import { type CarouselItemData, type DoctorItemData } from "@/lib/admin-api";
+
 export interface LandingPageSectionContent {
   productSlug: string;
   productName: string;
@@ -28,7 +30,65 @@ export interface LandingPageSectionContent {
   footerPhone: string;
   footerEmail: string;
   footerAddress: string;
+  carouselItems?: CarouselItemData[];
+  doctorItems?: DoctorItemData[];
 }
+
+const DEFAULT_CAROUSEL_ITEMS: CarouselItemData[] = [
+  {
+    id: "1",
+    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+    description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
+    tag: "ডাক্তারের পরামর্শ",
+    image: "/assets/carousel/doctor.webp",
+    imageMobile: "/assets/carousel/doctor.webp",
+    imageSide: "left",
+    sortOrder: 1,
+  },
+  {
+    id: "2",
+    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+    description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
+    tag: "প্রাকৃতিক সুরক্ষা",
+    image: "/assets/carousel/pic2.webp",
+    imageMobile: "/assets/carousel/pic2.webp",
+    imageSide: "right",
+    sortOrder: 2,
+  },
+  {
+    id: "3",
+    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+    description: "মায়েদের বিশ্বস্ততা ও শিশুর সঠিক পুষ্টির সাথে গড়ে উঠুক সুন্দর ভবিষ্যৎ।",
+    tag: "বিশ্বস্ত পছন্দ",
+    image: "/assets/carousel/pic3.webp",
+    imageMobile: "/assets/carousel/pic3.webp",
+    imageSide: "left",
+    sortOrder: 3,
+  },
+];
+
+const DEFAULT_DOCTOR_ITEMS: DoctorItemData[] = [
+  {
+    id: "saddam",
+    name: "ডা. মোঃ সাদ্দাম",
+    degree: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
+    title: "মেডিকেল বোর্ড অনুমোদিত",
+    subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
+    description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
+    image: "/assets/doctors/saddam.webp",
+    sortOrder: 1,
+  },
+  {
+    id: "nazmul",
+    name: "ডা. মোঃ নাজমুল",
+    degree: "এমবিবিএস, ডিজিইউ, শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
+    title: "মেডিকেল বোর্ড অনুমোদিত",
+    subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
+    description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
+    image: "/assets/doctors/nazmul.webp",
+    sortOrder: 2,
+  },
+];
 
 const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
   milkimom: {
@@ -56,6 +116,8 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     footerPhone: "01517-102603",
     footerEmail: "milkimominfo@gmail.com",
     footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
+    carouselItems: DEFAULT_CAROUSEL_ITEMS,
+    doctorItems: DEFAULT_DOCTOR_ITEMS,
   },
   smoothflow: {
     productSlug: "smoothflow",
@@ -82,6 +144,8 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     footerPhone: "01517-102603",
     footerEmail: "smoothflow@milkimom.com",
     footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
+    carouselItems: DEFAULT_CAROUSEL_ITEMS,
+    doctorItems: DEFAULT_DOCTOR_ITEMS,
   },
 };
 
@@ -146,6 +210,12 @@ export function LandingPageContentProvider({
               footerPhone: json.data.footerPhone || initialContent.footerPhone,
               footerEmail: json.data.footerEmail || initialContent.footerEmail,
               footerAddress: json.data.footerAddress || initialContent.footerAddress,
+              carouselItems: Array.isArray(json.data.carouselItems) && json.data.carouselItems.length > 0
+                ? json.data.carouselItems
+                : initialContent.carouselItems,
+              doctorItems: Array.isArray(json.data.doctorItems) && json.data.doctorItems.length > 0
+                ? json.data.doctorItems
+                : initialContent.doctorItems,
             });
           }
         }

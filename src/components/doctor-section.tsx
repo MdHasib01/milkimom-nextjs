@@ -37,23 +37,40 @@ export function DoctorSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const formattedDefaultDoctors = defaultDoctors.map((doc) => ({
+  const defaultDoctorList = defaultDoctors.map((doc) => ({
     ...doc,
+    degree: "এমবিবিএস, এফসিপিএস",
     description: replaceBrandName(doc.description),
   }));
 
-  // If custom doctor data exists, integrate it into the list
-  const doctorList = content.doctorName ? [
-    {
-      id: "custom-doctor",
-      name: content.doctorName,
-      image: getImageUrl(content.doctorImage, "/assets/doctor/doctor.png"),
-      title: content.doctorDegree || "বিশেষজ্ঞ ডাক্তারের পরামর্শ",
-      subtitle: content.doctorTitle || "চিকিৎসকের সুপারিশকৃত প্রোডাক্ট",
-      description: content.doctorQuote || "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি। এটি সম্পূর্ণ প্রাকৃতিক উপাদানে তৈরি যা নিরাপদভাবে কার্যকর সাহায্য করে।",
-    },
-    ...formattedDefaultDoctors,
-  ] : formattedDefaultDoctors;
+  const rawDoctorItems =
+    content.doctorItems && content.doctorItems.length > 0
+      ? content.doctorItems
+      : content.doctorName
+      ? [
+          {
+            id: "custom-doctor",
+            name: content.doctorName,
+            degree: content.doctorDegree || "মেডিকেল বোর্ড অনুমোদিত",
+            title: content.doctorDegree || "বিশেষজ্ঞ ডাক্তারের পরামর্শ",
+            subtitle: content.doctorTitle || "চিকিৎসকের সুপারিশকৃত প্রোডাক্ট",
+            description: content.doctorQuote || "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি।",
+            image: content.doctorImage || "/assets/doctors/saddam.webp",
+            sortOrder: 1,
+          },
+          ...defaultDoctorList,
+        ]
+      : defaultDoctorList;
+
+  const doctorList = [...rawDoctorItems]
+    .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0))
+    .map((doc) => ({
+      ...doc,
+      title: doc.title || "মেডিকেল বোর্ড অনুমোদিত",
+      subtitle: doc.subtitle || "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
+      image: getImageUrl(doc.image, "/assets/doctors/saddam.webp"),
+      description: replaceBrandName(doc.description || ""),
+    }));
 
   const nextDoctor = () => {
     setCurrentIndex((prev) => (prev + 1) % doctorList.length);
@@ -64,7 +81,7 @@ export function DoctorSection() {
   };
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || doctorList.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % doctorList.length);
     }, 5000);
@@ -89,25 +106,29 @@ export function DoctorSection() {
         onMouseLeave={() => setIsPaused(false)}
       >
         {/* Navigation Buttons */}
-        <button
-          onClick={prevDoctor}
-          aria-label="পূর্ববর্তী চিকিৎসক"
-          className="absolute left-2 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-md backdrop-blur transition-all hover:bg-primary hover:text-primary-foreground sm:left-4 sm:size-12"
-        >
-          <ChevronLeft className="size-6" />
-        </button>
+        {doctorList.length > 1 && (
+          <>
+            <button
+              onClick={prevDoctor}
+              aria-label="পূর্ববর্তী চিকিৎসক"
+              className="absolute left-2 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-md backdrop-blur transition-all hover:bg-primary hover:text-primary-foreground sm:left-4 sm:size-12"
+            >
+              <ChevronLeft className="size-6" />
+            </button>
 
-        <button
-          onClick={nextDoctor}
-          aria-label="পরবর্তী চিকিৎসক"
-          className="absolute right-2 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-md backdrop-blur transition-all hover:bg-primary hover:text-primary-foreground sm:right-4 sm:size-12"
-        >
-          <ChevronRight className="size-6" />
-        </button>
+            <button
+              onClick={nextDoctor}
+              aria-label="পরবর্তী চিকিৎসক"
+              className="absolute right-2 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-md backdrop-blur transition-all hover:bg-primary hover:text-primary-foreground sm:right-4 sm:size-12"
+            >
+              <ChevronRight className="size-6" />
+            </button>
+          </>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeDoctor.id}
+            key={activeDoctor.id || currentIndex}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -116,13 +137,10 @@ export function DoctorSection() {
           >
             <div className="mx-auto w-full max-w-xs lg:max-w-sm">
               <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-border/50 shadow-md">
-                <Image
+                <img
                   src={activeDoctor.image}
                   alt={activeDoctor.name}
-                  fill
-                  className="object-cover object-top"
-                  sizes="(min-width: 1024px) 24rem, 90vw"
-                  priority
+                  className="size-full object-cover object-top"
                 />
               </div>
             </div>
@@ -136,7 +154,7 @@ export function DoctorSection() {
                 {activeDoctor.subtitle}
               </h3>
               <p className="mt-2 font-heading text-xl font-bold text-brand-crimson">
-                {activeDoctor.name}
+                {activeDoctor.name} {activeDoctor.degree ? <span className="text-sm font-normal text-muted-foreground">({activeDoctor.degree})</span> : null}
               </p>
               <p className="mt-4 text-balance text-muted-foreground leading-relaxed">
                 {activeDoctor.description}
@@ -147,20 +165,22 @@ export function DoctorSection() {
       </div>
 
       {/* Dot Indicators */}
-      <div className="mt-6 flex items-center justify-center gap-2">
-        {doctorList.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            aria-label={`স্লাইড ${index + 1}`}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              index === currentIndex
-                ? "w-8 bg-primary"
-                : "w-2.5 bg-border hover:bg-muted-foreground/50"
-            }`}
-          />
-        ))}
-      </div>
+      {doctorList.length > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {doctorList.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              aria-label={`স্লাইড ${index + 1}`}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                index === currentIndex
+                  ? "w-8 bg-primary"
+                  : "w-2.5 bg-border hover:bg-muted-foreground/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
       <SectionCta />
     </section>
   );

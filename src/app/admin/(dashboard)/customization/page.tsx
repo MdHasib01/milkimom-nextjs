@@ -24,6 +24,11 @@ import {
   Columns,
   EyeOff,
   Maximize2,
+  ArrowUp,
+  ArrowDown,
+  Trash2,
+  Layers,
+  UserCheck,
   X as CloseIcon,
 } from "lucide-react";
 
@@ -41,6 +46,8 @@ import {
   getStoredUser,
   type LandingPageTheme,
   type LandingPageContentData,
+  type CarouselItemData,
+  type DoctorItemData,
 } from "@/lib/admin-api";
 
 // Exact live site components for section previews
@@ -48,6 +55,7 @@ import { AnnouncementBar } from "@/components/announcement-bar";
 import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
 import { DoctorSection } from "@/components/doctor-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
 import { OrderSection } from "@/components/order-section";
 import { GuaranteeSection } from "@/components/guarantee-section";
 import { SiteFooter } from "@/components/site-footer";
@@ -57,7 +65,6 @@ import { TrustBadgesBar } from "@/components/trust-badges";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { SpecialtiesSection } from "@/components/specialties-section";
 import { ComparisonSection } from "@/components/comparison-section";
-import { TestimonialsSection } from "@/components/testimonials-section";
 import { FaqSection } from "@/components/faq-section";
 
 import {
@@ -66,6 +73,62 @@ import {
 } from "@/components/landing-page-content-provider";
 
 type TabType = "theme" | "content";
+
+const DEFAULT_CAROUSEL_SLIDES: CarouselItemData[] = [
+  {
+    id: "1",
+    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+    description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
+    tag: "ডাক্তারের পরামর্শ",
+    image: "/assets/carousel/doctor.webp",
+    imageMobile: "/assets/carousel/doctor.webp",
+    imageSide: "left",
+    sortOrder: 1,
+  },
+  {
+    id: "2",
+    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+    description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
+    tag: "প্রাকৃতিক সুরক্ষা",
+    image: "/assets/carousel/pic2.webp",
+    imageMobile: "/assets/carousel/pic2.webp",
+    imageSide: "right",
+    sortOrder: 2,
+  },
+  {
+    id: "3",
+    title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
+    description: "মায়েদের বিশ্বস্ততা ও শিশুর সঠিক পুষ্টির সাথে গড়ে উঠুক সুন্দর ভবিষ্যৎ।",
+    tag: "বিশ্বস্ত পছন্দ",
+    image: "/assets/carousel/pic3.webp",
+    imageMobile: "/assets/carousel/pic3.webp",
+    imageSide: "left",
+    sortOrder: 3,
+  },
+];
+
+const DEFAULT_DOCTORS_LIST: DoctorItemData[] = [
+  {
+    id: "saddam",
+    name: "ডা. মোঃ সাদ্দাম",
+    degree: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
+    title: "মেডিকেল বোর্ড অনুমোদিত",
+    subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
+    description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
+    image: "/assets/doctors/saddam.webp",
+    sortOrder: 1,
+  },
+  {
+    id: "nazmul",
+    name: "ডা. মোঃ নাজমুল",
+    degree: "এমবিবিএস, ডিজিইউ, শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
+    title: "মেডিকেল বোর্ড অনুমোদিত",
+    subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
+    description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
+    image: "/assets/doctors/nazmul.webp",
+    sortOrder: 2,
+  },
+];
 
 function LiveSectionFrame({
   title,
@@ -137,6 +200,8 @@ export default function AdminCustomizationPage() {
     footerPhone: "",
     footerEmail: "",
     footerAddress: "",
+    carouselItems: DEFAULT_CAROUSEL_SLIDES,
+    doctorItems: DEFAULT_DOCTORS_LIST,
   });
 
   // Content Live Preview View State
@@ -147,6 +212,7 @@ export default function AdminCustomizationPage() {
     branding: true,
     hero: true,
     doctor: true,
+    carousel: true,
     order: true,
     footer: true,
   });
@@ -197,6 +263,14 @@ export default function AdminCustomizationPage() {
     const result = await fetchCustomizationContent(slug);
     if (result.success && result.data) {
       const data = (result.data as any).data || result.data;
+      const carouselData = Array.isArray(data.carouselItems) && data.carouselItems.length > 0
+        ? data.carouselItems
+        : DEFAULT_CAROUSEL_SLIDES;
+
+      const doctorData = Array.isArray(data.doctorItems) && data.doctorItems.length > 0
+        ? data.doctorItems
+        : DEFAULT_DOCTORS_LIST;
+
       setContentData({
         productSlug: slug,
         productName: data.productName || "",
@@ -222,6 +296,8 @@ export default function AdminCustomizationPage() {
         footerPhone: data.footerPhone || "",
         footerEmail: data.footerEmail || "",
         footerAddress: data.footerAddress || "",
+        carouselItems: carouselData,
+        doctorItems: doctorData,
       });
     }
     setLoadingContent(false);
@@ -253,6 +329,174 @@ export default function AdminCustomizationPage() {
       ...prev,
       [sectionKey]: !prev[sectionKey],
     }));
+  }
+
+  // Dynamic Carousel Item Handlers
+  function handleAddCarouselSlide() {
+    if (isModerator) return;
+    const newSlide: CarouselItemData = {
+      id: `slide_${Date.now()}`,
+      title: "নতুন স্লাইড শিরোনাম",
+      description: "আপনার পণ্যের বিশেষ সুবিধাসমূহ বর্ণনা করুন...",
+      tag: "বিশেষ ফিচার",
+      image: "/assets/carousel/doctor.webp",
+      imageMobile: "/assets/carousel/doctor.webp",
+      imageSide: "left",
+      sortOrder: (contentData.carouselItems?.length || 0) + 1,
+    };
+    setContentData((prev) => ({
+      ...prev,
+      carouselItems: [...(prev.carouselItems || []), newSlide],
+    }));
+  }
+
+  function handleUpdateCarouselSlide(index: number, updatedField: Partial<CarouselItemData>) {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.carouselItems || [])];
+      list[index] = { ...list[index], ...updatedField };
+      return { ...prev, carouselItems: list };
+    });
+  }
+
+  function handleRemoveCarouselSlide(index: number) {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.carouselItems || [])];
+      list.splice(index, 1);
+      return { ...prev, carouselItems: list };
+    });
+  }
+
+  function handleMoveCarouselSlide(index: number, direction: "up" | "down") {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.carouselItems || [])];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= list.length) return prev;
+
+      const temp = list[index];
+      list[index] = list[targetIndex];
+      list[targetIndex] = temp;
+
+      list.forEach((item, idx) => {
+        item.sortOrder = idx + 1;
+      });
+
+      return { ...prev, carouselItems: list };
+    });
+  }
+
+  async function handleCarouselImageUpload(
+    e: ChangeEvent<HTMLInputElement>,
+    index: number,
+    field: "image" | "imageMobile"
+  ) {
+    const file = e.target.files?.[0];
+    if (!file || isModerator) return;
+
+    const uploadKey = `carousel_${index}_${field}`;
+    setUploadingField(uploadKey);
+    setMessage(null);
+
+    const result = await uploadAssetImage(selectedSlug, file);
+    setUploadingField(null);
+
+    if (result.success && result.data && result.data.url) {
+      const uploadedUrl = result.data.url;
+      handleUpdateCarouselSlide(index, { [field]: uploadedUrl });
+      setMessage({
+        type: "success",
+        text: `Carousel slide image uploaded to VPS asset path: ${uploadedUrl}`,
+      });
+    } else {
+      setMessage({
+        type: "error",
+        text: typeof result.error === "string" ? result.error : "Failed to upload carousel slide image",
+      });
+    }
+  }
+
+  // Dynamic Multi-Doctor Handlers
+  function handleAddDoctor() {
+    if (isModerator) return;
+    const newDoc: DoctorItemData = {
+      id: `doc_${Date.now()}`,
+      name: "ডা. নতুন বিশেষজ্ঞ",
+      degree: "এমবিবিএস, এফসিপিএস",
+      title: "মেডিকেল বোর্ড অনুমোদিত",
+      subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
+      description: "বিশেষজ্ঞ চিকিৎসকের পরামর্শ ও বিস্তারিত মতামত...",
+      image: "/assets/doctors/saddam.webp",
+      sortOrder: (contentData.doctorItems?.length || 0) + 1,
+    };
+    setContentData((prev) => ({
+      ...prev,
+      doctorItems: [...(prev.doctorItems || []), newDoc],
+    }));
+  }
+
+  function handleUpdateDoctor(index: number, updatedField: Partial<DoctorItemData>) {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.doctorItems || [])];
+      list[index] = { ...list[index], ...updatedField };
+      return { ...prev, doctorItems: list };
+    });
+  }
+
+  function handleRemoveDoctor(index: number) {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.doctorItems || [])];
+      list.splice(index, 1);
+      return { ...prev, doctorItems: list };
+    });
+  }
+
+  function handleMoveDoctor(index: number, direction: "up" | "down") {
+    if (isModerator) return;
+    setContentData((prev) => {
+      const list = [...(prev.doctorItems || [])];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= list.length) return prev;
+
+      const temp = list[index];
+      list[index] = list[targetIndex];
+      list[targetIndex] = temp;
+
+      list.forEach((item, idx) => {
+        item.sortOrder = idx + 1;
+      });
+
+      return { ...prev, doctorItems: list };
+    });
+  }
+
+  async function handleDoctorImageUpload(e: ChangeEvent<HTMLInputElement>, index: number) {
+    const file = e.target.files?.[0];
+    if (!file || isModerator) return;
+
+    const uploadKey = `doctor_${index}`;
+    setUploadingField(uploadKey);
+    setMessage(null);
+
+    const result = await uploadAssetImage(selectedSlug, file);
+    setUploadingField(null);
+
+    if (result.success && result.data && result.data.url) {
+      const uploadedUrl = result.data.url;
+      handleUpdateDoctor(index, { image: uploadedUrl });
+      setMessage({
+        type: "success",
+        text: `Doctor photo uploaded to VPS asset path: ${uploadedUrl}`,
+      });
+    } else {
+      setMessage({
+        type: "error",
+        text: typeof result.error === "string" ? result.error : "Failed to upload doctor photo",
+      });
+    }
   }
 
   async function handleSaveTheme(e: FormEvent) {
@@ -322,7 +566,7 @@ export default function AdminCustomizationPage() {
     setSaving(false);
 
     if (result.success && result.data) {
-      setMessage({ type: "success", text: `Section content for "${selectedSlug}" saved successfully!` });
+      setMessage({ type: "success", text: `Section content, doctors list & carousel slides for "${selectedSlug}" saved successfully!` });
     } else {
       setMessage({
         type: "error",
@@ -368,6 +612,12 @@ export default function AdminCustomizationPage() {
         footerPhone: data.footerPhone || "",
         footerEmail: data.footerEmail || "",
         footerAddress: data.footerAddress || "",
+        carouselItems: Array.isArray(data.carouselItems) && data.carouselItems.length > 0
+          ? data.carouselItems
+          : DEFAULT_CAROUSEL_SLIDES,
+        doctorItems: Array.isArray(data.doctorItems) && data.doctorItems.length > 0
+          ? data.doctorItems
+          : DEFAULT_DOCTORS_LIST,
       });
       setMessage({ type: "success", text: `Section content reset to default for "${selectedSlug}".` });
     } else {
@@ -508,6 +758,9 @@ export default function AdminCustomizationPage() {
 
   // Render form sections helper for Content & Media Assets tab
   function renderContentFormSections() {
+    const slides = contentData.carouselItems || DEFAULT_CAROUSEL_SLIDES;
+    const doctors = contentData.doctorItems || DEFAULT_DOCTORS_LIST;
+
     return (
       <div className="space-y-6">
         {/* Product Branding & Announcement Bar Section */}
@@ -745,128 +998,224 @@ export default function AdminCustomizationPage() {
           )}
         </div>
 
-        {/* Doctor & Expert Section */}
-        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+        {/* Doctor & Expert Advisory Section (Dynamic Multi-Doctor Management) */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
-              <FileText size={16} className="text-emerald-600" />
-              Doctor & Expert Advisory Section
-            </h3>
-            {contentViewMode === "inline" && (
-              <button
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+                <UserCheck size={17} className="text-emerald-600 dark:text-emerald-400" />
+                Doctor & Expert Advisory Section (Dynamic Doctors List)
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Add, edit text copy, upload custom photos, reorder, and remove doctors dynamically for each product page.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
                 type="button"
-                onClick={() => toggleSectionPreview("doctor")}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                onClick={handleAddDoctor}
+                disabled={isModerator}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
               >
-                <Eye size={13} />
-                <span>{sectionPreviewsToggle.doctor ? "Hide UI Preview" : "Show UI Preview"}</span>
-              </button>
-            )}
-          </div>
+                <Plus size={15} />
+                <span>Add Doctor</span>
+              </Button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Section Title</label>
-              <input
-                type="text"
-                value={contentData.doctorTitle || ""}
-                onChange={(e) => setContentData({ ...contentData, doctorTitle: e.target.value })}
-                disabled={isModerator}
-                placeholder="e.g. বিশেষজ্ঞ ডাক্তারের পরামর্শ"
-                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Doctor Name</label>
-              <input
-                type="text"
-                value={contentData.doctorName || ""}
-                onChange={(e) => setContentData({ ...contentData, doctorName: e.target.value })}
-                disabled={isModerator}
-                placeholder="e.g. ডাঃ তানজিলা রহমান"
-                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-foreground mb-1">Doctor Medical Degree / Title</label>
-            <input
-              type="text"
-              value={contentData.doctorDegree || ""}
-              onChange={(e) => setContentData({ ...contentData, doctorDegree: e.target.value })}
-              disabled={isModerator}
-              placeholder="e.g. এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)"
-              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-foreground mb-1">Doctor Statement / Quote</label>
-            <textarea
-              rows={3}
-              value={contentData.doctorQuote || ""}
-              onChange={(e) => setContentData({ ...contentData, doctorQuote: e.target.value })}
-              disabled={isModerator}
-              placeholder="Doctor quote statement..."
-              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-            />
-          </div>
-
-          {/* Doctor Photo Upload Box */}
-          <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-3">
-            <label className="block text-xs font-bold text-foreground">
-              Doctor Photo Image Upload (VPS Server Path)
-            </label>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              {contentData.doctorImage && (
-                <div className="relative size-20 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
-                  <img
-                    src={getFullImageUrl(contentData.doctorImage)}
-                    alt="Doctor"
-                    className="size-full object-cover"
-                  />
-                </div>
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("doctor")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.doctor ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
               )}
-
-              <div className="flex-1 space-y-2 w-full">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={contentData.doctorImage || ""}
-                    onChange={(e) => setContentData({ ...contentData, doctorImage: e.target.value })}
-                    disabled={isModerator}
-                    placeholder="/uploads/milkimom/doctor-photo.png"
-                    className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
-                    {uploadingField === "doctorImage" ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Upload size={14} />
-                    )}
-                    <span>
-                      {uploadingField === "doctorImage" ? "Uploading to Server..." : "Upload Doctor Photo"}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      disabled={isModerator || uploadingField === "doctorImage"}
-                      onChange={(e) => handleImageUpload(e, "doctorImage")}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <span className="text-[11px] text-muted-foreground">
-                    Saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
-                  </span>
-                </div>
-              </div>
             </div>
+          </div>
+
+          {/* Doctors Cards List */}
+          <div className="space-y-4">
+            {doctors.map((doc, index) => {
+              const uploadKey = `doctor_${index}`;
+
+              return (
+                <div
+                  key={doc.id || index}
+                  className="rounded-2xl border border-border/80 bg-muted/20 p-5 space-y-4 transition-all hover:border-emerald-500/40 shadow-xs"
+                >
+                  {/* Doctor Card Header & Controls */}
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-600/10 text-emerald-600 font-bold text-xs">
+                        #{index + 1}
+                      </span>
+                      <span className="text-xs font-bold text-foreground">
+                        {doc.name || `Doctor ${index + 1}`}
+                      </span>
+                      {doc.degree && (
+                        <span className="text-[11px] font-medium text-muted-foreground bg-background px-2 py-0.5 rounded-md border border-border">
+                          {doc.degree}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {/* Move Up */}
+                      <button
+                        type="button"
+                        onClick={() => handleMoveDoctor(index, "up")}
+                        disabled={isModerator || index === 0}
+                        title="Move Up"
+                        className="flex size-7 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+
+                      {/* Move Down */}
+                      <button
+                        type="button"
+                        onClick={() => handleMoveDoctor(index, "down")}
+                        disabled={isModerator || index === doctors.length - 1}
+                        title="Move Down"
+                        className="flex size-7 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+
+                      {/* Remove Doctor */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDoctor(index)}
+                        disabled={isModerator || doctors.length <= 1}
+                        title="Delete Doctor"
+                        className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Form fields for doctor */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-4">
+                      <label className="block text-[11px] font-bold text-foreground mb-1">Doctor Name</label>
+                      <input
+                        type="text"
+                        value={doc.name || ""}
+                        onChange={(e) => handleUpdateDoctor(index, { name: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. ডা. মোঃ সাদ্দাম"
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="md:col-span-4">
+                      <label className="block text-[11px] font-bold text-foreground mb-1">Medical Degree / Qualifications</label>
+                      <input
+                        type="text"
+                        value={doc.degree || ""}
+                        onChange={(e) => handleUpdateDoctor(index, { degree: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)"
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="md:col-span-4">
+                      <label className="block text-[11px] font-bold text-foreground mb-1">Badge Title</label>
+                      <input
+                        type="text"
+                        value={doc.title || ""}
+                        onChange={(e) => handleUpdateDoctor(index, { title: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. মেডিকেল বোর্ড অনুমোদিত"
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">Doctor Subtitle / Highlight</label>
+                    <input
+                      type="text"
+                      value={doc.subtitle || ""}
+                      onChange={(e) => handleUpdateDoctor(index, { subtitle: e.target.value })}
+                      disabled={isModerator}
+                      placeholder="e.g. চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা"
+                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">Doctor Quote / Statement Description</label>
+                    <textarea
+                      rows={3}
+                      value={doc.description || ""}
+                      onChange={(e) => handleUpdateDoctor(index, { description: e.target.value })}
+                      disabled={isModerator}
+                      placeholder="Doctor quote and recommendation details..."
+                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  {/* Doctor Photo Asset Upload Box */}
+                  <div className="rounded-xl border border-border/80 bg-background p-3.5 space-y-2">
+                    <label className="block text-[11px] font-bold text-foreground">
+                      Doctor Photo Upload (VPS Server Asset Path)
+                    </label>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      {doc.image && (
+                        <div className="relative size-14 rounded-xl border border-border bg-muted overflow-hidden shrink-0">
+                          <img
+                            src={getFullImageUrl(doc.image)}
+                            alt={doc.name}
+                            className="size-full object-cover object-top"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex-1 space-y-2 w-full">
+                        <input
+                          type="text"
+                          value={doc.image || ""}
+                          onChange={(e) => handleUpdateDoctor(index, { image: e.target.value })}
+                          disabled={isModerator}
+                          placeholder="/assets/doctors/saddam.webp"
+                          className="w-full rounded-xl border border-input bg-background px-3 py-1.5 font-mono text-[11px] text-foreground outline-none focus:border-primary"
+                        />
+
+                        <div className="flex items-center gap-3">
+                          <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition">
+                            {uploadingField === uploadKey ? (
+                              <Loader2 size={13} className="animate-spin" />
+                            ) : (
+                              <Upload size={13} />
+                            )}
+                            <span>
+                              {uploadingField === uploadKey ? "Uploading Photo..." : "Upload Doctor Photo"}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isModerator || uploadingField === uploadKey}
+                              onChange={(e) => handleDoctorImageUpload(e, index)}
+                              className="hidden"
+                            />
+                          </label>
+
+                          <span className="text-[10px] text-muted-foreground">
+                            Saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {contentViewMode === "inline" && sectionPreviewsToggle.doctor && (
@@ -874,6 +1223,294 @@ export default function AdminCustomizationPage() {
               <div style={previewCssVars} className="bg-background text-foreground">
                 <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
                   <DoctorSection />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+
+        {/* Carousel & Banner Slides Management Section */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+                <Layers size={17} className="text-purple-600 dark:text-purple-400" />
+                Care Carousel & Banner Slides Management
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Upload separate images for different device views (Desktop vs Mobile), adjust slide position alignment, and dynamically reorder/sort slides.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={handleAddCarouselSlide}
+                disabled={isModerator}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Plus size={15} />
+                <span>Add Carousel Slide</span>
+              </Button>
+
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("carousel")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.carousel ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Carousel Slide Cards */}
+          <div className="space-y-4">
+            {slides.map((slide, index) => {
+              const desktopKey = `carousel_${index}_image`;
+              const mobileKey = `carousel_${index}_imageMobile`;
+
+              return (
+                <div
+                  key={slide.id || index}
+                  className="rounded-2xl border border-border/80 bg-muted/20 p-5 space-y-4 transition-all hover:border-primary/40 shadow-xs"
+                >
+                  {/* Card Header & Controls */}
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-xs">
+                        #{index + 1}
+                      </span>
+                      <span className="text-xs font-bold text-foreground">
+                        {slide.tag ? `[${slide.tag}] ` : ""}{slide.title || `Slide ${index + 1}`}
+                      </span>
+                      <span className="text-[11px] font-mono text-muted-foreground bg-background px-2 py-0.5 rounded-md border border-border">
+                        Sort Order: {slide.sortOrder || index + 1}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {/* Sort Up */}
+                      <button
+                        type="button"
+                        onClick={() => handleMoveCarouselSlide(index, "up")}
+                        disabled={isModerator || index === 0}
+                        title="Move Up"
+                        className="flex size-7 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+
+                      {/* Sort Down */}
+                      <button
+                        type="button"
+                        onClick={() => handleMoveCarouselSlide(index, "down")}
+                        disabled={isModerator || index === slides.length - 1}
+                        title="Move Down"
+                        className="flex size-7 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+
+                      {/* Remove Slide */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCarouselSlide(index)}
+                        disabled={isModerator || slides.length <= 1}
+                        title="Delete Slide"
+                        className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Form fields for slide */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-4">
+                      <label className="block text-[11px] font-bold text-foreground mb-1">
+                        Slide Tag / Category Badge
+                      </label>
+                      <input
+                        type="text"
+                        value={slide.tag || ""}
+                        onChange={(e) => handleUpdateCarouselSlide(index, { tag: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. ডাক্তারের পরামর্শ"
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="md:col-span-5">
+                      <label className="block text-[11px] font-bold text-foreground mb-1">
+                        Slide Title / Headline
+                      </label>
+                      <input
+                        type="text"
+                        value={slide.title || ""}
+                        onChange={(e) => handleUpdateCarouselSlide(index, { title: e.target.value })}
+                        disabled={isModerator}
+                        placeholder="e.g. মা ও শিশুর যত্নে একটুও ছাড় নয়!"
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground font-semibold outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="md:col-span-3">
+                      <label className="block text-[11px] font-bold text-foreground mb-1">
+                        Text Overlay Side
+                      </label>
+                      <select
+                        value={slide.imageSide || "left"}
+                        onChange={(e) =>
+                          handleUpdateCarouselSlide(index, {
+                            imageSide: e.target.value as "left" | "right" | "center",
+                          })
+                        }
+                        disabled={isModerator}
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground font-medium outline-none focus:border-primary"
+                      >
+                        <option value="left">Left Side Align ⬅️</option>
+                        <option value="center">Center Align ↔️</option>
+                        <option value="right">Right Side Align ➡️</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">
+                      Slide Subtitle / Description
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={slide.description || ""}
+                      onChange={(e) => handleUpdateCarouselSlide(index, { description: e.target.value })}
+                      disabled={isModerator}
+                      placeholder="Slide detailed description..."
+                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  {/* Responsive Dual Image Upload Options */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-border/60 bg-background p-3.5">
+                    {/* Desktop Viewport Image */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                          <Monitor size={13} className="text-primary" />
+                          <span>Desktop View Banner Image (Wide)</span>
+                        </label>
+                        {slide.image && (
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            Path active
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {slide.image && (
+                          <div className="relative size-12 rounded-lg border border-border bg-muted overflow-hidden shrink-0">
+                            <img
+                              src={getFullImageUrl(slide.image)}
+                              alt="Desktop preview"
+                              className="size-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <input
+                          type="text"
+                          value={slide.image || ""}
+                          onChange={(e) => handleUpdateCarouselSlide(index, { image: e.target.value })}
+                          disabled={isModerator}
+                          placeholder="/assets/carousel/doctor.webp"
+                          className="flex-1 rounded-xl border border-input bg-background px-3 py-1.5 font-mono text-[11px] text-foreground outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary/90 px-3 py-1.5 text-[11px] font-bold text-primary-foreground hover:bg-primary transition">
+                        {uploadingField === desktopKey ? (
+                          <Loader2 size={13} className="animate-spin" />
+                        ) : (
+                          <Upload size={13} />
+                        )}
+                        <span>
+                          {uploadingField === desktopKey ? "Uploading Desktop Img..." : "Upload Desktop Image"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={isModerator || uploadingField === desktopKey}
+                          onChange={(e) => handleCarouselImageUpload(e, index, "image")}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {/* Mobile Viewport Image */}
+                    <div className="space-y-2 border-t md:border-t-0 md:border-l border-border/60 pt-3 md:pt-0 md:pl-4">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                          <Smartphone size={13} className="text-emerald-600" />
+                          <span>Mobile View Image (Tall / Switch Side)</span>
+                        </label>
+                        {slide.imageMobile && (
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            Path active
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {slide.imageMobile && (
+                          <div className="relative size-12 rounded-lg border border-border bg-muted overflow-hidden shrink-0">
+                            <img
+                              src={getFullImageUrl(slide.imageMobile)}
+                              alt="Mobile preview"
+                              className="size-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <input
+                          type="text"
+                          value={slide.imageMobile || ""}
+                          onChange={(e) => handleUpdateCarouselSlide(index, { imageMobile: e.target.value })}
+                          disabled={isModerator}
+                          placeholder="/assets/carousel/doctor.webp"
+                          className="flex-1 rounded-xl border border-input bg-background px-3 py-1.5 font-mono text-[11px] text-foreground outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition">
+                        {uploadingField === mobileKey ? (
+                          <Loader2 size={13} className="animate-spin" />
+                        ) : (
+                          <Upload size={13} />
+                        )}
+                        <span>
+                          {uploadingField === mobileKey ? "Uploading Mobile Img..." : "Upload Mobile Image"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={isModerator || uploadingField === mobileKey}
+                          onChange={(e) => handleCarouselImageUpload(e, index, "imageMobile")}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.carousel && (
+            <LiveSectionFrame title="Live Care Carousel Component">
+              <div style={previewCssVars} className="bg-background text-foreground p-4">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <TestimonialsSection />
                 </LandingPageContentProvider>
               </div>
             </LiveSectionFrame>
@@ -1054,7 +1691,7 @@ export default function AdminCustomizationPage() {
             Landing Page Customization
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            Customize theme colors, section copy, and server asset images independently with live UI component preview.
+            Customize theme colors, section copy, doctors list, carousel slides, and server asset images independently with live UI component preview.
           </p>
         </div>
 
@@ -1482,6 +2119,9 @@ export default function AdminCustomizationPage() {
                                 <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
                                   <DoctorSection />
                                 </div>
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm p-4 bg-background">
+                                  <TestimonialsSection />
+                                </div>
                                 <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
                                   <OrderSection />
                                 </div>
@@ -1633,7 +2273,7 @@ export default function AdminCustomizationPage() {
                     <span className="font-mono text-xs text-primary font-semibold">({selectedSlug})</span>
                   </h3>
                   <p className="text-[11px] text-muted-foreground">
-                    Live end-to-end preview updated in real-time as content & media assets change
+                    Live end-to-end preview updated in real-time as content, doctors list, carousel slides & media assets change
                   </p>
                 </div>
               </div>
