@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 import { Float, Reveal } from "@/components/motion/reveal";
 import { RotatingOrbit } from "@/components/rotating-orbit";
 import { SectionCta } from "@/components/section-cta";
@@ -33,11 +31,13 @@ export function HowItWorksSection() {
   const titleText = content.howItWorksTitle || "একটি ডোজে ৫টি উপকারিতা";
   const subtitleText = content.howItWorksSubtitle || `প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি ${brandName} মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।`;
 
-  const jarImg = content.howItWorksImage
-    ? getImageUrl(content.howItWorksImage)
-    : content.heroImage
-    ? getImageUrl(content.heroImage)
+  const rawImg = (content.howItWorksImage && content.howItWorksImage.trim())
+    ? content.howItWorksImage
+    : (content.heroImage && content.heroImage.trim())
+    ? content.heroImage
     : "/images/product-jar.webp";
+
+  const jarImg = getImageUrl(rawImg, "/images/product-jar.webp");
 
   const defaultList = content.productSlug === "smoothflow" ? smoothflowBenefits : defaultBenefits;
   const benefitsList = Array.isArray(content.benefitsItems) && content.benefitsItems.length > 0
@@ -64,12 +64,13 @@ export function HowItWorksSection() {
         <RotatingOrbit />
         <div className="absolute inset-0 flex items-center justify-center">
           <Float distance={8} duration={3.5}>
-            <Image
+            <img
               src={jarImg}
               alt={`${brandName} জার`}
-              width={612}
-              height={880}
-              className="h-28 w-auto drop-shadow-2xl sm:h-44 md:h-[228px] lg:h-64 xl:h-[300px]"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/images/product-jar.webp";
+              }}
+              className="h-28 w-auto object-contain drop-shadow-2xl sm:h-44 md:h-[228px] lg:h-64 xl:h-[300px]"
             />
           </Float>
         </div>
