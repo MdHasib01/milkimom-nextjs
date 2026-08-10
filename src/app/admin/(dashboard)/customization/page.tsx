@@ -554,8 +554,8 @@ export default function AdminCustomizationPage() {
     }
   }
 
-  async function handleSaveContent(e: FormEvent) {
-    e.preventDefault();
+  async function handleSaveContent(e?: FormEvent) {
+    if (e) e.preventDefault();
     if (isModerator) return;
 
     setSaving(true);
@@ -2016,7 +2016,7 @@ export default function AdminCustomizationPage() {
                   <Loader2 className="animate-spin text-primary" size={32} />
                 </div>
               ) : (
-                <form onSubmit={handleSaveContent} className="space-y-6">
+                <div className="space-y-6">
                   {/* Top Preview Toolbar */}
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-xs">
                     <div className="flex items-center gap-2">
@@ -2167,7 +2167,8 @@ export default function AdminCustomizationPage() {
                     </Button>
 
                     <Button
-                      type="submit"
+                      type="button"
+                      onClick={() => handleSaveContent()}
                       disabled={saving || isModerator}
                       className="gap-2 rounded-xl px-6 py-2.5 text-xs font-bold"
                     >
@@ -2181,7 +2182,7 @@ export default function AdminCustomizationPage() {
                       <span>{saving ? "Saving Content..." : isModerator ? "Read-Only" : "Save Section Content"}</span>
                     </Button>
                   </div>
-                </form>
+                </div>
               )}
             </div>
           )}
