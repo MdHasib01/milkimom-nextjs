@@ -1,0 +1,162 @@
+"use client";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { API_ENDPOINTS, API_BASE_URL } from "@/lib/api-config";
+
+export interface LandingPageSectionContent {
+  productSlug: string;
+  announcementText: string;
+  heroBadge: string;
+  heroTitle: string;
+  heroTitleHighlight: string;
+  heroSubtitle: string;
+  heroSubtitleHighlight: string;
+  heroCtaText: string;
+  heroImage: string;
+  doctorTitle: string;
+  doctorName: string;
+  doctorDegree: string;
+  doctorQuote: string;
+  doctorImage: string;
+  orderHeadline: string;
+  orderSubheadline: string;
+  guaranteeTitle: string;
+  guaranteeText: string;
+  footerText: string;
+  footerPhone: string;
+  footerEmail: string;
+  footerAddress: string;
+}
+
+const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
+  milkimom: {
+    productSlug: "milkimom",
+    announcementText: "🎉 ১ম অর্ডারেই ১০০% ক্যাশ অন ডেলিভারি এবং সারাদেশে হোম ডেলিভারি ফ্রি!",
+    heroBadge: "১০০% সাইডইফেক্ট মুক্ত ও ন্যাচারাল",
+    heroTitle: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!",
+    heroTitleHighlight: "মিল্কিমম",
+    heroSubtitle: "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
+    heroSubtitleHighlight: "মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে",
+    heroCtaText: "অর্ডার করতে এখানে ক্লিক করুন",
+    heroImage: "/images/product-jar.webp",
+    doctorTitle: "বিশেষজ্ঞ ডাক্তারের পরামর্শ",
+    doctorName: "ডাঃ তানজিলা রহমান",
+    doctorDegree: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
+    doctorQuote: "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি। মিল্কিমম সম্পূর্ণ প্রাকৃতিক উপাদানে তৈরি যা নিরাপদভাবে দুধ উৎপাদনে কার্যকর সাহায্য করে।",
+    doctorImage: "/assets/doctor/doctor.png",
+    orderHeadline: "আজই অর্ডার করুন মিল্কিমম™",
+    orderSubheadline: "নিচে আপনার তথ্য দিয়ে অর্ডার সম্পন্ন করুন",
+    guaranteeTitle: "১০০% স্যাটিসফ্যাকশন ও মানি-ব্যাক গ্যারান্টি",
+    guaranteeText: "পণ্য হাতে পেয়ে পুরোপুরি সন্তুষ্ট না হলে বা কোনো সমস্যা থাকলে আমাদের সাপোর্ট টিমের সাথে সাথে যোগাযোগ করুন।",
+    footerText: "মিল্কিমম™ - মা ও শিশুর সুস্থতায় প্রতিদিনের নির্ভরযোগ্য প্রাকৃতিক সমাধান।",
+    footerPhone: "01517-102603",
+    footerEmail: "milkimominfo@gmail.com",
+    footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
+  },
+  smoothflow: {
+    productSlug: "smoothflow",
+    announcementText: "⚡ স্মুথফ্লো বিশেষ অফার! সারাদেশে ফ্রি ডেলিভারি ও দ্রুত সার্ভিস!",
+    heroBadge: "স্মুথফ্লো প্রিমিয়াম ন্যাচারাল ফর্মুলা",
+    heroTitle: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান!",
+    heroTitleHighlight: "স্মুথফ্লো",
+    heroSubtitle: "প্রাকৃতিক উপাদানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশুর জন্য নিয়ে এলো অতুলনীয় পুষ্টি সুরক্ষা ও স্থায়ী ফলাফল।",
+    heroSubtitleHighlight: "অতুলনীয় পুষ্টি সুরক্ষা ও স্থায়ী ফলাফল",
+    heroCtaText: "স্মুথফ্লো অর্ডার করতে ক্লিক করুন",
+    heroImage: "/images/product-jar.webp",
+    doctorTitle: "গাইনি ও নিউট্রিশন বিশেষজ্ঞ মত",
+    doctorName: "ডাঃ ফারহানা ইসলাম",
+    doctorDegree: "এমবিবিএস, ডিজিইউ, শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
+    doctorQuote: "স্মুথফ্লোর ফর্মুলেশন আন্তর্জাতিক মান অনুযায়ী তৈরি, যা মায়েদের জন্য নিরাপদ এবং প্রতিদিনের কার্যকারিতায় প্রমাণিত।",
+    doctorImage: "/assets/doctor/doctor.png",
+    orderHeadline: "আজই স্মুথফ্লো™ অর্ডার করুন",
+    orderSubheadline: "বিশেষ ছাড়ে এখনই আপনার ক্যাশ অন ডেলিভারি অর্ডার দিন",
+    guaranteeTitle: "১০০% কোয়ালিটি নিশ্চিতকরণ গ্যারান্টি",
+    guaranteeText: "আমাদের পণ্য সম্পূর্ণ পরীক্ষিত ও সার্টিফাইড। আমরা দিচ্ছি শতভাগ গুণগত মান ও সেবার নিশ্চয়তা।",
+    footerText: "স্মুথফ্লো™ - মা ও সন্তানের স্বাস্থ্য সুরক্ষায় বিশ্বস্ত পার্টনার।",
+    footerPhone: "01517-102603",
+    footerEmail: "smoothflow@milkimom.com",
+    footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
+  },
+};
+
+const LandingPageContentContext = createContext<{
+  content: LandingPageSectionContent;
+  getImageUrl: (url?: string) => string;
+}>({
+  content: DEFAULT_SECTION_CONTENTS.milkimom,
+  getImageUrl: (url?: string) => url || "",
+});
+
+export function LandingPageContentProvider({
+  productSlug = "milkimom",
+  children,
+}: {
+  productSlug?: string;
+  children: React.ReactNode;
+}) {
+  const initialContent = DEFAULT_SECTION_CONTENTS[productSlug] || DEFAULT_SECTION_CONTENTS.milkimom;
+  const [content, setContent] = useState<LandingPageSectionContent>(initialContent);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchContent() {
+      try {
+        const res = await fetch(API_ENDPOINTS.customizationPublicContent(productSlug));
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data && isMounted) {
+            setContent({
+              productSlug: json.data.productSlug || productSlug,
+              announcementText: json.data.announcementText || initialContent.announcementText,
+              heroBadge: json.data.heroBadge || initialContent.heroBadge,
+              heroTitle: json.data.heroTitle || initialContent.heroTitle,
+              heroTitleHighlight: json.data.heroTitleHighlight !== undefined ? json.data.heroTitleHighlight : initialContent.heroTitleHighlight,
+              heroSubtitle: json.data.heroSubtitle || initialContent.heroSubtitle,
+              heroSubtitleHighlight: json.data.heroSubtitleHighlight !== undefined ? json.data.heroSubtitleHighlight : initialContent.heroSubtitleHighlight,
+              heroCtaText: json.data.heroCtaText || initialContent.heroCtaText,
+              heroImage: json.data.heroImage || initialContent.heroImage,
+              doctorTitle: json.data.doctorTitle || initialContent.doctorTitle,
+              doctorName: json.data.doctorName || initialContent.doctorName,
+              doctorDegree: json.data.doctorDegree || initialContent.doctorDegree,
+              doctorQuote: json.data.doctorQuote || initialContent.doctorQuote,
+              doctorImage: json.data.doctorImage || initialContent.doctorImage,
+              orderHeadline: json.data.orderHeadline || initialContent.orderHeadline,
+              orderSubheadline: json.data.orderSubheadline || initialContent.orderSubheadline,
+              guaranteeTitle: json.data.guaranteeTitle || initialContent.guaranteeTitle,
+              guaranteeText: json.data.guaranteeText || initialContent.guaranteeText,
+              footerText: json.data.footerText || initialContent.footerText,
+              footerPhone: json.data.footerPhone || initialContent.footerPhone,
+              footerEmail: json.data.footerEmail || initialContent.footerEmail,
+              footerAddress: json.data.footerAddress || initialContent.footerAddress,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn(`[ContentProvider] Could not fetch content for ${productSlug}:`, err);
+      }
+    }
+
+    fetchContent();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productSlug]);
+
+  function getImageUrl(url?: string): string {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${API_BASE_URL}${url}`;
+  }
+
+  return (
+    <LandingPageContentContext.Provider value={{ content, getImageUrl }}>
+      {children}
+    </LandingPageContentContext.Provider>
+  );
+}
+
+export function useLandingPageContent() {
+  return useContext(LandingPageContentContext);
+}

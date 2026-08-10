@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 
@@ -10,6 +11,7 @@ import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
 import { useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
 function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -24,8 +26,34 @@ function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function renderHighlightedText(text: string, highlight?: string, className: string = "text-primary font-bold") {
+  if (!highlight || !highlight.trim() || !text.includes(highlight.trim())) {
+    return text;
+  }
+  const needle = highlight.trim();
+  const parts = text.split(needle);
+  return parts.map((part, index) => (
+    <React.Fragment key={index}>
+      {part}
+      {index < parts.length - 1 && (
+        <span className={className}>{needle}</span>
+      )}
+    </React.Fragment>
+  ));
+}
+
 export function HeroSection() {
   const motherCount = useMotherCount();
+  const { content, getImageUrl } = useLandingPageContent();
+
+  const title = content.heroTitle || "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!";
+  const titleHighlight = content.heroTitleHighlight !== undefined ? content.heroTitleHighlight : "মিল্কিমম";
+
+  const subtitle = content.heroSubtitle || "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।";
+  const subtitleHighlight = content.heroSubtitleHighlight !== undefined ? content.heroSubtitleHighlight : "মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে";
+
+  const ctaText = content.heroCtaText || "এখনই অর্ডার করুন";
+  const heroImgSrc = getImageUrl(content.heroImage || "/images/product-jar.webp");
 
   return (
     <section id="top" className="relative overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-24">
@@ -52,7 +80,7 @@ export function HeroSection() {
                   <Image
                     key={index}
                     src={imgSrc}
-                    alt={`রিভিউয়ার ${index + 1}`}
+                    alt={`রিভিউয়ার ${index + 1}`}
                     width={24}
                     height={24}
                     className="size-6 rounded-full border-2 border-white object-cover shadow-xs"
@@ -60,25 +88,20 @@ export function HeroSection() {
                 ))}
               </div>
               <span>
-                {formatBengaliNumber(motherCount)} জন মা ইতিমধ্যেই মিল্কিমম খেয়ে উপকৃত হয়েছেন
+                {formatBengaliNumber(motherCount)} জন মা ইতিমধ্যেই উপকৃত হয়েছেন
               </span>
             </span>
           </Reveal>
 
           <Reveal delay={0.08}>
             <h1 className="mt-4 text-balance font-heading text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-[2.75rem]">
-              ১ ডোজেই, পার্মানেন্টলি
-              <br />
-              বুকের দুধ বাড়াতে
-              <br />
-              <span className="text-primary">মিল্কিমম</span> খান নিশ্চিন্তে!
+              {renderHighlightedText(title, titleHighlight, "text-primary font-black")}
             </h1>
           </Reveal>
 
           <Reveal delay={0.16}>
             <p className="mx-auto mt-4 max-w-xl text-balance text-base text-muted-foreground sm:text-lg lg:mx-0">
-              মিল্কিমম খেলে <span className="font-bold text-primary">মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে</span>, এবং ব্রেস্ট ফিডিং এর
-              শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।
+              {renderHighlightedText(subtitle, subtitleHighlight, "font-bold text-primary")}
             </p>
           </Reveal>
 
@@ -90,7 +113,7 @@ export function HeroSection() {
               >
                 <a href="#pricing">
                   <ShoppingBag className="size-5" />
-                  এখনই অর্ডার করুন
+                  {ctaText}
                 </a>
               </Button>
               <Button
@@ -122,13 +145,10 @@ export function HeroSection() {
                 aria-hidden
                 className="absolute inset-10 rounded-full border border-brand-coral/20"
               />
-              <Image
-                src="/images/product-jar.webp"
-                alt="মিল্কিমম ব্রেস্টফিডিং বুস্ট ব্লেন্ড জার"
-                width={612}
-                height={880}
-                priority
-                className="relative z-10 h-auto w-56 drop-shadow-2xl sm:w-72"
+              <img
+                src={heroImgSrc}
+                alt="Product Jar"
+                className="relative z-10 h-auto w-56 max-h-[380px] object-contain drop-shadow-2xl sm:w-72"
               />
               <FloatingBadges />
             </div>

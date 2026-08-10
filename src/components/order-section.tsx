@@ -28,6 +28,8 @@ import { Label } from "@/components/ui/label";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { GridPattern } from "@/components/grid-pattern";
 
+import { useLandingPageContent } from "./landing-page-content-provider";
+
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 type FormState = {
@@ -51,6 +53,7 @@ const initialForm: FormState = {
 };
 
 export function OrderSection() {
+  const { content } = useLandingPageContent();
   const router = useRouter();
   // Admin-managed catalog; falls back to the hardcoded flavours until loaded.
   const flavors = useFlavors();
@@ -369,16 +372,19 @@ export function OrderSection() {
     executeSaveOrder();
   }
 
+  const headline = content.orderHeadline || "অর্ডার ফর্ম";
+  const subheadline = content.orderSubheadline || "আপনার অর্ডারটি প্লেস করতে, অনুগ্রহ করে নিচের তথ্য গুলো দিয়ে সহযোগীতা করুন।";
+
   return (
     <section id="pricing" className="relative overflow-hidden mx-auto max-w-5xl px-4 py-16 sm:py-24">
       <GridPattern patternType="lines" size={32} className="opacity-40" />
       <Reveal className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance font-heading text-3xl font-extrabold text-primary sm:text-4xl flex items-center justify-center gap-3">
           <ShoppingCart className="size-8 sm:size-9 text-primary shrink-0" />
-          <span>অর্ডার ফর্ম</span>
+          <span>{headline}</span>
         </h2>
         <p className="mt-2.5 text-base font-medium text-muted-foreground sm:text-lg">
-          আপনার অর্ডারটি প্লেস করতে, অনুগ্রহ করে নিচের তথ্য গুলো দিয়ে সহযোগীতা করুন।
+          {subheadline}
         </p>
       </Reveal>
 

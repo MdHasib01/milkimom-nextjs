@@ -382,3 +382,79 @@ export function createCustomizationTheme(data: Partial<LandingPageTheme>) {
     body: JSON.stringify(data),
   });
 }
+
+export interface LandingPageContentData {
+  _id?: string;
+  productSlug: string;
+  announcementText?: string;
+  heroBadge?: string;
+  heroTitle?: string;
+  heroTitleHighlight?: string;
+  heroSubtitle?: string;
+  heroSubtitleHighlight?: string;
+  heroCtaText?: string;
+  heroImage?: string;
+  doctorTitle?: string;
+  doctorName?: string;
+  doctorDegree?: string;
+  doctorQuote?: string;
+  doctorImage?: string;
+  orderHeadline?: string;
+  orderSubheadline?: string;
+  guaranteeTitle?: string;
+  guaranteeText?: string;
+  footerText?: string;
+  footerPhone?: string;
+  footerEmail?: string;
+  footerAddress?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export function fetchCustomizationContent(slug: string = "milkimom") {
+  return authRequest<{ data: LandingPageContentData; defaultPresets: LandingPageContentData }>(
+    API_ENDPOINTS.customizationAdminContent(slug)
+  );
+}
+
+export function updateCustomizationContent(slug: string, data: Partial<LandingPageContentData>) {
+  return authRequest<LandingPageContentData>(API_ENDPOINTS.customizationAdminContent(slug), {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function resetCustomizationContent(slug: string) {
+  return authRequest<LandingPageContentData>(API_ENDPOINTS.customizationContentReset(slug), {
+    method: "POST",
+  });
+}
+
+export async function uploadAssetImage(slug: string, file: File): Promise<ApiResult<{ url: string; filename: string }>> {
+  try {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(API_ENDPOINTS.customizationUpload(slug), {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    if (response.status === 401) {
+      logout();
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin/login")) {
+        window.location.href = "/admin/login";
+      }
+      return { success: false, error: "Session expired" };
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error("Asset image upload failed:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Upload failed" };
+  }
+}

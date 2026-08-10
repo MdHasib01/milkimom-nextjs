@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { PartyPopper, Timer } from "lucide-react";
 
+import { useLandingPageContent } from "./landing-page-content-provider";
+
 function getMidnightTarget() {
   const now = new Date();
   const target = new Date(now);
@@ -36,18 +38,16 @@ function pad(value: number) {
 
 export function AnnouncementBar() {
   const countdown = useCountdown();
+  const { content } = useLandingPageContent();
+
+  const text = content.announcementText || "🎉 ১ম অর্ডারেই ১০০% ক্যাশ অন ডেলিভারি এবং সারাদেশে হোম ডেলিভারি ফ্রি!";
 
   return (
     <div className="sticky top-0 z-50 w-full shrink-0 bg-brand-crimson/95 backdrop-blur-md text-white shadow-md shadow-brand-crimson/20">
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-1.5 px-2 py-1.5 text-center text-[11px] sm:text-xs md:text-sm whitespace-nowrap overflow-hidden sm:gap-2 sm:px-4 sm:py-2">
         <span className="inline-flex items-center gap-1 font-medium shrink-0 sm:gap-1.5">
           <PartyPopper className="size-3.5 shrink-0 sm:size-4" />
-          <span className="hidden sm:inline">
-            আজকের স্পেশাল অফার — ৪৪% পর্যন্ত ছাড় + সারাদেশে ফ্রি ডেলিভারি
-          </span>
-          <span className="inline sm:hidden">
-            আজকের অফার: ৪৪% ছাড় + সারাদেশে ফ্রি ডেলিভারি
-          </span>
+          <span>{text}</span>
         </span>
         {countdown && (
           <span

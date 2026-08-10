@@ -1,11 +1,20 @@
+"use client";
+
 import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { FaFacebookF, FaInstagram } from "react-icons/fa6";
 
 import { navLinks, siteConfig } from "@/lib/content";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
 export function SiteFooter() {
+  const { content } = useLandingPageContent();
   const year = new Date().getFullYear();
+
+  const footerText = content.footerText || `${siteConfig.tagline} — মা ও শিশুর সুস্থতায় প্রকৃতির শক্তি।`;
+  const phoneDisplay = content.footerPhone || siteConfig.phoneDisplay;
+  const email = content.footerEmail || siteConfig.email;
+  const address = content.footerAddress || siteConfig.address;
 
   return (
     <footer className="border-t border-border bg-card">
@@ -20,7 +29,7 @@ export function SiteFooter() {
               className="h-14 w-auto"
             />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              {siteConfig.tagline} — মা ও শিশুর সুস্থতায় প্রকৃতির শক্তি।
+              {footerText}
             </p>
             <div className="mt-4 flex items-center gap-3">
               <a
@@ -63,19 +72,19 @@ export function SiteFooter() {
             <ul className="mt-3 space-y-2.5 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Phone className="size-4 shrink-0" />
-                <a href={`tel:${siteConfig.phone}`} className="hover:text-primary">
-                  {siteConfig.phoneDisplay}
+                <a href={`tel:${phoneDisplay}`} className="hover:text-primary">
+                  {phoneDisplay}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="size-4 shrink-0" />
-                <a href={`mailto:${siteConfig.email}`} className="hover:text-primary">
-                  {siteConfig.email}
+                <a href={`mailto:${email}`} className="hover:text-primary">
+                  {email}
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
-                <span>{siteConfig.address}</span>
+                <span>{address}</span>
               </li>
             </ul>
           </div>

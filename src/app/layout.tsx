@@ -3,6 +3,7 @@ import { Hind_Siliguri } from "next/font/google";
 import { ClarityAnalytics } from "@/components/clarity-analytics";
 import { MetaPixel } from "@/components/meta-pixel";
 import { LandingPageThemeProvider } from "@/components/landing-page-theme-provider";
+import { LandingPageContentProvider } from "@/components/landing-page-content-provider";
 import "./globals.css";
 
 /**
@@ -102,9 +103,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LandingPageThemeProvider productSlug="milkimom">
-          <MetaPixel />
-          <ClarityAnalytics />
-          {children}
+          <LandingPageContentProvider productSlug="milkimom">
+            <MetaPixel />
+            <ClarityAnalytics />
+            {children}
+          </LandingPageContentProvider>
         </LandingPageThemeProvider>
       </body>
     </html>

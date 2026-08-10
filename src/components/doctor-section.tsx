@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
 import { GridPattern } from "@/components/grid-pattern";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
-const doctors = [
+const defaultDoctors = [
   {
     id: "saddam",
     name: "ডা. মোঃ সাদ্দাম",
@@ -28,47 +29,43 @@ const doctors = [
     description:
       "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
   },
-  {
-    id: "hadis",
-    name: "ডা. মোঃ হাদিস",
-    image: "/assets/doctors/hadis.webp",
-    title: "মেডিকেল বোর্ড অনুমোদিত",
-    subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
-    description:
-      "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
-  },
-  {
-    id: "wahid",
-    name: "ডা. ওয়াহিদুর রহমান",
-    image: "/assets/doctors/wahid.webp",
-    title: "মেডিকেল বোর্ড অনুমোদিত",
-    subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
-    description:
-      "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
-  },
 ];
 
 export function DoctorSection() {
+  const { content, getImageUrl } = useLandingPageContent();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  // If custom doctor data exists, integrate it into the list
+  const doctorList = content.doctorName ? [
+    {
+      id: "custom-doctor",
+      name: content.doctorName,
+      image: getImageUrl(content.doctorImage || "/assets/doctor/doctor.png"),
+      title: content.doctorDegree || "বিশেষজ্ঞ ডাক্তারের পরামর্শ",
+      subtitle: content.doctorTitle || "চিকিৎসকের সুপারিশকৃত প্রোডাক্ট",
+      description: content.doctorQuote || "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি। এটি সম্পূর্ণ প্রাকৃতিক উপাদানে তৈরি যা নিরাপদভাবে কার্যকর সাহায্য করে।",
+    },
+    ...defaultDoctors,
+  ] : defaultDoctors;
+
   const nextDoctor = () => {
-    setCurrentIndex((prev) => (prev + 1) % doctors.length);
+    setCurrentIndex((prev) => (prev + 1) % doctorList.length);
   };
 
   const prevDoctor = () => {
-    setCurrentIndex((prev) => (prev - 1 + doctors.length) % doctors.length);
+    setCurrentIndex((prev) => (prev - 1 + doctorList.length) % doctorList.length);
   };
 
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % doctors.length);
+      setCurrentIndex((prev) => (prev + 1) % doctorList.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, doctorList.length]);
 
-  const activeDoctor = doctors[currentIndex];
+  const activeDoctor = doctorList[currentIndex] || doctorList[0];
 
   return (
     <section id="ingredients" className="relative overflow-hidden mx-auto max-w-6xl px-4 py-16 sm:py-24">
@@ -145,7 +142,7 @@ export function DoctorSection() {
 
       {/* Dot Indicators */}
       <div className="mt-6 flex items-center justify-center gap-2">
-        {doctors.map((_, index) => (
+        {doctorList.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}

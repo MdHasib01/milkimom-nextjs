@@ -51,4 +51,8 @@ export const API_ENDPOINTS = {
   customizationAdmin: `${API_BASE_URL}/api/customization/admin`,
   customizationAdminBySlug: (slug: string) => `${API_BASE_URL}/api/customization/admin/${slug}`,
   customizationReset: (slug: string) => `${API_BASE_URL}/api/customization/admin/${slug}/reset`,
+  customizationPublicContent: (slug?: string) => `${API_BASE_URL}/api/customization/content/public${slug ? `/${slug}` : ""}`,
+  customizationAdminContent: (slug?: string) => `${API_BASE_URL}/api/customization/content/admin${slug ? `/${slug}` : ""}`,
+  customizationContentReset: (slug: string) => `${API_BASE_URL}/api/customization/content/admin/${slug}/reset`,
+  customizationUpload: (slug: string) => `${API_BASE_URL}/api/customization/upload/${slug}`,
 } as const;
