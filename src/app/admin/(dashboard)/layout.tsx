@@ -19,6 +19,8 @@ import {
   KeyRound,
   Loader2,
   Palette,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import { getToken, getStoredUser, logout, changePassword } from "@/lib/admin-api";
@@ -38,6 +40,22 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
   const pathname = usePathname();
   const user = getStoredUser();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("admin_sidebar_collapsed");
+    if (saved !== null) {
+      setCollapsed(saved === "true");
+    }
+  }, []);
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("admin_sidebar_collapsed", String(next));
+      return next;
+    });
+  };
 
   // Mandatory First Login Password Change Modal
   const [mustChangeModal, setMustChangeModal] = useState(false);
@@ -108,7 +126,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     return true;
   });
 
-  const renderNavLinks = () => (
+  const renderNavLinks = (isCollapsed = false) => (
     <nav className="flex-1 space-y-1.5 px-3 py-4">
       {navItems.map(({ href, label, Icon }) => {
         const isActive =
@@ -120,15 +138,25 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           <Link
             key={href}
             href={href}
+            title={isCollapsed ? label : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all duration-150",
+              "flex items-center rounded-xl text-sm font-semibold transition-all duration-150 relative group",
+              isCollapsed ? "justify-center px-0 py-2.5" : "gap-3 px-3.5 py-2.5",
               isActive
                 ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
-            <Icon size={18} className={cn(isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-            <span>{label}</span>
+            <Icon
+              size={isCollapsed ? 20 : 18}
+              className={cn("shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")}
+            />
+            {!isCollapsed && <span className="truncate">{label}</span>}
+            {isCollapsed && (
+              <div className="absolute left-full ml-3 hidden group-hover:flex items-center rounded-md bg-popover px-2.5 py-1.5 text-xs font-semibold text-popover-foreground shadow-md border border-border z-50 whitespace-nowrap pointer-events-none animate-in fade-in zoom-in-95 duration-100">
+                {label}
+              </div>
+            )}
           </Link>
         );
       })}
@@ -205,7 +233,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             </div>
 
             {/* Nav Links */}
-            {renderNavLinks()}
+            {renderNavLinks(false)}
 
             {/* Footer / User Profile */}
             <div className="border-t border-border p-4 bg-muted/30">
@@ -241,58 +269,117 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
       )}
 
       {/* Desktop Sidebar (Fixed left navigation) */}
-      <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-64 md:flex-col md:border-r md:border-border md:bg-card md:shadow-xs">
+      <aside
+        className={cn(
+          "hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:flex-col md:border-r md:border-border md:bg-card md:shadow-xs transition-all duration-300 ease-in-out",
+          collapsed ? "md:w-20" : "md:w-64"
+        )}
+      >
         {/* Sidebar Brand Header */}
-        <div className="flex h-16 items-center justify-between border-b border-border/80 px-6">
-          <Link href="/admin" className="flex items-center gap-2">
-            <Image
-              src="/assets/logo.png"
-              alt="Milkimom"
-              width={120}
-              height={34}
-              className="h-8 w-auto object-contain"
-            />
-          </Link>
+        <div
+          className={cn(
+            "flex h-16 items-center border-b border-border/80 transition-all duration-300",
+            collapsed ? "justify-center px-2" : "justify-between px-6"
+          )}
+        >
+          {!collapsed ? (
+            <>
+              <Link href="/admin" className="flex items-center gap-2 overflow-hidden">
+                <Image
+                  src="/assets/logo.png"
+                  alt="Milkimom"
+                  width={120}
+                  height={34}
+                  className="h-8 w-auto object-contain"
+                />
+              </Link>
+              <button
+                onClick={toggleCollapsed}
+                title="Collapse sidebar"
+                className="flex size-8 items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={toggleCollapsed}
+              title="Expand sidebar"
+              className="flex size-9 items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <ChevronRight size={18} />
+            </button>
+          )}
         </div>
 
         {/* Navigation Links */}
         <div className="flex-1 overflow-y-auto py-2">
-          {renderNavLinks()}
+          {renderNavLinks(collapsed)}
         </div>
 
         {/* Bottom User Info & Logout */}
-        <div className="border-t border-border/80 p-4 bg-muted/20">
-          {user && (
-            <div className="mb-3 flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3 shadow-2xs">
-              <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm">
+        {collapsed ? (
+          <div className="border-t border-border/80 p-3 bg-muted/20 flex flex-col items-center gap-3">
+            {user && (
+              <div
+                title={`${user.name} (${user.role})`}
+                className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm border border-primary/20 shadow-2xs cursor-default"
+              >
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-bold text-foreground">{user.name}</p>
-                <p className="truncate text-[11px] text-muted-foreground capitalize font-mono">{user.role}</p>
-              </div>
+            )}
+            <div className="flex flex-col items-center gap-1.5 w-full">
+              <Link
+                href="/"
+                target="_blank"
+                title="View Website"
+                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-primary transition-colors"
+              >
+                <ExternalLink size={16} />
+              </Link>
+              <button
+                onClick={handleLogout}
+                title="Logout"
+                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <LogOut size={16} />
+              </button>
             </div>
-          )}
-          <div className="flex items-center justify-between px-1">
-            <Link
-              href="/"
-              target="_blank"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink size={13} /> View Website
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-            >
-              <LogOut size={14} /> Logout
-            </button>
           </div>
-        </div>
+        ) : (
+          <div className="border-t border-border/80 p-4 bg-muted/20">
+            {user && (
+              <div className="mb-3 flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3 shadow-2xs">
+                <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-bold text-foreground">{user.name}</p>
+                  <p className="truncate text-[11px] text-muted-foreground capitalize font-mono">{user.role}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center justify-between px-1">
+              <Link
+                href="/"
+                target="_blank"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ExternalLink size={13} /> View Website
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <LogOut size={14} /> Logout
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* Main Content Workspace Area */}
-      <main className="flex-1 md:pl-64 min-w-0 min-h-screen">
+      <main className={cn("flex-1 min-w-0 min-h-screen transition-all duration-300 ease-in-out", collapsed ? "md:pl-20" : "md:pl-64")}>
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           {children}
         </div>
