@@ -480,7 +480,16 @@ export async function uploadAssetImage(slug: string, file: File): Promise<ApiRes
       return { success: false, error: "Session expired" };
     }
 
-    return await response.json();
+    const resData = await response.json();
+    if (resData.success) {
+      const url = resData.data?.url || resData.url || "";
+      const filename = resData.data?.filename || resData.filename || "";
+      return {
+        success: true,
+        data: { url, filename },
+      };
+    }
+    return { success: false, error: resData.error || "Upload failed" };
   } catch (err) {
     console.error("Asset image upload failed:", err);
     return { success: false, error: err instanceof Error ? err.message : "Upload failed" };

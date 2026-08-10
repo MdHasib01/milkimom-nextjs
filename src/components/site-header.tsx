@@ -21,10 +21,15 @@ import { useLandingPageContent } from "./landing-page-content-provider";
 import { API_BASE_URL } from "@/lib/api-config";
 
 function getFullImageUrl(url?: string) {
-  if (!url) return "/images/logo.webp";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/uploads/")) return `${API_BASE_URL}${url}`;
-  return url;
+  if (!url || !url.trim()) return "/images/logo.webp";
+  const trimmed = url.trim();
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) return trimmed;
+  if (trimmed.startsWith("/uploads/") || trimmed.startsWith("uploads/")) {
+    const cleanPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    const base = API_BASE_URL || "http://localhost:5000";
+    return `${base}${cleanPath}`;
+  }
+  return trimmed;
 }
 
 export function SiteHeader() {

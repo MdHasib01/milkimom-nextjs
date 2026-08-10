@@ -195,6 +195,8 @@ export function LandingPageContentProvider({
               productSlug: json.data.productSlug || productSlug,
               productName: json.data.productName || initialContent.productName,
               productNameEn: json.data.productNameEn || initialContent.productNameEn,
+              logoType: json.data.logoType || initialContent.logoType,
+              logoImage: json.data.logoImage || initialContent.logoImage,
               announcementText: json.data.announcementText || initialContent.announcementText,
               heroBadge: json.data.heroBadge || initialContent.heroBadge,
               heroTitle: json.data.heroTitle || initialContent.heroTitle,
@@ -243,15 +245,14 @@ export function LandingPageContentProvider({
     if (
       trimmed.startsWith("http://") ||
       trimmed.startsWith("https://") ||
-      trimmed.startsWith("/images/") ||
-      trimmed.startsWith("/assets/") ||
       trimmed.startsWith("data:")
     ) {
       return trimmed;
     }
     if (trimmed.startsWith("/uploads/") || trimmed.startsWith("uploads/")) {
       const cleanPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-      return `${API_BASE_URL}${cleanPath}`;
+      const backendBase = API_BASE_URL || "http://localhost:5000";
+      return `${backendBase}${cleanPath}`;
     }
     return trimmed;
   }

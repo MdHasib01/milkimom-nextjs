@@ -407,8 +407,8 @@ export default function AdminCustomizationPage() {
     const result = await uploadAssetImage(selectedSlug, file);
     setUploadingField(null);
 
-    if (result.success && result.data && result.data.url) {
-      const uploadedUrl = result.data.url;
+    const uploadedUrl = result.data?.url || (result as any).url;
+    if (result.success && uploadedUrl) {
       handleUpdateCarouselSlide(index, { [field]: uploadedUrl });
       setMessage({
         type: "success",
@@ -489,8 +489,8 @@ export default function AdminCustomizationPage() {
     const result = await uploadAssetImage(selectedSlug, file);
     setUploadingField(null);
 
-    if (result.success && result.data && result.data.url) {
-      const uploadedUrl = result.data.url;
+    const uploadedUrl = result.data?.url || (result as any).url;
+    if (result.success && uploadedUrl) {
       handleUpdateDoctor(index, { image: uploadedUrl });
       setMessage({
         type: "success",
@@ -648,8 +648,8 @@ export default function AdminCustomizationPage() {
     const result = await uploadAssetImage(selectedSlug, file);
     setUploadingField(null);
 
-    if (result.success && result.data && result.data.url) {
-      const uploadedUrl = result.data.url;
+    const uploadedUrl = result.data?.url || (result as any).url;
+    if (result.success && uploadedUrl) {
       setContentData((prev) => ({ ...prev, [fieldName]: uploadedUrl }));
       setMessage({
         type: "success",
@@ -738,9 +738,15 @@ export default function AdminCustomizationPage() {
   ];
 
   function getFullImageUrl(url?: string) {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return `${API_BASE_URL}${url}`;
+    if (!url || !url.trim()) return "";
+    const trimmed = url.trim();
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) return trimmed;
+    if (trimmed.startsWith("/uploads/") || trimmed.startsWith("uploads/")) {
+      const cleanPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+      const base = API_BASE_URL || "http://localhost:5000";
+      return `${base}${cleanPath}`;
+    }
+    return trimmed;
   }
 
   // Active theme variables for live section component previews
