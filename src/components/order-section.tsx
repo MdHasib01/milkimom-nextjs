@@ -145,7 +145,7 @@ export function OrderSection() {
 
         if (inDb) {
           setPopupType("tracked");
-          setPopupMessage("নিরাপত্তা ভেরিফিকেশন (OTP) প্রযোজ্য।");
+          setPopupMessage("মোবাইল নম্বর যাচাই করা হয়েছে।");
         } else {
           setPopupType("clean");
           setPopupMessage("মোবাইল নম্বর সফলভাবে ভ্যালিডেট হয়েছে।");
@@ -375,15 +375,7 @@ export function OrderSection() {
       return;
     }
 
-    const phoneVal = form.phone.trim();
-
-    // Mandatory OTP validation for all orders with a mobile number
-    if (!isOtpVerified || verifiedPhone !== phoneVal) {
-      setShowOtpModal(true);
-      handleSendOtp(phoneVal);
-      return;
-    }
-
+    // OTP verification turned off: execute order submission directly
     executeSaveOrder();
   }
 
