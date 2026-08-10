@@ -97,15 +97,22 @@ const LandingPageContentContext = createContext<{
 
 export function LandingPageContentProvider({
   productSlug = "milkimom",
+  overrideContent,
   children,
 }: {
   productSlug?: string;
+  overrideContent?: LandingPageSectionContent;
   children: React.ReactNode;
 }) {
-  const initialContent = DEFAULT_SECTION_CONTENTS[productSlug] || DEFAULT_SECTION_CONTENTS.milkimom;
+  const initialContent = overrideContent || DEFAULT_SECTION_CONTENTS[productSlug] || DEFAULT_SECTION_CONTENTS.milkimom;
   const [content, setContent] = useState<LandingPageSectionContent>(initialContent);
 
   useEffect(() => {
+    if (overrideContent) {
+      setContent(overrideContent);
+      return;
+    }
+
     let isMounted = true;
 
     async function fetchContent() {
@@ -152,7 +159,7 @@ export function LandingPageContentProvider({
     return () => {
       isMounted = false;
     };
-  }, [productSlug, initialContent]);
+  }, [productSlug, initialContent, overrideContent]);
 
   function getImageUrl(url?: string, fallbackUrl: string = "/images/product-jar.webp"): string {
     if (!url || !url.trim()) return fallbackUrl;

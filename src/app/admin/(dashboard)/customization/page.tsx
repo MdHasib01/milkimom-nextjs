@@ -18,6 +18,13 @@ import {
   Upload,
   Image as ImageIcon,
   CheckCircle2,
+  Smartphone,
+  Monitor,
+  LayoutGrid,
+  Columns,
+  EyeOff,
+  Maximize2,
+  X as CloseIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -36,7 +43,57 @@ import {
   type LandingPageContentData,
 } from "@/lib/admin-api";
 
+// Exact live site components for section previews
+import { AnnouncementBar } from "@/components/announcement-bar";
+import { SiteHeader } from "@/components/site-header";
+import { HeroSection } from "@/components/hero-section";
+import { DoctorSection } from "@/components/doctor-section";
+import { OrderSection } from "@/components/order-section";
+import { GuaranteeSection } from "@/components/guarantee-section";
+import { SiteFooter } from "@/components/site-footer";
+
+// Extra landing page components for full page preview modal
+import { TrustBadgesBar } from "@/components/trust-badges";
+import { HowItWorksSection } from "@/components/how-it-works";
+import { SpecialtiesSection } from "@/components/specialties-section";
+import { ComparisonSection } from "@/components/comparison-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
+import { FaqSection } from "@/components/faq-section";
+
+import {
+  LandingPageContentProvider,
+  type LandingPageSectionContent,
+} from "@/components/landing-page-content-provider";
+
 type TabType = "theme" | "content";
+
+function LiveSectionFrame({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mt-4 rounded-2xl border border-primary/30 bg-background overflow-hidden shadow-lg transition-all">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-muted/60 px-4 py-2.5 border-b border-border/80 text-xs">
+        <div className="flex items-center gap-2 font-bold text-foreground">
+          <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{title}</span>
+          {subtitle && <span className="text-[11px] font-normal text-muted-foreground">({subtitle})</span>}
+        </div>
+        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-extrabold text-primary border border-primary/20">
+          Live UI Component Preview
+        </span>
+      </div>
+      <div className="relative overflow-x-auto max-w-full">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminCustomizationPage() {
   const currentUser = getStoredUser();
@@ -57,10 +114,14 @@ export default function AdminCustomizationPage() {
   // Editable content state
   const [contentData, setContentData] = useState<LandingPageContentData>({
     productSlug: "milkimom",
+    productName: "",
+    productNameEn: "",
     announcementText: "",
     heroBadge: "",
     heroTitle: "",
+    heroTitleHighlight: "",
     heroSubtitle: "",
+    heroSubtitleHighlight: "",
     heroCtaText: "",
     heroImage: "",
     doctorTitle: "",
@@ -76,6 +137,18 @@ export default function AdminCustomizationPage() {
     footerPhone: "",
     footerEmail: "",
     footerAddress: "",
+  });
+
+  // Content Live Preview View State
+  const [contentViewMode, setContentViewMode] = useState<"inline" | "split" | "form">("inline");
+  const [showFullLiveModal, setShowFullLiveModal] = useState<boolean>(false);
+  const [modalViewport, setModalViewport] = useState<"desktop" | "mobile">("desktop");
+  const [sectionPreviewsToggle, setSectionPreviewsToggle] = useState<{ [key: string]: boolean }>({
+    branding: true,
+    hero: true,
+    doctor: true,
+    order: true,
+    footer: true,
   });
 
   // Image upload state
@@ -175,6 +248,13 @@ export default function AdminCustomizationPage() {
     }
   }
 
+  function toggleSectionPreview(sectionKey: string) {
+    setSectionPreviewsToggle((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  }
+
   async function handleSaveTheme(e: FormEvent) {
     e.preventDefault();
     if (isModerator) return;
@@ -265,6 +345,8 @@ export default function AdminCustomizationPage() {
       const data = (result.data as any).data || result.data;
       setContentData({
         productSlug: selectedSlug,
+        productName: data.productName || "",
+        productNameEn: data.productNameEn || "",
         announcementText: data.announcementText || "",
         heroBadge: data.heroBadge || "",
         heroTitle: data.heroTitle || "",
@@ -401,6 +483,567 @@ export default function AdminCustomizationPage() {
     return `${API_BASE_URL}${url}`;
   }
 
+  // Active theme variables for live section component previews
+  const activeTheme = themes.find((t) => t.productSlug === selectedSlug) || {
+    productSlug: selectedSlug,
+    themeColor: themeColor || "#bd0052",
+    accentColor: accentColor || "#e37a69",
+    ctaColor: ctaColor || "#ffd666",
+    ctaTextColor: ctaTextColor || "#3a2600",
+    backgroundColor: backgroundColor || "#fff9f6",
+  };
+
+  const previewCssVars = {
+    "--brand-crimson": activeTheme.themeColor,
+    "--brand-coral": activeTheme.accentColor,
+    "--brand-cta": activeTheme.ctaColor,
+    "--brand-cta-foreground": activeTheme.ctaTextColor,
+    "--brand-cream": activeTheme.backgroundColor,
+    "--primary": activeTheme.themeColor,
+    "--secondary": activeTheme.accentColor,
+    "--background": activeTheme.backgroundColor,
+    "--ring": activeTheme.accentColor,
+    "--sidebar-primary": activeTheme.themeColor,
+  } as React.CSSProperties;
+
+  // Render form sections helper for Content & Media Assets tab
+  function renderContentFormSections() {
+    return (
+      <div className="space-y-6">
+        {/* Product Branding & Announcement Bar Section */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+              <Sparkles size={16} className="text-amber-500" />
+              Product Branding & Announcement Top Banner
+            </h3>
+            {contentViewMode === "inline" && (
+              <button
+                type="button"
+                onClick={() => toggleSectionPreview("branding")}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <Eye size={13} />
+                <span>{sectionPreviewsToggle.branding ? "Hide UI Preview" : "Show UI Preview"}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Product Name (Bangla)
+              </label>
+              <input
+                type="text"
+                value={contentData.productName || ""}
+                onChange={(e) => setContentData({ ...contentData, productName: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. স্মুথফ্লো"
+                className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Product Name (English)
+              </label>
+              <input
+                type="text"
+                value={contentData.productNameEn || ""}
+                onChange={(e) => setContentData({ ...contentData, productNameEn: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. SmoothFlow"
+                className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">
+              Banner Text Announcement
+            </label>
+            <input
+              type="text"
+              value={contentData.announcementText || ""}
+              onChange={(e) => setContentData({ ...contentData, announcementText: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. 🎉 ১ম অর্ডারেই ১০০% ক্যাশ অন ডেলিভারি এবং সারাদেশে হোম ডেলিভারি ফ্রি!"
+              className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.branding && (
+            <LiveSectionFrame title="Live Announcement Bar & Header Component">
+              <div style={previewCssVars} className="bg-background text-foreground">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <AnnouncementBar />
+                  <SiteHeader />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+
+        {/* Hero Section */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+              <ImageIcon size={16} className="text-primary" />
+              Hero Section & Main Product Image
+            </h3>
+            {contentViewMode === "inline" && (
+              <button
+                type="button"
+                onClick={() => toggleSectionPreview("hero")}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <Eye size={13} />
+                <span>{sectionPreviewsToggle.hero ? "Hide UI Preview" : "Show UI Preview"}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Hero Badge Text</label>
+              <input
+                type="text"
+                value={contentData.heroBadge || ""}
+                onChange={(e) => setContentData({ ...contentData, heroBadge: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. ১০০% সাইডইফেক্ট মুক্ত ও ন্যাচারাল"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Hero CTA Button Text</label>
+              <input
+                type="text"
+                value={contentData.heroCtaText || ""}
+                onChange={(e) => setContentData({ ...contentData, heroCtaText: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. অর্ডার করতে এখানে ক্লিক করুন"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Hero Main Title / Headline</label>
+            <input
+              type="text"
+              value={contentData.heroTitle || ""}
+              onChange={(e) => setContentData({ ...contentData, heroTitle: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. ১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!"
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs font-bold text-foreground outline-none focus:border-primary"
+            />
+            <div className="mt-1.5">
+              <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                Main Title Highlight Word/Phrase (Applies Accent/Primary Color)
+              </label>
+              <input
+                type="text"
+                value={contentData.heroTitleHighlight || ""}
+                onChange={(e) => setContentData({ ...contentData, heroTitleHighlight: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. মিল্কিমম"
+                className="w-full rounded-xl border border-input bg-background px-3 py-1.5 text-xs text-foreground font-mono outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Hero Subtitle / Description</label>
+            <textarea
+              rows={3}
+              value={contentData.heroSubtitle || ""}
+              onChange={(e) => setContentData({ ...contentData, heroSubtitle: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়..."
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+            <div className="mt-1.5">
+              <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                Subtitle Highlight Word/Phrase (Applies Bold Accent Color)
+              </label>
+              <input
+                type="text"
+                value={contentData.heroSubtitleHighlight || ""}
+                onChange={(e) => setContentData({ ...contentData, heroSubtitleHighlight: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে"
+                className="w-full rounded-xl border border-input bg-background px-3 py-1.5 text-xs text-foreground font-mono outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          {/* Hero Image Upload Box */}
+          <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-3">
+            <label className="block text-xs font-bold text-foreground">
+              Hero Product Image Asset Upload (VPS Server Path)
+            </label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              {contentData.heroImage && (
+                <div className="relative size-20 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
+                  <img
+                    src={getFullImageUrl(contentData.heroImage)}
+                    alt="Hero Product"
+                    className="size-full object-contain p-1"
+                  />
+                </div>
+              )}
+
+              <div className="flex-1 space-y-2 w-full">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={contentData.heroImage || ""}
+                    onChange={(e) => setContentData({ ...contentData, heroImage: e.target.value })}
+                    disabled={isModerator}
+                    placeholder="/uploads/milkimom/hero-product.png"
+                    className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
+                    {uploadingField === "heroImage" ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Upload size={14} />
+                    )}
+                    <span>
+                      {uploadingField === "heroImage" ? "Uploading to Server..." : "Upload Image File"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={isModerator || uploadingField === "heroImage"}
+                      onChange={(e) => handleImageUpload(e, "heroImage")}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <span className="text-[11px] text-muted-foreground">
+                    Directly saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.hero && (
+            <LiveSectionFrame title="Live Hero Section Component">
+              <div style={previewCssVars} className="bg-background text-foreground">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <HeroSection />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+
+        {/* Doctor & Expert Section */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+              <FileText size={16} className="text-emerald-600" />
+              Doctor & Expert Advisory Section
+            </h3>
+            {contentViewMode === "inline" && (
+              <button
+                type="button"
+                onClick={() => toggleSectionPreview("doctor")}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <Eye size={13} />
+                <span>{sectionPreviewsToggle.doctor ? "Hide UI Preview" : "Show UI Preview"}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Section Title</label>
+              <input
+                type="text"
+                value={contentData.doctorTitle || ""}
+                onChange={(e) => setContentData({ ...contentData, doctorTitle: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. বিশেষজ্ঞ ডাক্তারের পরামর্শ"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Doctor Name</label>
+              <input
+                type="text"
+                value={contentData.doctorName || ""}
+                onChange={(e) => setContentData({ ...contentData, doctorName: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. ডাঃ তানজিলা রহমান"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Doctor Medical Degree / Title</label>
+            <input
+              type="text"
+              value={contentData.doctorDegree || ""}
+              onChange={(e) => setContentData({ ...contentData, doctorDegree: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)"
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Doctor Statement / Quote</label>
+            <textarea
+              rows={3}
+              value={contentData.doctorQuote || ""}
+              onChange={(e) => setContentData({ ...contentData, doctorQuote: e.target.value })}
+              disabled={isModerator}
+              placeholder="Doctor quote statement..."
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          {/* Doctor Photo Upload Box */}
+          <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-3">
+            <label className="block text-xs font-bold text-foreground">
+              Doctor Photo Image Upload (VPS Server Path)
+            </label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              {contentData.doctorImage && (
+                <div className="relative size-20 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
+                  <img
+                    src={getFullImageUrl(contentData.doctorImage)}
+                    alt="Doctor"
+                    className="size-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="flex-1 space-y-2 w-full">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={contentData.doctorImage || ""}
+                    onChange={(e) => setContentData({ ...contentData, doctorImage: e.target.value })}
+                    disabled={isModerator}
+                    placeholder="/uploads/milkimom/doctor-photo.png"
+                    className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
+                    {uploadingField === "doctorImage" ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Upload size={14} />
+                    )}
+                    <span>
+                      {uploadingField === "doctorImage" ? "Uploading to Server..." : "Upload Doctor Photo"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={isModerator || uploadingField === "doctorImage"}
+                      onChange={(e) => handleImageUpload(e, "doctorImage")}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <span className="text-[11px] text-muted-foreground">
+                    Saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.doctor && (
+            <LiveSectionFrame title="Live Doctor Advisory Component">
+              <div style={previewCssVars} className="bg-background text-foreground">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <DoctorSection />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+
+        {/* Order & Guarantee Section */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-primary" />
+              Order Form & Guarantee Copy
+            </h3>
+            {contentViewMode === "inline" && (
+              <button
+                type="button"
+                onClick={() => toggleSectionPreview("order")}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <Eye size={13} />
+                <span>{sectionPreviewsToggle.order ? "Hide UI Preview" : "Show UI Preview"}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Order Section Headline</label>
+              <input
+                type="text"
+                value={contentData.orderHeadline || ""}
+                onChange={(e) => setContentData({ ...contentData, orderHeadline: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. আজই অর্ডার করুন মিল্কিমম™"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Offer Subheadline</label>
+              <input
+                type="text"
+                value={contentData.orderSubheadline || ""}
+                onChange={(e) => setContentData({ ...contentData, orderSubheadline: e.target.value })}
+                disabled={isModerator}
+                placeholder="e.g. নিচে আপনার তথ্য দিয়ে অর্ডার সম্পন্ন করুন"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Guarantee Badge Title</label>
+            <input
+              type="text"
+              value={contentData.guaranteeTitle || ""}
+              onChange={(e) => setContentData({ ...contentData, guaranteeTitle: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. ১০০% স্যাটিসফ্যাকশন ও মানি-ব্যাক গ্যারান্টি"
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Guarantee Description</label>
+            <textarea
+              rows={2}
+              value={contentData.guaranteeText || ""}
+              onChange={(e) => setContentData({ ...contentData, guaranteeText: e.target.value })}
+              disabled={isModerator}
+              placeholder="Guarantee text copy..."
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.order && (
+            <LiveSectionFrame title="Live Order Form & Guarantee Components">
+              <div style={previewCssVars} className="bg-background text-foreground space-y-6">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <OrderSection />
+                  <GuaranteeSection />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+
+        {/* Footer & Contact Section */}
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+              <Globe size={16} className="text-blue-500" />
+              Footer & Contact Details
+            </h3>
+            {contentViewMode === "inline" && (
+              <button
+                type="button"
+                onClick={() => toggleSectionPreview("footer")}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <Eye size={13} />
+                <span>{sectionPreviewsToggle.footer ? "Hide UI Preview" : "Show UI Preview"}</span>
+              </button>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Footer Brand Tagline Text</label>
+            <input
+              type="text"
+              value={contentData.footerText || ""}
+              onChange={(e) => setContentData({ ...contentData, footerText: e.target.value })}
+              disabled={isModerator}
+              placeholder="e.g. মিল্কিমম™ - মা ও শিশুর সুস্থতায় প্রতিদিনের সেরা যত্ন"
+              className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Contact Phone</label>
+              <input
+                type="text"
+                value={contentData.footerPhone || ""}
+                onChange={(e) => setContentData({ ...contentData, footerPhone: e.target.value })}
+                disabled={isModerator}
+                placeholder="01517-102603"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs font-mono text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Contact Email</label>
+              <input
+                type="email"
+                value={contentData.footerEmail || ""}
+                onChange={(e) => setContentData({ ...contentData, footerEmail: e.target.value })}
+                disabled={isModerator}
+                placeholder="milkimominfo@gmail.com"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Contact Address</label>
+              <input
+                type="text"
+                value={contentData.footerAddress || ""}
+                onChange={(e) => setContentData({ ...contentData, footerAddress: e.target.value })}
+                disabled={isModerator}
+                placeholder="Mohammadpur, Dhaka"
+                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          {contentViewMode === "inline" && sectionPreviewsToggle.footer && (
+            <LiveSectionFrame title="Live Footer & Contact Component">
+              <div style={previewCssVars} className="bg-background text-foreground">
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <SiteFooter />
+                </LandingPageContentProvider>
+              </div>
+            </LiveSectionFrame>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Top Header */}
@@ -411,7 +1054,7 @@ export default function AdminCustomizationPage() {
             Landing Page Customization
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            Customize theme colors, section copy, and server asset images independently for each product landing page.
+            Customize theme colors, section copy, and server asset images independently with live UI component preview.
           </p>
         </div>
 
@@ -737,424 +1380,126 @@ export default function AdminCustomizationPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSaveContent} className="space-y-6">
-                  {/* Product Branding & Announcement Bar Section */}
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 border-b border-border pb-3">
-                      <Sparkles size={16} className="text-amber-500" />
-                      Product Branding & Announcement Top Banner
-                    </h3>
+                  {/* Top Preview Toolbar */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mr-1">
+                        Preview Mode:
+                      </span>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">
-                          Product Name (Bangla)
-                        </label>
-                        <input
-                          type="text"
-                          value={contentData.productName || ""}
-                          onChange={(e) => setContentData({ ...contentData, productName: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. স্মুথফ্লো"
-                          className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">
-                          Product Name (English)
-                        </label>
-                        <input
-                          type="text"
-                          value={contentData.productNameEn || ""}
-                          onChange={(e) => setContentData({ ...contentData, productNameEn: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. SmoothFlow"
-                          className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setContentViewMode("inline")}
+                        className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                          contentViewMode === "inline"
+                            ? "bg-primary text-primary-foreground shadow-xs"
+                            : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <LayoutGrid size={14} />
+                        <span>Inline Previews</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setContentViewMode("split")}
+                        className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                          contentViewMode === "split"
+                            ? "bg-primary text-primary-foreground shadow-xs"
+                            : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <Columns size={14} />
+                        <span>Split View</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setContentViewMode("form")}
+                        className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                          contentViewMode === "form"
+                            ? "bg-primary text-primary-foreground shadow-xs"
+                            : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <EyeOff size={14} />
+                        <span>Form Only</span>
+                      </button>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">
-                        Banner Text Announcement
-                      </label>
-                      <input
-                        type="text"
-                        value={contentData.announcementText || ""}
-                        onChange={(e) => setContentData({ ...contentData, announcementText: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="e.g. 🎉 ১ম অর্ডারেই ১০০% ক্যাশ অন ডেলিভারি এবং সারাদেশে হোম ডেলিভারি ফ্রি!"
-                        className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => setShowFullLiveModal(true)}
+                      variant="outline"
+                      className="gap-2 rounded-xl text-xs font-bold border-primary/30 text-primary hover:bg-primary/10"
+                    >
+                      <Maximize2 size={14} />
+                      <span>Full Live Landing Page Preview</span>
+                    </Button>
                   </div>
 
-                  {/* Hero Section */}
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 border-b border-border pb-3">
-                      <ImageIcon size={16} className="text-primary" />
-                      Hero Section & Main Product Image
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Hero Badge Text</label>
-                        <input
-                          type="text"
-                          value={contentData.heroBadge || ""}
-                          onChange={(e) => setContentData({ ...contentData, heroBadge: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. ১০০% সাইডইফেক্ট মুক্ত ও ন্যাচারাল"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
+                  {/* Main Editing & Preview Content Area */}
+                  {contentViewMode === "split" ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                      {/* Left Side: Form Controls */}
+                      <div className="lg:col-span-6 space-y-6">
+                        {renderContentFormSections()}
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Hero CTA Button Text</label>
-                        <input
-                          type="text"
-                          value={contentData.heroCtaText || ""}
-                          onChange={(e) => setContentData({ ...contentData, heroCtaText: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. অর্ডার করতে এখানে ক্লিক করুন"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Hero Main Title / Headline</label>
-                      <input
-                        type="text"
-                        value={contentData.heroTitle || ""}
-                        onChange={(e) => setContentData({ ...contentData, heroTitle: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="e.g. ১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!"
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs font-bold text-foreground outline-none focus:border-primary"
-                      />
-                      <div className="mt-1.5">
-                        <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
-                          Main Title Highlight Word/Phrase (Applies Accent/Primary Color)
-                        </label>
-                        <input
-                          type="text"
-                          value={contentData.heroTitleHighlight || ""}
-                          onChange={(e) => setContentData({ ...contentData, heroTitleHighlight: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. মিল্কিমম"
-                          className="w-full rounded-xl border border-input bg-background px-3 py-1.5 text-xs text-foreground font-mono outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Hero Subtitle / Description</label>
-                      <textarea
-                        rows={3}
-                        value={contentData.heroSubtitle || ""}
-                        onChange={(e) => setContentData({ ...contentData, heroSubtitle: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="e.g. মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়..."
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                      <div className="mt-1.5">
-                        <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
-                          Subtitle Highlight Word/Phrase (Applies Bold Accent Color)
-                        </label>
-                        <input
-                          type="text"
-                          value={contentData.heroSubtitleHighlight || ""}
-                          onChange={(e) => setContentData({ ...contentData, heroSubtitleHighlight: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে"
-                          className="w-full rounded-xl border border-input bg-background px-3 py-1.5 text-xs text-foreground font-mono outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Hero Image Upload Box */}
-                    <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-3">
-                      <label className="block text-xs font-bold text-foreground">
-                        Hero Product Image Asset Upload (VPS Server Path)
-                      </label>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        {contentData.heroImage && (
-                          <div className="relative size-20 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
-                            <img
-                              src={getFullImageUrl(contentData.heroImage)}
-                              alt="Hero Product"
-                              className="size-full object-contain p-1"
-                            />
-                          </div>
-                        )}
-
-                        <div className="flex-1 space-y-2 w-full">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={contentData.heroImage || ""}
-                              onChange={(e) => setContentData({ ...contentData, heroImage: e.target.value })}
-                              disabled={isModerator}
-                              placeholder="/uploads/milkimom/hero-product.png"
-                              className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
-                              {uploadingField === "heroImage" ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : (
-                                <Upload size={14} />
-                              )}
-                              <span>
-                                {uploadingField === "heroImage" ? "Uploading to Server..." : "Upload Image File"}
+                      {/* Right Side: Sticky Live Page Preview */}
+                      <div className="lg:col-span-6 space-y-4">
+                        <div className="sticky top-6 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                              <span className="flex size-6 items-center justify-center rounded-lg bg-primary/10 text-primary shadow-2xs">
+                                <Eye size={14} />
                               </span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                disabled={isModerator || uploadingField === "heroImage"}
-                                onChange={(e) => handleImageUpload(e, "heroImage")}
-                                className="hidden"
-                              />
-                            </label>
+                              Live Page Component Previews
+                            </h3>
+                            <a
+                              href={selectedSlug === "milkimom" ? "/" : `/${selectedSlug}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                            >
+                              View Page <ExternalLink size={13} />
+                            </a>
+                          </div>
 
-                            <span className="text-[11px] text-muted-foreground">
-                              Directly saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
-                            </span>
+                          <div
+                            className="max-h-[calc(100vh-8rem)] overflow-y-auto space-y-6 rounded-3xl border border-border bg-background p-4 shadow-xl text-foreground"
+                            style={previewCssVars}
+                          >
+                            <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                              <div className="space-y-6">
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                                  <AnnouncementBar />
+                                  <SiteHeader />
+                                </div>
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                                  <HeroSection />
+                                </div>
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                                  <DoctorSection />
+                                </div>
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                                  <OrderSection />
+                                </div>
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                                  <GuaranteeSection />
+                                </div>
+                                <div className="rounded-2xl border border-border/80 overflow-hidden shadow-sm">
+                                  <SiteFooter />
+                                </div>
+                              </div>
+                            </LandingPageContentProvider>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Doctor & Expert Section */}
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 border-b border-border pb-3">
-                      <FileText size={16} className="text-emerald-600" />
-                      Doctor & Expert Advisory Section
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Section Title</label>
-                        <input
-                          type="text"
-                          value={contentData.doctorTitle || ""}
-                          onChange={(e) => setContentData({ ...contentData, doctorTitle: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. বিশেষজ্ঞ ডাক্তারের পরামর্শ"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Doctor Name</label>
-                        <input
-                          type="text"
-                          value={contentData.doctorName || ""}
-                          onChange={(e) => setContentData({ ...contentData, doctorName: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. ডাঃ তানজিলা রহমান"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Doctor Medical Degree / Title</label>
-                      <input
-                        type="text"
-                        value={contentData.doctorDegree || ""}
-                        onChange={(e) => setContentData({ ...contentData, doctorDegree: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="e.g. এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)"
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Doctor Statement / Quote</label>
-                      <textarea
-                        rows={3}
-                        value={contentData.doctorQuote || ""}
-                        onChange={(e) => setContentData({ ...contentData, doctorQuote: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="Doctor quote statement..."
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    {/* Doctor Photo Upload Box */}
-                    <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-3">
-                      <label className="block text-xs font-bold text-foreground">
-                        Doctor Photo Image Upload (VPS Server Path)
-                      </label>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        {contentData.doctorImage && (
-                          <div className="relative size-20 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
-                            <img
-                              src={getFullImageUrl(contentData.doctorImage)}
-                              alt="Doctor"
-                              className="size-full object-cover"
-                            />
-                          </div>
-                        )}
-
-                        <div className="flex-1 space-y-2 w-full">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={contentData.doctorImage || ""}
-                              onChange={(e) => setContentData({ ...contentData, doctorImage: e.target.value })}
-                              disabled={isModerator}
-                              placeholder="/uploads/milkimom/doctor-photo.png"
-                              className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
-                              {uploadingField === "doctorImage" ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : (
-                                <Upload size={14} />
-                              )}
-                              <span>
-                                {uploadingField === "doctorImage" ? "Uploading to Server..." : "Upload Doctor Photo"}
-                              </span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                disabled={isModerator || uploadingField === "doctorImage"}
-                                onChange={(e) => handleImageUpload(e, "doctorImage")}
-                                className="hidden"
-                              />
-                            </label>
-
-                            <span className="text-[11px] text-muted-foreground">
-                              Saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Order & Guarantee Section */}
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 border-b border-border pb-3">
-                      <CheckCircle2 size={16} className="text-primary" />
-                      Order Form & Guarantee Copy
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Order Section Headline</label>
-                        <input
-                          type="text"
-                          value={contentData.orderHeadline || ""}
-                          onChange={(e) => setContentData({ ...contentData, orderHeadline: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. আজই অর্ডার করুন মিল্কিমম™"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Offer Subheadline</label>
-                        <input
-                          type="text"
-                          value={contentData.orderSubheadline || ""}
-                          onChange={(e) => setContentData({ ...contentData, orderSubheadline: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="e.g. নিচে আপনার তথ্য দিয়ে অর্ডার সম্পন্ন করুন"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Guarantee Badge Title</label>
-                      <input
-                        type="text"
-                        value={contentData.guaranteeTitle || ""}
-                        onChange={(e) => setContentData({ ...contentData, guaranteeTitle: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="e.g. ১০০% স্যাটিসফ্যাকশন ও মানি-ব্যাক গ্যারান্টি"
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Guarantee Description</label>
-                      <textarea
-                        rows={2}
-                        value={contentData.guaranteeText || ""}
-                        onChange={(e) => setContentData({ ...contentData, guaranteeText: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="Guarantee text copy..."
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Footer & Contact Section */}
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 border-b border-border pb-3">
-                      <Globe size={16} className="text-blue-500" />
-                      Footer & Contact Details
-                    </h3>
-
-                    <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Footer Brand Tagline Text</label>
-                      <input
-                        type="text"
-                        value={contentData.footerText || ""}
-                        onChange={(e) => setContentData({ ...contentData, footerText: e.target.value })}
-                        disabled={isModerator}
-                        placeholder="e.g. মিল্কিমম™ - মা ও শিশুর সুস্থতায় প্রতিদিনের সেরা যত্ন"
-                        className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Contact Phone</label>
-                        <input
-                          type="text"
-                          value={contentData.footerPhone || ""}
-                          onChange={(e) => setContentData({ ...contentData, footerPhone: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="01517-102603"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs font-mono text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Contact Email</label>
-                        <input
-                          type="email"
-                          value={contentData.footerEmail || ""}
-                          onChange={(e) => setContentData({ ...contentData, footerEmail: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="milkimominfo@gmail.com"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-foreground mb-1">Contact Address</label>
-                        <input
-                          type="text"
-                          value={contentData.footerAddress || ""}
-                          onChange={(e) => setContentData({ ...contentData, footerAddress: e.target.value })}
-                          disabled={isModerator}
-                          placeholder="Mohammadpur, Dhaka"
-                          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  ) : (
+                    <div>{renderContentFormSections()}</div>
+                  )}
 
                   {message && (
                     <div
@@ -1270,6 +1615,95 @@ export default function AdminCustomizationPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Full Live Landing Page Preview Modal */}
+      {showFullLiveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative flex h-[94vh] w-full max-w-6xl flex-col rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-muted/30 shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="flex size-3 rounded-full bg-emerald-500 animate-pulse" />
+                <div>
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    Full Live Landing Page UI Preview
+                    <span className="font-mono text-xs text-primary font-semibold">({selectedSlug})</span>
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Live end-to-end preview updated in real-time as content & media assets change
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Viewport Switcher */}
+                <div className="flex items-center gap-1 bg-background rounded-xl border border-border p-1">
+                  <button
+                    type="button"
+                    onClick={() => setModalViewport("desktop")}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition ${
+                      modalViewport === "desktop"
+                        ? "bg-primary text-primary-foreground shadow-2xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Monitor size={14} /> Desktop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalViewport("mobile")}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition ${
+                      modalViewport === "mobile"
+                        ? "bg-primary text-primary-foreground shadow-2xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Smartphone size={14} /> Mobile
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowFullLiveModal(false)}
+                  className="flex size-9 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground hover:text-foreground transition hover:bg-muted"
+                >
+                  <CloseIcon size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body Scroll Container */}
+            <div className="flex-1 overflow-y-auto bg-muted/30 p-4 sm:p-6 flex justify-center">
+              <div
+                className={`transition-all duration-300 rounded-3xl border border-border bg-background shadow-2xl text-foreground ${
+                  modalViewport === "mobile" ? "w-full max-w-sm" : "w-full max-w-5xl"
+                }`}
+                style={previewCssVars}
+              >
+                <LandingPageContentProvider productSlug={selectedSlug} overrideContent={contentData as LandingPageSectionContent}>
+                  <div className="relative min-h-screen w-full max-w-full overflow-x-clip">
+                    <AnnouncementBar />
+                    <SiteHeader />
+                    <main className="pb-24 sm:pb-0">
+                      <HeroSection />
+                      <TrustBadgesBar />
+                      <HowItWorksSection />
+                      <SpecialtiesSection />
+                      <ComparisonSection />
+                      <DoctorSection />
+                      <TestimonialsSection />
+                      <FaqSection />
+                      <OrderSection />
+                      <GuaranteeSection />
+                    </main>
+                    <SiteFooter />
+                  </div>
+                </LandingPageContentProvider>
+              </div>
+            </div>
           </div>
         </div>
       )}
