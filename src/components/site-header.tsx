@@ -18,6 +18,15 @@ import { navLinks, siteConfig } from "@/lib/content";
 import { cn } from "@/lib/utils";
 import { useLandingPageContent } from "./landing-page-content-provider";
 
+import { API_BASE_URL } from "@/lib/api-config";
+
+function getFullImageUrl(url?: string) {
+  if (!url) return "/images/logo.webp";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("/uploads/")) return `${API_BASE_URL}${url}`;
+  return url;
+}
+
 export function SiteHeader() {
   const { content } = useLandingPageContent();
   const [scrolled, setScrolled] = useState(false);
@@ -33,6 +42,9 @@ export function SiteHeader() {
   const rawPhone = displayPhone.replace(/[^0-9]/g, "");
   const brandTitle = content.productName ? `${content.productName}™` : siteConfig.name;
 
+  const logoType = content.logoType || (content.productSlug === "smoothflow" ? "text" : "image");
+  const logoUrl = getFullImageUrl(content.logoImage || "/images/logo.webp");
+
   return (
     <header
       className={cn(
@@ -42,18 +54,15 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link href="#top" className="flex shrink-0 items-center gap-2">
-          {content.productSlug === "smoothflow" ? (
+          {logoType === "text" ? (
             <span className="font-heading text-2xl font-extrabold text-primary tracking-tight">
               {brandTitle}
             </span>
           ) : (
-            <Image
-              src="/images/logo.webp"
+            <img
+              src={logoUrl}
               alt={brandTitle}
-              width={140}
-              height={92}
-              className="h-14 w-auto sm:h-16"
-              priority
+              className="h-14 w-auto sm:h-16 object-contain max-h-16"
             />
           )}
         </Link>

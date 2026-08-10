@@ -9,6 +9,8 @@ export interface LandingPageSectionContent {
   productSlug: string;
   productName: string;
   productNameEn: string;
+  logoType?: "image" | "text";
+  logoImage?: string;
   announcementText: string;
   heroBadge: string;
   heroTitle: string;
@@ -95,6 +97,8 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     productSlug: "milkimom",
     productName: "মিল্কিমম",
     productNameEn: "Milkimom",
+    logoType: "image",
+    logoImage: "/images/logo.webp",
     announcementText: "🎉 ১ম অর্ডারেই ১০০% ক্যাশ অন ডেলিভারি এবং সারাদেশে হোম ডেলিভারি ফ্রি!",
     heroBadge: "১০০% সাইডইফেক্ট মুক্ত ও ন্যাচারাল",
     heroTitle: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!",
@@ -123,6 +127,8 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     productSlug: "smoothflow",
     productName: "স্মুথফ্লো",
     productNameEn: "SmoothFlow",
+    logoType: "text",
+    logoImage: "/images/logo.webp",
     announcementText: "⚡ স্মুথফ্লো বিশেষ অফার! সারাদেশে ফ্রি ডেলিভারি ও দ্রুত সার্ভিস!",
     heroBadge: "স্মুথফ্লো প্রিমিয়াম ন্যাচারাল ফর্মুলা",
     heroTitle: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান!",

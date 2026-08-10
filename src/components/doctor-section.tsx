@@ -19,6 +19,7 @@ const defaultDoctors = [
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
       "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
+    sortOrder: 1,
   },
   {
     id: "nazmul",
@@ -28,6 +29,7 @@ const defaultDoctors = [
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
       "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
+    sortOrder: 2,
   },
 ];
 
@@ -63,7 +65,7 @@ export function DoctorSection() {
       : defaultDoctorList;
 
   const doctorList = [...rawDoctorItems]
-    .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0))
+    .sort((a: any, b: any) => (Number(a?.sortOrder) || 0) - (Number(b?.sortOrder) || 0))
     .map((doc) => ({
       ...doc,
       title: doc.title || "মেডিকেল বোর্ড অনুমোদিত",

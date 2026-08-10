@@ -7,6 +7,15 @@ import { FaFacebookF, FaInstagram } from "react-icons/fa6";
 import { navLinks, siteConfig } from "@/lib/content";
 import { useLandingPageContent } from "./landing-page-content-provider";
 
+import { API_BASE_URL } from "@/lib/api-config";
+
+function getFullImageUrl(url?: string) {
+  if (!url) return "/images/logo.webp";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("/uploads/")) return `${API_BASE_URL}${url}`;
+  return url;
+}
+
 export function SiteFooter() {
   const { content } = useLandingPageContent();
   const year = new Date().getFullYear();
@@ -17,22 +26,23 @@ export function SiteFooter() {
   const address = content.footerAddress || siteConfig.address;
   const brandName = content.productName ? `${content.productName}™` : siteConfig.name;
 
+  const logoType = content.logoType || (content.productSlug === "smoothflow" ? "text" : "image");
+  const logoUrl = getFullImageUrl(content.logoImage || "/images/logo.webp");
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
-            {content.productSlug === "smoothflow" ? (
+            {logoType === "text" ? (
               <span className="font-heading text-2xl font-extrabold text-primary tracking-tight block mb-2">
                 {brandName}
               </span>
             ) : (
-              <Image
-                src="/images/logo.webp"
+              <img
+                src={logoUrl}
                 alt={brandName}
-                width={140}
-                height={92}
-                className="h-14 w-auto"
+                className="h-14 w-auto object-contain max-h-16"
               />
             )}
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">

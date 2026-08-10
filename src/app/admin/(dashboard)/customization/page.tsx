@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/api-config";
 import {
   fetchCustomizationThemes,
@@ -179,6 +180,8 @@ export default function AdminCustomizationPage() {
     productSlug: "milkimom",
     productName: "",
     productNameEn: "",
+    logoType: "image",
+    logoImage: "/images/logo.webp",
     announcementText: "",
     heroBadge: "",
     heroTitle: "",
@@ -275,6 +278,8 @@ export default function AdminCustomizationPage() {
         productSlug: slug,
         productName: data.productName || "",
         productNameEn: data.productNameEn || "",
+        logoType: data.logoType || (slug === "smoothflow" ? "text" : "image"),
+        logoImage: data.logoImage || "/images/logo.webp",
         announcementText: data.announcementText || "",
         heroBadge: data.heroBadge || "",
         heroTitle: data.heroTitle || "",
@@ -554,7 +559,7 @@ export default function AdminCustomizationPage() {
     }
   }
 
-  async function handleSaveContent(e?: FormEvent) {
+  async function handleSaveContent(e?: FormEvent, sectionName?: string) {
     if (e) e.preventDefault();
     if (isModerator) return;
 
@@ -566,7 +571,10 @@ export default function AdminCustomizationPage() {
     setSaving(false);
 
     if (result.success && result.data) {
-      setMessage({ type: "success", text: `Section content, doctors list & carousel slides for "${selectedSlug}" saved successfully!` });
+      const successText = sectionName
+        ? `"${sectionName}" saved successfully for "${selectedSlug}"!`
+        : `Section content, doctors list & carousel slides for "${selectedSlug}" saved successfully!`;
+      setMessage({ type: "success", text: successText });
     } else {
       setMessage({
         type: "error",
@@ -591,6 +599,8 @@ export default function AdminCustomizationPage() {
         productSlug: selectedSlug,
         productName: data.productName || "",
         productNameEn: data.productNameEn || "",
+        logoType: data.logoType || (selectedSlug === "smoothflow" ? "text" : "image"),
+        logoImage: data.logoImage || "/images/logo.webp",
         announcementText: data.announcementText || "",
         heroBadge: data.heroBadge || "",
         heroTitle: data.heroTitle || "",
@@ -628,7 +638,7 @@ export default function AdminCustomizationPage() {
     }
   }
 
-  async function handleImageUpload(e: ChangeEvent<HTMLInputElement>, fieldName: "heroImage" | "doctorImage") {
+  async function handleImageUpload(e: ChangeEvent<HTMLInputElement>, fieldName: "heroImage" | "doctorImage" | "logoImage") {
     const file = e.target.files?.[0];
     if (!file || isModerator) return;
 
@@ -770,16 +780,28 @@ export default function AdminCustomizationPage() {
               <Sparkles size={16} className="text-amber-500" />
               Product Branding & Announcement Top Banner
             </h3>
-            {contentViewMode === "inline" && (
-              <button
+            <div className="flex items-center gap-2">
+              <Button
                 type="button"
-                onClick={() => toggleSectionPreview("branding")}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                onClick={() => handleSaveContent(undefined, "Product Branding & Banner")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
               >
-                <Eye size={13} />
-                <span>{sectionPreviewsToggle.branding ? "Hide UI Preview" : "Show UI Preview"}</span>
-              </button>
-            )}
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Branding</span>
+              </Button>
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("branding")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.branding ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -808,6 +830,110 @@ export default function AdminCustomizationPage() {
                 placeholder="e.g. SmoothFlow"
                 className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
               />
+            </div>
+          </div>
+
+          {/* Logo Display Mode & Logo Upload Section */}
+          <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <label className="block text-xs font-bold text-foreground">
+                  Header Brand Logo Display Mode
+                </label>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Choose whether to display the graphic logo image or stylized brand title text in the header and footer.
+                </p>
+              </div>
+
+              {/* Segmented Toggle Control */}
+              <div className="flex items-center gap-1.5 rounded-xl border border-border bg-background p-1 self-start sm:self-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setContentData({ ...contentData, logoType: "image" })}
+                  disabled={isModerator}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                    (contentData.logoType || "image") === "image"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <ImageIcon size={14} />
+                  <span>Show Logo Image</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setContentData({ ...contentData, logoType: "text" })}
+                  disabled={isModerator}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                    contentData.logoType === "text"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <FileText size={14} />
+                  <span>Show Text Logo</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Logo Image Upload Box */}
+            <div className="pt-3 border-t border-border/60">
+              <label className="block text-[11px] font-bold text-foreground mb-2">
+                Brand Logo Image Upload (VPS Server Path)
+              </label>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="relative size-16 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center p-1.5">
+                  {contentData.logoImage ? (
+                    <img
+                      src={getFullImageUrl(contentData.logoImage)}
+                      alt="Brand Logo Preview"
+                      className="size-full object-contain"
+                    />
+                  ) : (
+                    <ImageIcon size={24} className="text-muted-foreground" />
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-2 w-full">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={contentData.logoImage || ""}
+                      onChange={(e) => setContentData({ ...contentData, logoImage: e.target.value })}
+                      disabled={isModerator}
+                      placeholder="/images/logo.webp"
+                      className="flex-1 rounded-xl border border-input bg-background px-3.5 py-2 font-mono text-xs text-foreground outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition">
+                      {uploadingField === "logoImage" ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Upload size={14} />
+                      )}
+                      <span>
+                        {uploadingField === "logoImage" ? "Uploading Logo..." : "Upload Logo Image"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={isModerator || uploadingField === "logoImage"}
+                        onChange={(e) => handleImageUpload(e, "logoImage")}
+                        className="hidden"
+                      />
+                    </label>
+
+                    <span className="text-[11px] text-muted-foreground">
+                      Directly saved to <code className="font-mono text-foreground">server/uploads/{selectedSlug}/</code>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -844,16 +970,28 @@ export default function AdminCustomizationPage() {
               <ImageIcon size={16} className="text-primary" />
               Hero Section & Main Product Image
             </h3>
-            {contentViewMode === "inline" && (
-              <button
+            <div className="flex items-center gap-2">
+              <Button
                 type="button"
-                onClick={() => toggleSectionPreview("hero")}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                onClick={() => handleSaveContent(undefined, "Hero Section")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
               >
-                <Eye size={13} />
-                <span>{sectionPreviewsToggle.hero ? "Hide UI Preview" : "Show UI Preview"}</span>
-              </button>
-            )}
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Hero Section</span>
+              </Button>
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("hero")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.hero ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1012,6 +1150,17 @@ export default function AdminCustomizationPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={() => handleSaveContent(undefined, "Doctor Advisory Section")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+              >
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Doctors</span>
+              </Button>
+
               <Button
                 type="button"
                 onClick={handleAddDoctor}
@@ -1243,6 +1392,17 @@ export default function AdminCustomizationPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={() => handleSaveContent(undefined, "Care Carousel Section")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+              >
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Carousel</span>
+              </Button>
+
               <Button
                 type="button"
                 onClick={handleAddCarouselSlide}
@@ -1524,16 +1684,28 @@ export default function AdminCustomizationPage() {
               <CheckCircle2 size={16} className="text-primary" />
               Order Form & Guarantee Copy
             </h3>
-            {contentViewMode === "inline" && (
-              <button
+            <div className="flex items-center gap-2">
+              <Button
                 type="button"
-                onClick={() => toggleSectionPreview("order")}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                onClick={() => handleSaveContent(undefined, "Order & Guarantee Section")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
               >
-                <Eye size={13} />
-                <span>{sectionPreviewsToggle.order ? "Hide UI Preview" : "Show UI Preview"}</span>
-              </button>
-            )}
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Order Copy</span>
+              </Button>
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("order")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.order ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1605,16 +1777,28 @@ export default function AdminCustomizationPage() {
               <Globe size={16} className="text-blue-500" />
               Footer & Contact Details
             </h3>
-            {contentViewMode === "inline" && (
-              <button
+            <div className="flex items-center gap-2">
+              <Button
                 type="button"
-                onClick={() => toggleSectionPreview("footer")}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                onClick={() => handleSaveContent(undefined, "Footer & Contact Section")}
+                disabled={isModerator || saving}
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
               >
-                <Eye size={13} />
-                <span>{sectionPreviewsToggle.footer ? "Hide UI Preview" : "Show UI Preview"}</span>
-              </button>
-            )}
+                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                <span>Save Footer</span>
+              </Button>
+              {contentViewMode === "inline" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionPreview("footer")}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <Eye size={13} />
+                  <span>{sectionPreviewsToggle.footer ? "Hide UI Preview" : "Show UI Preview"}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div>

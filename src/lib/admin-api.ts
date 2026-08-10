@@ -410,6 +410,8 @@ export interface LandingPageContentData {
   productSlug: string;
   productName?: string;
   productNameEn?: string;
+  logoType?: "image" | "text";
+  logoImage?: string;
   announcementText?: string;
   heroBadge?: string;
   heroTitle?: string;
