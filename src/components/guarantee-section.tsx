@@ -5,8 +5,13 @@ import { Reveal } from "@/components/motion/reveal";
 import { GridPattern } from "@/components/grid-pattern";
 import { useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
 export function GuaranteeSection() {
+  const { content } = useLandingPageContent();
+  const brandName = content.productName || "মিল্কিমম";
+  const displayPhone = content.footerPhone || "01517102603";
+  const rawPhone = displayPhone.replace(/[^0-9]/g, "");
   const formattedMotherCount = formatBengaliNumber(useMotherCount());
 
   return (
@@ -37,17 +42,17 @@ export function GuaranteeSection() {
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                 <p className="text-foreground/90 leading-relaxed text-base sm:text-lg font-medium">
-                  মিল্কিমম খাওয়ার 14 দিনের মধ্যেও আপনি যদি স্যাটিসফাইড না হন, তাহলে এই{" "}
+                  {brandName} খাওয়ার 14 দিনের মধ্যেও আপনি যদি স্যাটিসফাইড না হন, তাহলে এই{" "}
                   <a
-                    href={`https://wa.me/8801517102603?text=${encodeURIComponent(
-                      "হ্যালো মিল্কিমম, আমি রিফান্ড সম্পর্কিত তথ্য জানতে চাই।"
+                    href={`https://wa.me/88${rawPhone}?text=${encodeURIComponent(
+                      `হ্যালো ${brandName}, আমি রিফান্ড সম্পর্কিত তথ্য জানতে চাই।`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 hover:underline bg-emerald-500/10 px-2.5 py-0.5 rounded-md transition-colors whitespace-nowrap align-middle"
                   >
                     <PhoneCall className="size-3.5 sm:size-4 shrink-0" />
-                    (01517102603)
+                    ({displayPhone})
                   </a>{" "}
                   নাম্বারে জানালে আপনার সম্পূর্ণ টাকা টাই আপনি ফেরত পাবেন।
                 </p>
@@ -65,7 +70,7 @@ export function GuaranteeSection() {
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <p className="font-bold text-emerald-700 dark:text-emerald-300 text-base sm:text-lg">
-                  তবে, মিল্কিমম খেলে বুকের দুধ আসবেই ইনশাআল্লাহ।
+                  তবে, {brandName} খেলে বুকের দুধ আসবেই ইনশাআল্লাহ।
                 </p>
               </div>
             </div>
@@ -83,7 +88,7 @@ export function GuaranteeSection() {
                   </span>
                 </div>
                 <p className="text-center">
-                  মিল্কিমম খেয়ে{" "}
+                  {brandName} খেয়ে{" "}
                   <span className="text-primary font-black text-lg sm:text-2xl px-1">
                     {formattedMotherCount}
                   </span>{" "}

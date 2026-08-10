@@ -19,7 +19,10 @@ function WhatsAppIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+import { useLandingPageContent } from "./landing-page-content-provider";
+
 export function FloatingActions() {
+  const { content } = useLandingPageContent();
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   useEffect(() => {
@@ -35,9 +38,11 @@ export function FloatingActions() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const rawPhone = siteConfig.phone.replace(/[^0-9]/g, "");
-  const whatsappUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(
-    "হ্যালো মিল্কিমম, আমি বিস্তারিত জানতে চাই।"
+  const displayPhone = content.footerPhone || siteConfig.phone;
+  const rawPhone = displayPhone.replace(/[^0-9]/g, "");
+  const brandName = content.productName || "মিল্কিমম";
+  const whatsappUrl = `https://wa.me/88${rawPhone}?text=${encodeURIComponent(
+    `হ্যালো ${brandName}, আমি বিস্তারিত জানতে চাই।`
   )}`;
 
   return (

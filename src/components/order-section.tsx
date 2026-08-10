@@ -299,9 +299,10 @@ export function OrderSection() {
   async function executeSaveOrder() {
     setStatus("submitting");
 
+    const productNameEn = content.productNameEn || (content.productSlug === "smoothflow" ? "SmoothFlow" : "Milkimom");
     const { fbp, fbc } = getFbBrowserIds();
     const result = await saveOrder({
-      product: "Milkimom Complete Dose",
+      product: `${productNameEn} Complete Dose`,
       customerName: form.name.trim() || "গ্রাহক",
       phone: form.phone.trim(),
       district: form.district || "",
@@ -578,7 +579,7 @@ export function OrderSection() {
               
               <div className="mt-3 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  {singleJarPrice.label} মিল্কিমম ({selectedFlavor.name}) ·{" "}
+                  {singleJarPrice.label} {content.productName || "মিল্কিমম"} ({selectedFlavor.name}) ·{" "}
                   {singleJarPrice.perJarDays} দিনের ডোজ
                 </span>
                 <div className="text-right">

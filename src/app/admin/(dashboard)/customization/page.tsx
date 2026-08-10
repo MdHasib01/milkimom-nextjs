@@ -126,6 +126,8 @@ export default function AdminCustomizationPage() {
       const data = (result.data as any).data || result.data;
       setContentData({
         productSlug: slug,
+        productName: data.productName || "",
+        productNameEn: data.productNameEn || "",
         announcementText: data.announcementText || "",
         heroBadge: data.heroBadge || "",
         heroTitle: data.heroTitle || "",
@@ -735,12 +737,42 @@ export default function AdminCustomizationPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSaveContent} className="space-y-6">
-                  {/* Announcement Bar Section */}
+                  {/* Product Branding & Announcement Bar Section */}
                   <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 border-b border-border pb-3">
                       <Sparkles size={16} className="text-amber-500" />
-                      Announcement Top Banner
+                      Product Branding & Announcement Top Banner
                     </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-foreground mb-1">
+                          Product Name (Bangla)
+                        </label>
+                        <input
+                          type="text"
+                          value={contentData.productName || ""}
+                          onChange={(e) => setContentData({ ...contentData, productName: e.target.value })}
+                          disabled={isModerator}
+                          placeholder="e.g. স্মুথফ্লো"
+                          className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-foreground mb-1">
+                          Product Name (English)
+                        </label>
+                        <input
+                          type="text"
+                          value={contentData.productNameEn || ""}
+                          onChange={(e) => setContentData({ ...contentData, productNameEn: e.target.value })}
+                          disabled={isModerator}
+                          placeholder="e.g. SmoothFlow"
+                          className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-xs font-bold text-foreground mb-1">
                         Banner Text Announcement

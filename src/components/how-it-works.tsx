@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 import { Float, Reveal } from "@/components/motion/reveal";
@@ -5,6 +7,7 @@ import { RotatingOrbit } from "@/components/rotating-orbit";
 import { SectionCta } from "@/components/section-cta";
 import { GridPattern } from "@/components/grid-pattern";
 import { benefits } from "@/lib/content";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
 const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
@@ -19,6 +22,10 @@ function polarPosition(index: number, total: number) {
 }
 
 export function HowItWorksSection() {
+  const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
+  const brandName = content.productName || "মিল্কিমম";
+  const heroImg = content.heroImage ? getImageUrl(content.heroImage) : "/images/product-jar.webp";
+
   return (
     <section id="benefits" className="relative overflow-hidden mx-auto max-w-6xl px-4 py-16 sm:py-24">
       <GridPattern patternType="dots" size={24} className="opacity-40" />
@@ -30,7 +37,7 @@ export function HowItWorksSection() {
           একটি ডোজে ৫টি উপকারিতা
         </h2>
         <p className="mt-3 text-balance text-muted-foreground">
-          প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি মিল্কিমম মা ও শিশু উভয়ের জন্যই সামগ্রিক
+          প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি {brandName} মা ও শিশু উভয়ের জন্যই সামগ্রিক
           উপকার নিয়ে আসে।
         </p>
       </Reveal>
@@ -41,8 +48,8 @@ export function HowItWorksSection() {
         <div className="absolute inset-0 flex items-center justify-center">
           <Float distance={8} duration={3.5}>
             <Image
-              src="/images/product-jar.webp"
-              alt="মিল্কিমম জার"
+              src={heroImg}
+              alt={`${brandName} জার`}
               width={612}
               height={880}
               className="h-28 w-auto drop-shadow-2xl sm:h-44 md:h-[228px] lg:h-64 xl:h-[300px]"
@@ -64,8 +71,8 @@ export function HowItWorksSection() {
                     {bengaliDigits[index + 1]}
                   </span>
                   <p className="text-[11px] leading-tight sm:text-sm sm:leading-snug md:text-base lg:text-lg">
-                    <span className="font-bold text-brand-crimson">{benefit.accent}</span>{" "}
-                    <span className="font-normal text-foreground">{benefit.rest}</span>
+                    <span className="font-bold text-brand-crimson">{replaceBrandName(benefit.accent)}</span>{" "}
+                    <span className="font-normal text-foreground">{replaceBrandName(benefit.rest)}</span>
                   </p>
                 </div>
               </Reveal>

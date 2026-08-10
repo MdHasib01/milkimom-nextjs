@@ -5,6 +5,8 @@ import { API_ENDPOINTS, API_BASE_URL } from "@/lib/api-config";
 
 export interface LandingPageSectionContent {
   productSlug: string;
+  productName: string;
+  productNameEn: string;
   announcementText: string;
   heroBadge: string;
   heroTitle: string;
@@ -31,6 +33,8 @@ export interface LandingPageSectionContent {
 const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
   milkimom: {
     productSlug: "milkimom",
+    productName: "মিল্কিমম",
+    productNameEn: "Milkimom",
     announcementText: "🎉 ১ম অর্ডারেই ১০০% ক্যাশ অন ডেলিভারি এবং সারাদেশে হোম ডেলিভারি ফ্রি!",
     heroBadge: "১০০% সাইডইফেক্ট মুক্ত ও ন্যাচারাল",
     heroTitle: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!",
@@ -55,6 +59,8 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
   },
   smoothflow: {
     productSlug: "smoothflow",
+    productName: "স্মুথফ্লো",
+    productNameEn: "SmoothFlow",
     announcementText: "⚡ স্মুথফ্লো বিশেষ অফার! সারাদেশে ফ্রি ডেলিভারি ও দ্রুত সার্ভিস!",
     heroBadge: "স্মুথফ্লো প্রিমিয়াম ন্যাচারাল ফর্মুলা",
     heroTitle: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান!",
@@ -82,9 +88,11 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
 const LandingPageContentContext = createContext<{
   content: LandingPageSectionContent;
   getImageUrl: (url?: string) => string;
+  replaceBrandName: (text: string) => string;
 }>({
   content: DEFAULT_SECTION_CONTENTS.milkimom,
   getImageUrl: (url?: string) => url || "",
+  replaceBrandName: (text: string) => text,
 });
 
 export function LandingPageContentProvider({
@@ -108,6 +116,8 @@ export function LandingPageContentProvider({
           if (json.success && json.data && isMounted) {
             setContent({
               productSlug: json.data.productSlug || productSlug,
+              productName: json.data.productName || initialContent.productName,
+              productNameEn: json.data.productNameEn || initialContent.productNameEn,
               announcementText: json.data.announcementText || initialContent.announcementText,
               heroBadge: json.data.heroBadge || initialContent.heroBadge,
               heroTitle: json.data.heroTitle || initialContent.heroTitle,
@@ -142,7 +152,7 @@ export function LandingPageContentProvider({
     return () => {
       isMounted = false;
     };
-  }, [productSlug]);
+  }, [productSlug, initialContent]);
 
   function getImageUrl(url?: string): string {
     if (!url) return "";
@@ -150,8 +160,15 @@ export function LandingPageContentProvider({
     return `${API_BASE_URL}${url}`;
   }
 
+  function replaceBrandName(text: string): string {
+    if (!text) return "";
+    if (content.productSlug === "milkimom") return text;
+    const targetBrand = content.productName || "স্মুথফ্লো";
+    return text.replace(/মিল্কিমম/g, targetBrand).replace(/Milkimom/g, content.productNameEn || "SmoothFlow");
+  }
+
   return (
-    <LandingPageContentContext.Provider value={{ content, getImageUrl }}>
+    <LandingPageContentContext.Provider value={{ content, getImageUrl, replaceBrandName }}>
       {children}
     </LandingPageContentContext.Provider>
   );

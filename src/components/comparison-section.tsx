@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { Check } from "lucide-react";
 
@@ -5,6 +7,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { SectionCta } from "@/components/section-cta";
 import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
 const comparisonPoints = [
   "মিল্কিমম একটি পার্মানেন্ট সলিউশন।",
@@ -16,6 +19,9 @@ const comparisonPoints = [
 ];
 
 export function ComparisonSection() {
+  const { content, replaceBrandName } = useLandingPageContent();
+  const brandName = content.productName || siteConfig.name;
+
   return (
     <section id="compare" className="relative overflow-hidden py-16 sm:py-24">
       <GridPattern size={28} className="opacity-50" />
@@ -30,7 +36,7 @@ export function ComparisonSection() {
       <div className="mx-auto max-w-4xl px-4">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
-            অন্যান্য মেডিসিন এবং <span className="text-primary">"{siteConfig.name}"</span> সম্পূর্ণ আলাদা।
+            অন্যান্য মেডিসিন এবং <span className="text-primary">&quot;{brandName}&quot;</span> সম্পূর্ণ আলাদা।
           </h2>
         </Reveal>
 
@@ -48,14 +54,14 @@ export function ComparisonSection() {
                   <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary shadow-sm bg-card">
                     <Check className="size-4 stroke-[3]" />
                   </div>
-                  <span>{point}</span>
+                  <span>{replaceBrandName(point)}</span>
                 </RevealItem>
               ))}
             </RevealGroup>
 
             <Reveal delay={0.3} className="mt-8 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 p-4 sm:p-5 text-center backdrop-blur-[2px]">
               <p className="font-heading text-lg font-bold text-primary sm:text-xl">
-                তাই নিশ্চিন্তে মিল্কিমমের উপর আস্থা রাখতে পারেন।
+                তাই নিশ্চিন্তে {brandName} এর উপর আস্থা রাখতে পারেন।
               </p>
             </Reveal>
           </div>

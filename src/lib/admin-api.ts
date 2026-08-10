@@ -386,6 +386,8 @@ export function createCustomizationTheme(data: Partial<LandingPageTheme>) {
 export interface LandingPageContentData {
   _id?: string;
   productSlug: string;
+  productName?: string;
+  productNameEn?: string;
   announcementText?: string;
   heroBadge?: string;
   heroTitle?: string;

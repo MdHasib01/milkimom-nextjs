@@ -70,7 +70,7 @@ export function LandingPageThemeProvider({
     return () => {
       isMounted = false;
     };
-  }, [productSlug]);
+  }, [productSlug, initialColors]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -87,11 +87,41 @@ export function LandingPageThemeProvider({
     root.style.setProperty("--background", theme.backgroundColor);
     root.style.setProperty("--ring", theme.accentColor);
     root.style.setProperty("--sidebar-primary", theme.themeColor);
-  }, [theme]);
 
-  // Inline CSS string to prevent Flash of Unstyled Content (FOUC)
+    return () => {
+      // Restore default milkimom theme properties when unmounting a non-default theme page
+      if (productSlug !== "milkimom") {
+        const defaultTheme = DEFAULT_THEME_COLORS.milkimom;
+        root.style.setProperty("--brand-crimson", defaultTheme.themeColor);
+        root.style.setProperty("--brand-coral", defaultTheme.accentColor);
+        root.style.setProperty("--brand-cta", defaultTheme.ctaColor);
+        root.style.setProperty("--brand-cta-foreground", defaultTheme.ctaTextColor);
+        root.style.setProperty("--brand-cream", defaultTheme.backgroundColor);
+
+        root.style.setProperty("--primary", defaultTheme.themeColor);
+        root.style.setProperty("--secondary", defaultTheme.accentColor);
+        root.style.setProperty("--background", defaultTheme.backgroundColor);
+        root.style.setProperty("--ring", defaultTheme.accentColor);
+        root.style.setProperty("--sidebar-primary", defaultTheme.themeColor);
+      }
+    };
+  }, [theme, productSlug]);
+
+  const containerStyle = {
+    "--brand-crimson": theme.themeColor,
+    "--brand-coral": theme.accentColor,
+    "--brand-cta": theme.ctaColor,
+    "--brand-cta-foreground": theme.ctaTextColor,
+    "--brand-cream": theme.backgroundColor,
+    "--primary": theme.themeColor,
+    "--secondary": theme.accentColor,
+    "--background": theme.backgroundColor,
+    "--ring": theme.accentColor,
+    "--sidebar-primary": theme.themeColor,
+  } as React.CSSProperties;
+
   const dynamicCss = `
-    :root {
+    :root, .theme-scope-${productSlug} {
       --brand-crimson: ${theme.themeColor};
       --brand-coral: ${theme.accentColor};
       --brand-cta: ${theme.ctaColor};
@@ -106,9 +136,9 @@ export function LandingPageThemeProvider({
   `;
 
   return (
-    <>
+    <div className={`theme-scope-${productSlug} min-h-screen w-full`} style={containerStyle}>
       <style dangerouslySetInnerHTML={{ __html: dynamicCss }} />
       {children}
-    </>
+    </div>
   );
 }

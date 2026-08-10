@@ -140,11 +140,24 @@ function SpecialtyCard({ item }: { item: SpecialtyItem }) {
  * Now a single list renders once and CSS decides the shape: a scroll-snap rail
  * on mobile (which also buys native swipe) and a wrapping grid from `sm` up.
  */
+import { useLandingPageContent } from "./landing-page-content-provider";
+
 export function SpecialtiesSection() {
+  const { content, replaceBrandName } = useLandingPageContent();
+  const brandName = content.productName || "মিল্কিমম";
   const trackRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isInView, setIsInView] = useState(false);
+
+  const formattedSpecialties = specialties.map((sp) => ({
+    ...sp,
+    title: replaceBrandName(sp.title),
+    description: sp.description?.map((line) => (typeof line === "string" ? replaceBrandName(line) : line)),
+    introText: typeof sp.introText === "string" ? replaceBrandName(sp.introText) : sp.introText,
+    bullets: sp.bullets?.map((b) => (typeof b === "string" ? replaceBrandName(b) : b)),
+    footerText: typeof sp.footerText === "string" ? replaceBrandName(sp.footerText) : sp.footerText,
+  }));
 
   /** Scrolls the rail. A no-op on `sm` and up, where the track does not scroll. */
   const goToIndex = useCallback((index: number) => {
@@ -218,7 +231,7 @@ export function SpecialtiesSection() {
       <div className="mx-auto max-w-6xl px-4">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-balance font-heading text-2xl font-bold text-primary sm:text-3xl lg:text-4xl">
-            মিল্কিমম এর বিশেষত্ব
+            {brandName} এর বিশেষত্ব
           </h2>
         </Reveal>
 
@@ -236,7 +249,7 @@ export function SpecialtiesSection() {
             stagger={0.1}
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:justify-center sm:gap-6 sm:overflow-x-visible sm:pb-0 sm:snap-none"
           >
-            {specialties.map((item) => (
+            {formattedSpecialties.map((item) => (
               <RevealItem
                 key={item.number}
                 className="flex w-full shrink-0 snap-start sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"

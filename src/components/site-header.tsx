@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/sheet";
 import { navLinks, siteConfig } from "@/lib/content";
 import { cn } from "@/lib/utils";
+import { useLandingPageContent } from "./landing-page-content-provider";
 
 export function SiteHeader() {
+  const { content } = useLandingPageContent();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,10 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const displayPhone = content.footerPhone || siteConfig.phoneDisplay;
+  const rawPhone = displayPhone.replace(/[^0-9]/g, "");
+  const brandTitle = content.productName ? `${content.productName}™` : siteConfig.name;
 
   return (
     <header
@@ -36,14 +42,20 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link href="#top" className="flex shrink-0 items-center gap-2">
-          <Image
-            src="/images/logo.webp"
-            alt={siteConfig.name}
-            width={140}
-            height={92}
-            className="h-14 w-auto sm:h-16"
-            priority
-          />
+          {content.productSlug === "smoothflow" ? (
+            <span className="font-heading text-2xl font-extrabold text-primary tracking-tight">
+              {brandTitle}
+            </span>
+          ) : (
+            <Image
+              src="/images/logo.webp"
+              alt={brandTitle}
+              width={140}
+              height={92}
+              className="h-14 w-auto sm:h-16"
+              priority
+            />
+          )}
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex">
@@ -64,9 +76,9 @@ export function SiteHeader() {
             variant="outline"
             className="hidden h-10 gap-2 rounded-full border-brand-coral/40 px-4 text-brand-crimson hover:bg-brand-coral/10 sm:inline-flex"
           >
-            <a href={`tel:${siteConfig.phone}`}>
+            <a href={`tel:${rawPhone}`}>
               <Phone className="size-4" />
-              {siteConfig.phoneDisplay}
+              {displayPhone}
             </a>
           </Button>
 
@@ -88,7 +100,7 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent side="right" className="w-4/5">
               <SheetHeader>
-                <SheetTitle>{siteConfig.name}</SheetTitle>
+                <SheetTitle>{brandTitle}</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-4">
                 {navLinks.map((link) => (

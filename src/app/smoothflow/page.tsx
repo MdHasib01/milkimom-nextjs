@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { LandingPageThemeProvider } from "@/components/landing-page-theme-provider";
 import { LandingPageContentProvider } from "@/components/landing-page-content-provider";
 import { AnnouncementBar } from "@/components/announcement-bar";
@@ -15,6 +16,20 @@ import { FaqSection } from "@/components/faq-section";
 import { SiteFooter } from "@/components/site-footer";
 import { StickyMobileBar } from "@/components/sticky-mobile-bar";
 import { FloatingActions } from "@/components/floating-actions";
+
+export const metadata: Metadata = {
+  title: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান! | স্মুথফ্লো™",
+  description:
+    "প্রাকৃতিক উপাদানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশুর জন্য নিয়ে এলো অতুলনীয় পুষ্টি সুরক্ষা ও স্থায়ী ফলাফল।",
+  openGraph: {
+    title: "স্মুথফ্লো - মা ও শিশুর পরিপূর্ণ পুষ্টির আধুনিক সমাধান! | স্মুথফ্লো™",
+    description:
+      "প্রাকৃতিক উপাদানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশুর জন্য নিয়ে এলো অতুলনীয় পুষ্টি সুরক্ষা ও স্থায়ী ফলাফল।",
+    siteName: "স্মুথফ্লো™",
+    locale: "bn_BD",
+    type: "website",
+  },
+};
 
 export default function SmoothFlowLandingPage() {
   return (

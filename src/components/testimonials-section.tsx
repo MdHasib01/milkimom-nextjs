@@ -11,7 +11,11 @@ import { testimonials } from "@/lib/content";
 import { FALLBACK_MOTHER_COUNT, useMotherCount } from "@/lib/mother-count";
 import { formatBengaliNumber } from "@/lib/number-utils";
 
+import { useLandingPageContent } from "./landing-page-content-provider";
+
 function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: number }) {
+  const { content, replaceBrandName } = useLandingPageContent();
+  const brandName = content.productName || "মিল্কিমম";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -21,7 +25,7 @@ function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: n
     {
       id: 1,
       image: "/assets/carousel/doctor.webp",
-      alt: "ডাক্তারের পরামর্শ ও মা ও শিশুর যত্ন",
+      alt: `ডাক্তারের পরামর্শ ও মা ও শিশুর যত্ন`,
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: "বিশেষজ্ঞ ডাক্তারের পরামর্শ ও ১০০% সঠিক পুষ্টিতে আপনার শিশুর সুস্থ বিকাশ নিশ্চিত করুন।",
       tag: "ডাক্তারের পরামর্শ",
@@ -29,7 +33,7 @@ function CareCarousel({ motherCount = FALLBACK_MOTHER_COUNT }: { motherCount?: n
     {
       id: 2,
       image: "/assets/carousel/pic2.webp",
-      alt: "মায়ের স্বাস্থ্যে মিল্কিমম",
+      alt: `মায়ের স্বাস্থ্যে ${brandName}`,
       title: "মা ও শিশুর যত্নে একটুও ছাড় নয়!",
       description: "১০০% প্রাকৃতিক উপাদান সমৃদ্ধ যা মায়ের বুকের দুধ বাড়াতে শতভাগ কার্যকর।",
       tag: "প্রাকৃতিক সুরক্ষা",

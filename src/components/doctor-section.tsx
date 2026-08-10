@@ -32,9 +32,15 @@ const defaultDoctors = [
 ];
 
 export function DoctorSection() {
-  const { content, getImageUrl } = useLandingPageContent();
+  const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
+  const brandName = content.productName || "মিল্কিমম";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  const formattedDefaultDoctors = defaultDoctors.map((doc) => ({
+    ...doc,
+    description: replaceBrandName(doc.description),
+  }));
 
   // If custom doctor data exists, integrate it into the list
   const doctorList = content.doctorName ? [
@@ -46,8 +52,8 @@ export function DoctorSection() {
       subtitle: content.doctorTitle || "চিকিৎসকের সুপারিশকৃত প্রোডাক্ট",
       description: content.doctorQuote || "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি। এটি সম্পূর্ণ প্রাকৃতিক উপাদানে তৈরি যা নিরাপদভাবে কার্যকর সাহায্য করে।",
     },
-    ...defaultDoctors,
-  ] : defaultDoctors;
+    ...formattedDefaultDoctors,
+  ] : formattedDefaultDoctors;
 
   const nextDoctor = () => {
     setCurrentIndex((prev) => (prev + 1) % doctorList.length);
@@ -72,7 +78,7 @@ export function DoctorSection() {
       <GridPattern patternType="cross" size={32} className="opacity-45" />
       <Reveal className="mx-auto mb-10 max-w-3xl text-center">
         <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">
-          মিল্কিমমের উপর আস্থা রেখেছেন দেশের স্বনামধন্য হসপিটাল এবং{" "}
+          {brandName} এর উপর আস্থা রেখেছেন দেশের স্বনামধন্য হসপিটাল এবং{" "}
           <span className="text-primary">অসংখ্য ডাক্তার</span>
         </h2>
       </Reveal>
