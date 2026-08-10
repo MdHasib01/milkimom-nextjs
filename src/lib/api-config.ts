@@ -47,4 +47,8 @@ export const API_ENDPOINTS = {
   unfinishedOrderById: (id: string) => `${API_BASE_URL}/api/unfinished-orders/${id}`,
   unfinishedOrdersBulkDelete: `${API_BASE_URL}/api/unfinished-orders/bulk-delete`,
   unfinishedOrdersSave: `${API_BASE_URL}/api/unfinished-orders/save`,
+  customizationPublic: (slug?: string) => `${API_BASE_URL}/api/customization/public${slug ? `/${slug}` : ""}`,
+  customizationAdmin: `${API_BASE_URL}/api/customization/admin`,
+  customizationAdminBySlug: (slug: string) => `${API_BASE_URL}/api/customization/admin/${slug}`,
+  customizationReset: (slug: string) => `${API_BASE_URL}/api/customization/admin/${slug}/reset`,
 } as const;

@@ -18,6 +18,7 @@ import {
   Lock,
   KeyRound,
   Loader2,
+  Palette,
 } from "lucide-react";
 
 import { getToken, getStoredUser, logout, changePassword } from "@/lib/admin-api";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", Icon: ShoppingCart },
   { href: "/admin/products", label: "Products", Icon: Package },
+  { href: "/admin/customization", label: "Customization", Icon: Palette },
   { href: "/admin/users", label: "User Management", Icon: Users },
   { href: "/admin/settings", label: "Settings", Icon: Settings },
 ];

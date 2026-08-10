@@ -343,3 +343,42 @@ export function bulkDeleteUnfinishedOrders(ids: string[]) {
     body: JSON.stringify({ ids }),
   });
 }
+
+export interface LandingPageTheme {
+  _id?: string;
+  productSlug: string;
+  name: string;
+  themeColor: string;
+  accentColor: string;
+  ctaColor: string;
+  ctaTextColor: string;
+  backgroundColor: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export function fetchCustomizationThemes() {
+  return authRequest<{ data: LandingPageTheme[]; defaultPresets: Record<string, LandingPageTheme> }>(
+    API_ENDPOINTS.customizationAdmin
+  );
+}
+
+export function updateCustomizationTheme(slug: string, data: Partial<LandingPageTheme>) {
+  return authRequest<LandingPageTheme>(API_ENDPOINTS.customizationAdminBySlug(slug), {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function resetCustomizationTheme(slug: string) {
+  return authRequest<LandingPageTheme>(API_ENDPOINTS.customizationReset(slug), {
+    method: "POST",
+  });
+}
+
+export function createCustomizationTheme(data: Partial<LandingPageTheme>) {
+  return authRequest<LandingPageTheme>(API_ENDPOINTS.customizationAdmin, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
