@@ -58,27 +58,31 @@ export function SmoothflowPricing() {
         </div>
 
         <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-brand/10 flex flex-col md:flex-row overflow-hidden">
-          <div className="md:w-2/5 bg-brand-light relative p-6 md:p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-brand/10">
+          <div className="md:w-1/2 bg-brand-light relative min-h-[300px] sm:min-h-[360px] md:min-h-[420px] flex items-center justify-center border-b md:border-b-0 md:border-r border-brand/10 overflow-hidden">
             {/* Mega Offer Sticker */}
             <div className="absolute top-5 left-5 z-20 -rotate-[8deg] bg-brand text-white px-3 py-1.5 rounded-xl shadow-lg border border-white/20 flex flex-col items-center justify-center">
               <span className="text-[10px] font-bold tracking-widest leading-none mb-0.5">MEGA OFFER</span>
               <span className="text-sm font-black leading-none">42% OFF</span>
             </div>
 
-            {/* Visual representation of product */}
-            <div className="relative z-10 w-44 h-56 bg-white rounded-2xl shadow-sm border border-brand/10 flex flex-col items-center justify-center p-3 overflow-hidden">
-              <img
-                src={productImage}
-                alt={content.productNameEn || "SmoothFlow"}
-                className="w-full h-full object-contain drop-shadow-md"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/images/smoothflow.png";
-                }}
-              />
-            </div>
+            {/* Visual representation of product - full space */}
+            <img
+              src="/images/smoothflow/Hero Image.jpg"
+              alt={content.productNameEn || "SmoothFlow"}
+              className="w-full h-full object-cover object-center min-h-[300px] md:min-h-full"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.dataset.retried) {
+                  target.dataset.retried = "true";
+                  target.src = "/images/smoothflow/Hero Image.png";
+                } else {
+                  target.src = productImage;
+                }
+              }}
+            />
           </div>
 
-          <div className="md:w-3/5 p-6 md:p-10 flex flex-col justify-center">
+          <div className="md:w-1/2 p-6 md:p-10 flex flex-col justify-center">
             <div className="flex flex-col items-center md:items-start mb-8 text-center md:text-left">
               <div className="flex items-center gap-3 justify-center md:justify-start w-full">
                 <span className="text-xl md:text-2xl text-[#1A1A1A]/40 line-through decoration-2 font-bold">
