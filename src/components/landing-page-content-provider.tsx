@@ -107,11 +107,11 @@ const DEFAULT_BENEFITS_MILKIMOM: BenefitItemData[] = [
 ];
 
 const DEFAULT_BENEFITS_SMOOTHFLOW: BenefitItemData[] = [
-  { id: "1", accent: "বুকের দুধ", rest: "স্থায়ীভাবে বাড়ায়", sortOrder: 1 },
-  { id: "2", accent: "বুকের দুধের", rest: "সব পুষ্টিগুণ বজায় রাখে", sortOrder: 2 },
-  { id: "3", accent: "ফর্মুলা দুধের", rest: "খরচ বাঁচায়", sortOrder: 3 },
-  { id: "4", accent: "বুকের দুধ", rest: "পাতলা হলে ঘন করে", sortOrder: 4 },
-  { id: "5", accent: "বন্ধ হয়ে যাওয়া", rest: "বুকের দুধ পুনরায় তৈরি করে", sortOrder: 5 },
+  { id: "1", accent: "Breast Pain", rest: "থেকে মুক্তি দেয়", sortOrder: 1 },
+  { id: "2", accent: "শক্ত/চাকা-চাকা অনুভূতি", rest: "থেকে মুক্তি দেয়", sortOrder: 2 },
+  { id: "3", accent: "Breast Pressure", rest: "কমায়", sortOrder: 3 },
+  { id: "4", accent: "Clogged Duct", rest: "থেকে মুক্তি দেয়", sortOrder: 4 },
+  { id: "5", accent: "Feeding-এর পরও", rest: "রিলিফ আসে", sortOrder: 5 },
 ];
 
 const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
@@ -178,7 +178,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     footerEmail: "smoothflow@milkimom.com",
     footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
     howItWorksBadge: "কি কাজ করে?",
-    howItWorksTitle: "SmoothFlow এর উপকারিতা",
+    howItWorksTitle: "একটি ডোজে ৫টি উপকারিতা",
     howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
     howItWorksImage: "/images/smoothflow.png",
     benefitsItems: DEFAULT_BENEFITS_SMOOTHFLOW,

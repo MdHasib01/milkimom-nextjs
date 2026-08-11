@@ -21,23 +21,23 @@ function toBengaliNumber(num: number): string {
 }
 
 const defaultBenefits = [
-  { accent: "বুকের দুধ", rest: "স্থায়ীভাবে বাড়ায়" },
-  { accent: "বুকের দুধের", rest: "সব পুষ্টিগুণ বজায় রাখে" },
-  { accent: "ফর্মুলা দুধের", rest: "খরচ বাঁচায়" },
-  { accent: "বুকের দুধ", rest: "পাতলা হলে ঘন করে" },
-  { accent: "বন্ধ হয়ে যাওয়া", rest: "বুকের দুধ পুনরায় তৈরি করে" },
+  { accent: "Breast Pain", rest: "থেকে মুক্তি দেয়" },
+  { accent: "শক্ত/চাকা-চাকা অনুভূতি", rest: "থেকে মুক্তি দেয়" },
+  { accent: "Breast Pressure", rest: "কমায়" },
+  { accent: "Clogged Duct", rest: "থেকে মুক্তি দেয়" },
+  { accent: "Feeding-এর পরও", rest: "রিলিফ আসে" },
 ];
 
 export function SmoothflowBenefits() {
   const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
-  const title = content.howItWorksTitle || "SmoothFlow এর উপকারিতা";
+  const title = content.howItWorksTitle || "একটি ডোজে ৫টি উপকারিতা";
 
   const rawImg = content.howItWorksImage && content.howItWorksImage.trim()
     ? content.howItWorksImage
     : "/images/smoothflow.png";
   const jarImg = getImageUrl(rawImg, "/images/smoothflow.png");
 
-  const benefitsList = Array.isArray(content.benefitsItems) && content.benefitsItems.length > 0
+  const benefitsList = Array.isArray(content.benefitsItems) && content.benefitsItems.length > 0 && content.benefitsItems[0]?.accent !== "বুকের দুধ"
     ? content.benefitsItems
     : defaultBenefits;
 
