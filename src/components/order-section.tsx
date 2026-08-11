@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { singleJarPrice, smoothflowSingleJarPrice } from "@/lib/content";
-import { useFlavors } from "@/lib/use-flavours";
+import { useFlavors, type DisplayFlavor } from "@/lib/use-flavours";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { getFbBrowserIds, trackInitiateCheckout } from "@/lib/fbpixel";
 import { cn } from "@/lib/utils";
@@ -402,112 +402,37 @@ export function OrderSection() {
           className="grid grid-cols-1 gap-6 rounded-2xl xs:rounded-3xl border border-border/80 bg-card p-3.5 xs:p-5 sm:p-7 md:p-8 shadow-sm sm:shadow-md lg:grid-cols-12 lg:items-start"
           noValidate
         >
-          {/* Left Column: Product Flavors & Delivery Form (7 cols on lg) */}
+          {/* Left Column: Delivery Form (7 cols on lg) */}
           <div className="space-y-6 lg:col-span-7 min-w-0">
-            <div>
-              <span className="text-xs xs:text-sm font-semibold uppercase tracking-wider text-brand-crimson">
-                স্বাদ বেছে নিন
-              </span>
-              <h3 className="mt-1 font-heading text-base xs:text-lg sm:text-xl font-bold text-foreground">
-                ৪টি সুস্বাদু ফ্লেভারে পাওয়া যাচ্ছে
-              </h3>
-              <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-crimson flex items-center gap-1 lg:hidden">
-                <span>পছন্দসই স্বাদ নির্বাচন করে নিচে আপনার ডেলিভারি তথ্য পূরণ করুন</span>
-                <ArrowDown className="size-3.5 shrink-0 text-brand-crimson animate-bounce" />
-              </p>
-            </div>
-
-            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
-              {effectiveFlavors.map((flavor) => {
-                const isSelected = flavor.id === selectedFlavor.id;
-                return (
-                  <RevealItem key={flavor.id} className="h-full">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedFlavorId(flavor.id)}
-                      aria-pressed={isSelected}
-                      className={cn(
-                        "group relative flex w-full h-full items-center gap-3 xs:gap-3.5 rounded-xl xs:rounded-2xl border-2 p-3 xs:p-3.5 text-left transition-all duration-200 min-h-[100px] xs:min-h-[110px] active:scale-[0.99]",
-                        isSelected
-                          ? "border-primary bg-primary/[0.03] shadow-md shadow-brand-crimson/10 ring-1 ring-primary/20"
-                          : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
-                      )}
-                    >
-                      {flavor.tag && (
-                        <span
-                          className={cn(
-                            "absolute -top-2.5 right-2.5 xs:right-3.5 rounded-full px-2 xs:px-2.5 py-0.5 text-[10px] xs:text-[11px] font-bold shadow-xs z-10 max-w-[85%] truncate",
-                            flavor.popular
-                              ? "bg-brand-crimson text-white"
-                              : "bg-muted border border-border text-foreground/80"
-                          )}
-                        >
-                          {flavor.tag}
-                        </span>
-                      )}
-
-                      {/* Product Image with Flavor-Specific Accent Color Background */}
-                      <div
-                        className={cn(
-                          "relative flex size-14 xs:size-16 sm:size-20 shrink-0 items-center justify-center rounded-xl p-1 border transition-transform duration-200 group-hover:scale-105 overflow-hidden",
-                          flavor.accentBg,
-                          `bg-gradient-to-br ${flavor.accentGradient}`
-                        )}
-                      >
-                        <img
-                          src={flavor.image || "/images/product-jar.webp"}
-                          alt={flavor.name}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/images/product-jar.webp";
-                          }}
-                          className="h-full w-auto max-w-full object-contain drop-shadow-xs transition-transform duration-200 group-hover:scale-110"
-                        />
-                      </div>
-
-                      {/* Text Content Beside Product Image */}
-                      <div className="flex flex-1 flex-col justify-center min-w-0 pr-5 sm:pr-6">
-                        <span className="font-heading text-sm xs:text-base font-bold text-foreground leading-tight truncate xs:whitespace-normal">
-                          {flavor.name}
-                        </span>
-                        <p className="mt-0.5 text-[11px] xs:text-xs text-muted-foreground line-clamp-2 leading-relaxed whitespace-pre-line">
-                          {flavor.description}
-                        </p>
-                        <div className="mt-1 xs:mt-1.5 flex items-center gap-1.5 xs:gap-2 flex-wrap">
-                          <span className="font-heading text-xs xs:text-sm sm:text-base font-extrabold text-primary">
-                            ৳{flavor.salePrice.toLocaleString("bn-BD")}
-                          </span>
-                          {flavor.regularPrice > flavor.salePrice && (
-                            <span className="text-[10px] xs:text-xs text-muted-foreground line-through decoration-muted-foreground/70">
-                              ৳{flavor.regularPrice.toLocaleString("bn-BD")}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Radio / Selection Checkbox Indicator */}
-                      <span
-                        className={cn(
-                          "absolute right-2.5 bottom-2.5 xs:right-3 xs:bottom-3 flex size-4.5 xs:size-5 items-center justify-center rounded-full border-2 transition-all shrink-0",
-                          isSelected
-                            ? "border-primary bg-primary text-primary-foreground scale-105"
-                            : "border-muted-foreground/30 bg-background"
-                        )}
-                      >
-                        {isSelected && <CheckCircle2 className="size-3 xs:size-3.5 text-white" />}
-                      </span>
-                    </button>
-                  </RevealItem>
-                );
-              })}
-            </RevealGroup>
-
-            <div className="space-y-4 border-t border-border/60 pt-5">
+            <div className="space-y-4">
               <h3 className="font-heading text-base xs:text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
                 <Truck className="size-4.5 xs:size-5 text-primary shrink-0" />
                 <span>ডেলিভারি তথ্য</span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 xs:gap-4">
+                {/* Flavour Dropdown Selection */}
+                <div className="grid gap-1.5 col-span-full">
+                  <Label htmlFor="flavor-select" className="text-xs xs:text-sm font-semibold flex items-center justify-between">
+                    <span>পছন্দসই ফ্লেভার সিলেক্ট করুন *</span>
+                    <span className="text-[11px] text-brand-crimson font-bold">
+                      ({effectiveFlavors.length}টি ফ্লেভারে পাওয়া যাচ্ছে)
+                    </span>
+                  </Label>
+                  <select
+                    id="flavor-select"
+                    value={selectedFlavor.id}
+                    onChange={(e) => setSelectedFlavorId(e.target.value)}
+                    className="h-11 xs:h-12 w-full rounded-xl border-2 border-primary/40 bg-background px-3.5 text-xs xs:text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer shadow-xs"
+                  >
+                    {effectiveFlavors.map((flavor) => (
+                      <option key={flavor.id} value={flavor.id}>
+                        {flavor.name} {flavor.tag ? `(${flavor.tag})` : ""} — ৳{flavor.salePrice.toLocaleString("bn-BD")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Field 1: Full Name */}
                 <div className="grid gap-1.5 col-span-full sm:col-span-1">
                   <Label htmlFor="name" className="text-xs xs:text-sm font-medium">পূর্ণ নাম</Label>

@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
 import { TrustBadgesBar } from "@/components/trust-badges";
 import { HowItWorksSection } from "@/components/how-it-works";
+import { FlavorsSection } from "@/components/flavors-section";
 import { SpecialtiesSection } from "@/components/specialties-section";
 import { ComparisonSection } from "@/components/comparison-section";
 import { DoctorSection } from "@/components/doctor-section";
@@ -26,6 +27,7 @@ export default function Home() {
           <TrustBadgesBar />
           <HowItWorksSection />
           <SpecialtiesSection />
+          <FlavorsSection />
           <ComparisonSection />
           <DoctorSection />
           <TestimonialsSection />
