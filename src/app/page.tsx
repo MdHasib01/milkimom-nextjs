@@ -1,3 +1,4 @@
+import { LandingPageContentProvider } from "@/components/landing-page-content-provider";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
@@ -16,24 +17,27 @@ import { FloatingActions } from "@/components/floating-actions";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen w-full max-w-full overflow-x-clip">
-      <AnnouncementBar />
-      <SiteHeader />
-      <main className="pb-24 sm:pb-0">
-        <HeroSection />
-        <TrustBadgesBar />
-        <HowItWorksSection />
-        <SpecialtiesSection />
-        <ComparisonSection />
-        <DoctorSection />
-        <TestimonialsSection />
-        <OrderSection />
-        <FaqSection />
-        <GuaranteeSection />
-      </main>
-      <SiteFooter />
-      <StickyMobileBar />
-      <FloatingActions />
-    </div>
+    <LandingPageContentProvider productSlug="milkimom" showLoader={true}>
+      <div className="relative min-h-screen w-full max-w-full overflow-x-clip">
+        <AnnouncementBar />
+        <SiteHeader />
+        <main className="pb-24 sm:pb-0">
+          <HeroSection />
+          <TrustBadgesBar />
+          <HowItWorksSection />
+          <SpecialtiesSection />
+          <ComparisonSection />
+          <DoctorSection />
+          <TestimonialsSection />
+          <OrderSection />
+          <FaqSection />
+          <GuaranteeSection />
+        </main>
+        <SiteFooter />
+        <StickyMobileBar />
+        <FloatingActions />
+      </div>
+    </LandingPageContentProvider>
   );
 }
+

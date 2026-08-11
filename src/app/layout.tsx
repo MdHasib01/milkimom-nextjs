@@ -103,7 +103,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LandingPageThemeProvider productSlug="milkimom">
-          <LandingPageContentProvider productSlug="milkimom">
+          <LandingPageContentProvider productSlug="milkimom" showLoader={false}>
             <MetaPixel />
             <ClarityAnalytics />
             {children}

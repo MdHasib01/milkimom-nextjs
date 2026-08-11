@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { API_ENDPOINTS, API_BASE_URL } from "@/lib/api-config";
+import { LandingPageLoader } from "@/components/landing-page-loader";
 
 import { type CarouselItemData, type DoctorItemData, type BenefitItemData } from "@/lib/admin-api";
 
@@ -190,36 +191,55 @@ const LandingPageContentContext = createContext<{
   content: LandingPageSectionContent;
   getImageUrl: (url?: string, fallbackUrl?: string) => string;
   replaceBrandName: (text: string) => string;
+  isLoading: boolean;
 }>({
   content: DEFAULT_SECTION_CONTENTS.milkimom,
   getImageUrl: (url?: string, fallbackUrl: string = "/images/product-jar.webp") => url || fallbackUrl,
   replaceBrandName: (text: string) => text,
+  isLoading: false,
 });
 
 export function LandingPageContentProvider({
   productSlug = "milkimom",
   overrideContent,
+  showLoader = true,
   children,
 }: {
   productSlug?: string;
   overrideContent?: LandingPageSectionContent;
+  showLoader?: boolean;
   children: React.ReactNode;
 }) {
   const initialContent = overrideContent || DEFAULT_SECTION_CONTENTS[productSlug] || DEFAULT_SECTION_CONTENTS.milkimom;
   const [content, setContent] = useState<LandingPageSectionContent>(initialContent);
+  const [isLoading, setIsLoading] = useState<boolean>(!overrideContent && showLoader);
 
   useEffect(() => {
-    if (overrideContent) {
-      setContent(overrideContent);
+    if (overrideContent || !showLoader) {
+      if (overrideContent) setContent(overrideContent);
+      setIsLoading(false);
       return;
     }
 
     let isMounted = true;
+    let timerId: NodeJS.Timeout | null = null;
 
     async function fetchContent() {
+      const startTime = Date.now();
+      
+      const timeoutPromise = new Promise<{ isTimeout: boolean }>((resolve) => {
+        timerId = setTimeout(() => {
+          resolve({ isTimeout: true });
+        }, 3000);
+      });
+
       try {
-        const res = await fetch(API_ENDPOINTS.customizationPublicContent(productSlug));
-        if (res.ok) {
+        const fetchPromise = fetch(API_ENDPOINTS.customizationPublicContent(productSlug));
+        const res = await Promise.race([fetchPromise, timeoutPromise]);
+
+        if ("isTimeout" in res && res.isTimeout) {
+          console.warn(`[ContentProvider] Content fetch timed out for ${productSlug}, using default fallback.`);
+        } else if ("ok" in res && res.ok) {
           const json = await res.json();
           if (json.success && json.data && isMounted) {
             setContent({
@@ -267,6 +287,15 @@ export function LandingPageContentProvider({
         }
       } catch (err) {
         console.warn(`[ContentProvider] Could not fetch content for ${productSlug}:`, err);
+      } finally {
+        if (timerId) clearTimeout(timerId);
+        if (isMounted) {
+          const elapsed = Date.now() - startTime;
+          const minDelay = Math.max(0, 300 - elapsed);
+          setTimeout(() => {
+            if (isMounted) setIsLoading(false);
+          }, minDelay);
+        }
       }
     }
 
@@ -274,8 +303,9 @@ export function LandingPageContentProvider({
 
     return () => {
       isMounted = false;
+      if (timerId) clearTimeout(timerId);
     };
-  }, [productSlug, initialContent, overrideContent]);
+  }, [productSlug, initialContent, overrideContent, showLoader]);
 
   function getImageUrl(url?: string, fallbackUrl: string = "/images/product-jar.webp"): string {
     if (!url || !url.trim()) return fallbackUrl;
@@ -303,8 +333,12 @@ export function LandingPageContentProvider({
   }
 
   return (
-    <LandingPageContentContext.Provider value={{ content, getImageUrl, replaceBrandName }}>
-      {children}
+    <LandingPageContentContext.Provider value={{ content, getImageUrl, replaceBrandName, isLoading }}>
+      {showLoader && isLoading ? (
+        <LandingPageLoader productSlug={productSlug} />
+      ) : (
+        children
+      )}
     </LandingPageContentContext.Provider>
   );
 }
@@ -312,3 +346,4 @@ export function LandingPageContentProvider({
 export function useLandingPageContent() {
   return useContext(LandingPageContentContext);
 }
+
