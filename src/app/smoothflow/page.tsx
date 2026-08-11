@@ -35,7 +35,7 @@ export default function SmoothFlowLandingPage() {
   return (
     <LandingPageThemeProvider productSlug="smoothflow">
       <LandingPageContentProvider productSlug="smoothflow" showLoader={true}>
-        <div className="relative min-h-screen w-full max-w-full overflow-x-clip bg-white">
+        <div className="relative min-h-screen w-full max-w-full overflow-x-clip">
           <SmoothflowHero />
           <main>
             <SmoothflowImagine />

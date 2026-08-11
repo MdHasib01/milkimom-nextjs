@@ -25,8 +25,8 @@ const DEFAULT_THEME_COLORS: Record<string, ThemeColors> = {
     productSlug: "smoothflow",
     themeColor: "#E6106E",
     accentColor: "#f472b6",
-    ctaColor: "#E6106E",
-    ctaTextColor: "#ffffff",
+    ctaColor: "#ffd666",
+    ctaTextColor: "#3a2600",
     backgroundColor: "#FFF9FB",
   },
 };

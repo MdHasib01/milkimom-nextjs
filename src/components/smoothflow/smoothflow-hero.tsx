@@ -2,8 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag, MessageCircle, Clock } from "lucide-react";
+import { ShoppingBag, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GridPattern } from "@/components/grid-pattern";
+import { siteConfig } from "@/lib/content";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
+
+function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      {...props}
+    >
+      <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.91 1.455 5.51 3.734 7.214V22l3.425-1.881c.905.251 1.864.387 2.841.387 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.09 12.441l-2.55-2.72-4.976 2.72 5.474-5.81 2.597 2.72 4.929-2.72-5.474 5.81z" />
+    </svg>
+  );
+}
 
 export function SmoothflowHero() {
   const { content } = useLandingPageContent();
@@ -58,16 +74,16 @@ export function SmoothflowHero() {
       </div>
 
       {/* HERO MAIN */}
-      <section className="relative pt-[70px] md:pt-[86px] pb-14 md:pb-20 overflow-hidden bg-brand-light min-h-[70vh] flex flex-col items-center justify-center">
-        {/* Subtle Grid Background */}
+      <section className="relative overflow-hidden pt-[70px] md:pt-[86px] pb-14 md:pb-20 min-h-[70vh] flex flex-col items-center justify-center">
+        <GridPattern size={36} className="opacity-50" />
         <div
-          className="absolute inset-0 opacity-50 pointer-events-none"
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-32 -z-10 h-[32rem]"
           style={{
-            backgroundImage:
-              "linear-gradient(to right, var(--color-brand-border, #FCE7F3) 1px, transparent 1px), linear-gradient(to bottom, var(--color-brand-border, #FCE7F3) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+            background:
+              "radial-gradient(60% 60% at 50% 0%, rgba(227,122,105,0.18), transparent)",
           }}
-        ></div>
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
           {/* 2. MAIN HERO HEADLINE */}
@@ -90,12 +106,12 @@ export function SmoothflowHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-[650px] mx-auto w-full mb-10 bg-white/70 border border-brand/20 rounded-[16px] px-5 py-5 sm:px-6 shadow-sm backdrop-blur-sm"
+            className="max-w-xl mx-auto w-full mb-8"
           >
-            <p className="text-[#1A1A1A]/80 text-[14px] sm:text-[16px] md:text-[18px] leading-[1.6] font-medium text-center">
-              বুকের এক পাশে <span className="text-brand font-bold">শক্ত চাকার মতো অনুভূতি</span>, চাপ,{" "}
-              <span className="text-brand font-bold">Tenderness</span>, আর Feed করানোর সময় অস্বস্তি—এগুলো সবই{" "}
-              <span className="text-brand font-bold">Clogged-Duct Related</span>।
+            <p className="mx-auto text-balance text-base text-muted-foreground sm:text-lg font-medium text-center">
+              বুকের এক পাশে <span className="font-bold text-primary">শক্ত চাকার মতো অনুভূতি</span>, চাপ,{" "}
+              <span className="font-bold text-primary">Tenderness</span>, আর Feed করানোর সময় অস্বস্তি—এগুলো সবই{" "}
+              <span className="font-bold text-primary">Clogged-Duct Related</span>।
             </p>
           </motion.div>
 
@@ -104,25 +120,26 @@ export function SmoothflowHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col items-center gap-4 w-full max-w-[420px] mx-auto"
+            className="mt-4 flex flex-wrap items-center justify-center gap-3"
           >
-            <button
+            <Button
               onClick={scrollToOrder}
-              className="w-full bg-brand text-white font-black text-base sm:text-lg py-4 sm:py-5 px-6 sm:px-8 rounded-full shadow-[0_8px_25px_rgba(230,16,110,0.3)] hover:shadow-[0_12px_35px_rgba(230,16,110,0.4)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 border border-brand cursor-pointer"
+              className="cta-shine h-12 gap-2 rounded-full bg-brand-cta px-6 text-base text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark cursor-pointer"
             >
-              <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
+              <ShoppingBag className="size-5" />
               <span>{content.heroCtaText || "SmoothFlow অর্ডার করতে এখানে ক্লিক করুন"}</span>
-            </button>
+            </Button>
 
-            <a
-              href="https://m.me/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-white text-brand border-2 border-brand font-bold text-sm sm:text-base py-3 sm:py-3.5 px-8 rounded-full hover:bg-brand-light transition-colors flex items-center justify-center gap-2"
+            <Button
+              asChild
+              variant="outline"
+              className="h-12 gap-2 rounded-full border-brand-coral/40 px-6 text-base text-brand-crimson hover:bg-brand-coral/10"
             >
-              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span>মেসেজ করুন</span>
-            </a>
+              <a href={siteConfig.messenger} target="_blank" rel="noopener noreferrer">
+                <MessengerIcon className="size-5" />
+                <span>মেসেজ করুন</span>
+              </a>
+            </Button>
           </motion.div>
         </div>
       </section>
