@@ -12,12 +12,12 @@ export function SmoothflowEmotional() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative w-full h-[280px] sm:h-[350px] md:h-[450px] overflow-hidden md:rounded-3xl shadow-sm md:shadow-md"
+          className="relative w-full overflow-hidden md:rounded-3xl shadow-sm md:shadow-md"
         >
           <img
-            src="https://images.unsplash.com/photo-1544214539-76191b2bfbb0?auto=format&fit=crop&w=1200&q=80"
-            alt="Mother seeking comfort for her baby"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            src="/images/smoothflow/Money VS Pain.jpg"
+            alt="Money VS Pain"
+            className="w-full h-auto object-cover object-center"
           />
         </motion.div>
       </div>
