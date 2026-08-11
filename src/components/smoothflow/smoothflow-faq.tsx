@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, ShoppingBag } from "lucide-react";
+import { ChevronDown, ChevronUp, ShoppingBag } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Reveal } from "@/components/motion/reveal";
+import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
-const faqs = [
+const SMOOTHFLOW_FAQS = [
   {
     q: "SmoothFlow কী?",
     a: "SmoothFlow হলো Clogged-Duct Related Breast Pain, শক্ত/চাকা-চাকা অনুভূতি, Pressure ও Feeding Discomfort থেকে মুক্তি পাওয়ার জন্য তৈরি একটি বিশেষ Supplement।",
@@ -40,78 +47,82 @@ const faqs = [
 ];
 
 export function SmoothflowFaq() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const { replaceBrandName } = useLandingPageContent();
   const [showAll, setShowAll] = useState(false);
 
-  const visibleFaqs = showAll ? faqs : faqs.slice(0, 4);
+  const formattedFaqs = SMOOTHFLOW_FAQS.map((faq) => ({
+    q: replaceBrandName(faq.q),
+    a: replaceBrandName(faq.a),
+  }));
 
   return (
-    <section className="py-16 md:py-24 relative bg-white">
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Heading */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1A1A1A] leading-tight">
-            <span className="text-brand">SmoothFlow</span> নিয়ে আপনার প্রশ্নের উত্তর।
-          </h2>
-        </div>
+    <section id="faq" className="mx-auto max-w-3xl px-4 py-16 sm:py-24">
+      <Reveal className="text-center">
+        <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
+          প্রশ্নোত্তর
+        </span>
+        <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
+          SmoothFlow নিয়ে আপনার প্রশ্নের উত্তর
+        </h2>
+      </Reveal>
 
-        {/* FAQ Accordion */}
-        <div className="border-t border-black/10">
-          <AnimatePresence initial={false}>
-            {visibleFaqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="border-b border-black/10 overflow-hidden"
-              >
-                <button
-                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full py-5 md:py-6 text-left flex justify-between items-center focus:outline-none gap-4 hover:bg-black/[0.01] px-2 md:px-4 transition-colors cursor-pointer"
-                >
-                  <span className="font-semibold text-base md:text-lg text-[#1A1A1A] pr-4">{faq.q}</span>
-                  <div className="flex-shrink-0 text-brand">
-                    {openIndex === index ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                  </div>
-                </button>
-
-                <AnimatePresence>
-                  {openIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="pb-6 px-2 md:px-4 text-[#1A1A1A]/70 leading-relaxed text-sm md:text-base font-medium">
-                        {faq.a}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+      <Reveal delay={0.1} className="relative mt-8 rounded-3xl border border-border bg-card px-5 shadow-sm sm:px-8 overflow-hidden">
+        <div
+          className={`transition-all duration-500 ease-in-out ${
+            !showAll ? "max-h-[355px] overflow-hidden" : "pb-6"
+          }`}
+        >
+          <Accordion type="single" collapsible>
+            {formattedFaqs.map((faq, index) => (
+              <AccordionItem key={faq.q} value={`item-${index}`}>
+                <AccordionTrigger className="py-4 text-left text-base font-semibold text-foreground">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </AnimatePresence>
+          </Accordion>
         </div>
 
-        {/* CTA Button */}
-        <div className="mt-10 text-center flex flex-col items-center gap-5">
+        {/* Gradient Overlay & Blended See More Button */}
+        {!showAll && (
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-card via-card/95 to-transparent z-10 flex items-end justify-center pb-4 pointer-events-none rounded-b-3xl">
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="pointer-events-auto inline-flex items-center gap-2.5 rounded-full border border-brand-crimson/30 bg-card/90 backdrop-blur-md px-8 py-3 text-sm font-bold text-brand-crimson shadow-xl transition-all hover:scale-105 hover:bg-brand-crimson hover:text-white hover:shadow-2xl cursor-pointer"
+            >
+              <span>আরও প্রশ্ন দেখুন</span>
+              <ChevronDown className="size-4 animate-bounce" />
+            </button>
+          </div>
+        )}
+      </Reveal>
+
+      {showAll && (
+        <div className="mt-6 flex justify-center">
           <button
-            onClick={() => setShowAll(!showAll)}
-            className="inline-flex items-center justify-center font-bold text-[#1A1A1A] hover:text-brand transition-colors bg-brand-light px-6 py-3 rounded-full border border-brand/10 hover:border-brand/30 cursor-pointer"
+            type="button"
+            onClick={() => setShowAll(false)}
+            aria-label="কম প্রশ্ন দেখুন"
+            className="inline-flex items-center justify-center rounded-full border border-border bg-card p-3 text-muted-foreground shadow-md transition-all hover:bg-muted hover:text-foreground hover:scale-110 cursor-pointer"
           >
-            {showAll ? "See Less ↑" : "See More ↓"}
+            <ChevronUp className="size-5" />
           </button>
-          <a
-            href="#order-section"
-            className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl px-8 py-4 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <ShoppingBag className="size-5" />
-            <span>হ্যাঁ, আমিও মুক্তি পেতে চাই</span>
-          </a>
         </div>
+      )}
+
+      {/* CTA Button */}
+      <div className="mt-10 text-center flex justify-center">
+        <a
+          href="#order-section"
+          className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl px-8 py-4 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <ShoppingBag className="size-5" />
+          <span>হ্যাঁ, আমিও মুক্তি পেতে চাই</span>
+        </a>
       </div>
     </section>
   );
