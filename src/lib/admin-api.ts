@@ -97,6 +97,7 @@ export function fetchOrders(params?: {
  * and it is never reported to the Meta Conversions API on delivery.
  */
 export function createOrderAdmin(data: {
+  product?: string;
   customerName?: string;
   phone: string;
   address?: string;
@@ -299,6 +300,8 @@ export interface UnfinishedOrder {
   address?: string;
   district?: string;
   thana?: string;
+  product?: string;
+  productName?: string;
   flavour?: string;
   price?: number;
   ipAddress?: string;

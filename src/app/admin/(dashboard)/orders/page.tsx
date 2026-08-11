@@ -66,6 +66,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 interface Order {
   _id: string;
+  product?: string;
+  pageUrl?: string;
   customerName: string;
   phone: string;
   address: string;
@@ -96,6 +98,33 @@ interface Order {
     successRate?: number | null;
     checkedAt?: string | null;
     error?: string;
+  };
+}
+
+function getOrderProductDetails(productName?: string, pageUrl?: string) {
+  const prod = (productName || "").trim();
+  const url = (pageUrl || "").toLowerCase();
+
+  const isSmoothflow =
+    prod.toLowerCase().includes("smoothflow") ||
+    prod.includes("স্মুথফ্লো") ||
+    url.includes("/smoothflow") ||
+    url.includes("smoothflow");
+
+  if (isSmoothflow) {
+    return {
+      name: "SmoothFlow",
+      fullName: prod || "SmoothFlow Complete Dose",
+      image: "/images/smoothflow.png",
+      badgeColor: "bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-950/60 dark:text-pink-300",
+    };
+  }
+
+  return {
+    name: "Milkimom",
+    fullName: prod || "Milkimom Complete Dose",
+    image: "/images/product-jar.webp",
+    badgeColor: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300",
   };
 }
 
@@ -148,6 +177,7 @@ export default function AdminOrdersPage() {
 
   // Add Manual Order State (message-campaign sales entered by the admin)
   const emptyAddForm = {
+    product: "Milkimom Complete Dose",
     customerName: "",
     phone: "",
     address: "",
@@ -488,6 +518,7 @@ export default function AdminOrdersPage() {
     setAddError("");
 
     const result = await createOrderAdmin({
+      product: addForm.product,
       customerName: addForm.customerName.trim() || undefined,
       phone: phoneTrimmed,
       address: addForm.address.trim(),
@@ -903,6 +934,7 @@ export default function AdminOrdersPage() {
                   <th className="px-3 py-2.5 max-w-[130px]">Customer</th>
                   <th className="px-3 py-2.5 whitespace-nowrap">Phone & Actions</th>
                   <th className="px-3 py-2.5 max-w-[140px]">Location</th>
+                  <th className="px-3 py-2.5 whitespace-nowrap">Product</th>
                   <th className="px-3 py-2.5 whitespace-nowrap">Flavour & Price</th>
                   <th className="px-3 py-2.5 whitespace-nowrap">Client IP</th>
                   <th className="px-3 py-2.5 whitespace-nowrap">Status Tag Selection</th>
@@ -984,6 +1016,30 @@ export default function AdminOrdersPage() {
                         ) : (
                           <span className="text-muted-foreground italic">Not filled</span>
                         )}
+                      </td>
+
+                      {/* Product */}
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        {(() => {
+                          const prodDetails = getOrderProductDetails(u.product || u.productName);
+                          return (
+                            <div className="flex items-center gap-2">
+                              <div className="relative size-8 shrink-0 overflow-hidden rounded-lg border border-border/80 bg-muted/40 p-0.5 flex items-center justify-center">
+                                <img
+                                  src={prodDetails.image}
+                                  alt={prodDetails.name}
+                                  className="h-full w-auto max-w-full object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/images/product-jar.webp";
+                                  }}
+                                />
+                              </div>
+                              <span className="font-bold text-xs text-foreground truncate max-w-[110px]" title={prodDetails.name}>
+                                {prodDetails.name}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       {/* Flavour & Price */}
@@ -1157,7 +1213,8 @@ export default function AdminOrdersPage() {
                   />
                 </th>
                 <th className="px-3.5 py-3 whitespace-nowrap">Date</th>
-                <th className="px-3.5 py-3">Customer & Phone</th>
+                <th className="px-3.5 py-3 font-medium">Customer & Phone</th>
+                <th className="px-3.5 py-3 whitespace-nowrap">Product</th>
                 <th className="px-3.5 py-3 whitespace-nowrap">Flavour & Price</th>
                 <th className="px-3.5 py-3 whitespace-nowrap">Payment</th>
                 <th className="px-3.5 py-3 whitespace-nowrap">Status</th>
@@ -1232,6 +1289,30 @@ export default function AdminOrdersPage() {
                           </span>
                         ) : null}
                       </div>
+                    </td>
+
+                    {/* Product */}
+                    <td className="px-3.5 py-3 whitespace-nowrap">
+                      {(() => {
+                        const prodDetails = getOrderProductDetails(order.product, order.pageUrl);
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div className="relative size-8 shrink-0 overflow-hidden rounded-lg border border-border/80 bg-muted/40 p-0.5 flex items-center justify-center">
+                              <img
+                                src={prodDetails.image}
+                                alt={prodDetails.name}
+                                className="h-full w-auto max-w-full object-contain"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/images/product-jar.webp";
+                                }}
+                              />
+                            </div>
+                            <span className="font-bold text-xs text-foreground truncate max-w-[110px]" title={prodDetails.name}>
+                              {prodDetails.name}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     {/* Flavour & Price */}
@@ -1582,6 +1663,21 @@ export default function AdminOrdersPage() {
             )}
 
             <div className="space-y-4 text-xs">
+              {/* Product */}
+              <div>
+                <label className="block font-bold text-foreground mb-1">Product</label>
+                <select
+                  value={addForm.product}
+                  onChange={(e) =>
+                    setAddForm((prev) => ({ ...prev, product: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                >
+                  <option value="Milkimom Complete Dose">Milkimom (মিল্কিমম)</option>
+                  <option value="SmoothFlow Complete Dose">SmoothFlow (স্মুথফ্লো)</option>
+                </select>
+              </div>
+
               {/* Customer Name */}
               <div>
                 <label className="block font-bold text-foreground mb-1">Customer Name</label>
@@ -2246,6 +2342,25 @@ export default function AdminOrdersPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-xs">
+                    {(() => {
+                      const drawerProdDetails = getOrderProductDetails(drawerOrder.product, drawerOrder.pageUrl);
+                      return (
+                        <div className="col-span-2 flex items-center gap-3 bg-background p-2.5 rounded-lg border border-border/60">
+                          <img
+                            src={drawerProdDetails.image}
+                            alt={drawerProdDetails.name}
+                            className="size-9 object-contain rounded shrink-0"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/images/product-jar.webp";
+                            }}
+                          />
+                          <div>
+                            <span className="text-muted-foreground font-medium text-[10px] block">Product Ordered</span>
+                            <span className="font-bold text-foreground text-xs">{drawerProdDetails.fullName}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                     <div>
                       <span className="text-muted-foreground font-medium block">Selected Flavour</span>
                       <span className="font-bold text-foreground">{drawerOrder.flavour || "Dark Chocolate"}</span>

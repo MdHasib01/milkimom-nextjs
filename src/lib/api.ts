@@ -83,6 +83,7 @@ export interface CheckIpResult {
 }
 
 export interface UnfinishedPayload {
+  product?: string;
   flavour?: string;
   price?: number;
   customerName?: string;

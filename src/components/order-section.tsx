@@ -103,7 +103,7 @@ export function OrderSection() {
         ...f,
         regularPrice: f.regularPrice === 8990 || !f.regularPrice ? smoothflowSingleJarPrice.regularPrice : f.regularPrice,
         salePrice: f.salePrice === 4990 || !f.salePrice ? smoothflowSingleJarPrice.salePrice : f.salePrice,
-        image: f.smoothflowImage || f.image || "/images/product-jar.webp",
+        image: f.smoothflowImage || "/images/smoothflow.png",
       }));
     }
     return flavors;
