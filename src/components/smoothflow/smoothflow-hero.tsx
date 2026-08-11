@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag, Clock } from "lucide-react";
+import { ShoppingBag, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/grid-pattern";
 import { siteConfig } from "@/lib/content";
@@ -21,32 +21,40 @@ function MessengerIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function SmoothflowHero() {
-  const { content } = useLandingPageContent();
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 59, seconds: 19 });
+function getMidnightTarget() {
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(24, 0, 0, 0);
+  return target;
+}
+
+function useCountdown() {
+  const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) return prev;
-        let s = prev.seconds - 1;
-        let m = prev.minutes;
-        let h = prev.hours;
-        if (s < 0) {
-          s = 59;
-          m -= 1;
-        }
-        if (m < 0) {
-          m = 59;
-          h -= 1;
-        }
-        return { hours: h, minutes: m, seconds: s };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
+    const target = getMidnightTarget();
+    const tick = () => setRemaining(Math.max(0, target.getTime() - Date.now()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
   }, []);
 
-  const format = (n: number) => n.toString().padStart(2, "0");
+  if (remaining === null) return null;
+
+  const totalSeconds = Math.floor(remaining / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return { hours, minutes, seconds };
+}
+
+function pad(value: number) {
+  return value.toString().padStart(2, "0");
+}
+
+export function SmoothflowHero() {
+  const { content } = useLandingPageContent();
+  const countdown = useCountdown();
 
   const scrollToOrder = () => {
     document.getElementById("order-section")?.scrollIntoView({ behavior: "smooth" });
@@ -60,16 +68,18 @@ export function SmoothflowHero() {
           <span className="text-xs sm:text-sm tracking-wide text-center">
             {content.announcementText || (
               <>
-                <span className="font-extrabold">42%</span> Offer শেষ হতে বাকি
+                আজকের স্পেশাল অফার — <span className="font-extrabold">৩৯%</span> পর্যন্ত ছাড় + সারাদেশে ফ্রি ডেলিভারি
               </>
             )}
           </span>
-          <div className="flex items-center gap-1.5 bg-white/20 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold font-mono tracking-wider shadow-sm">
-            <Clock className="w-3.5 h-3.5" />
-            <span>
-              {format(timeLeft.hours)} : {format(timeLeft.minutes)} : {format(timeLeft.seconds)}
-            </span>
-          </div>
+          {countdown && (
+            <div className="flex items-center gap-1.5 bg-white/20 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold font-mono tracking-wider shadow-sm">
+              <Timer className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                {pad(countdown.hours)}:{pad(countdown.minutes)}:{pad(countdown.seconds)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

@@ -156,7 +156,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     productNameEn: "SmoothFlow",
     logoType: "text",
     logoImage: "/images/logo.webp",
-    announcementText: "⚡ SmoothFlow বিশেষ অফার! ৪২% ছাড় - লঞ্চ প্রাইস মাত্র ৳১,৯৯৯ (রেগুলার ৳৩,৪৫০, সাশ্রয় ৳১,৪৫১)!",
+    announcementText: "⚡ SmoothFlow বিশেষ অফার! ৩৯% ছাড় - লঞ্চ প্রাইস মাত্র ৳১,৯৯৯ (রেগুলার ৳৩,২৮০, সাশ্রয় ৳১,২৮১)!",
     heroBadge: "১০০% সাইডইফেক্ট মুক্ত ও সেফ ফর্মুলা",
     heroTitle: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান।",
     heroTitleHighlight: "মাত্র ২৪ ঘন্টায় মুক্তি পান।",

@@ -1,48 +1,48 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Clock, ShoppingBag } from "lucide-react";
+import { Timer, ShoppingBag } from "lucide-react";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
+
+function getMidnightTarget() {
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(24, 0, 0, 0);
+  return target;
+}
+
+function useCountdown() {
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    const target = getMidnightTarget();
+    const tick = () => setRemaining(Math.max(0, target.getTime() - Date.now()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (remaining === null) return null;
+
+  const totalSeconds = Math.floor(remaining / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return { hours, minutes, seconds };
+}
+
+function pad(value: number) {
+  return value.toString().padStart(2, "0");
+}
 
 export function SmoothflowPricing() {
   const { content, getImageUrl } = useLandingPageContent();
+  const countdown = useCountdown();
+
   const rawImg = content.howItWorksImage && content.howItWorksImage.trim()
     ? content.howItWorksImage
     : "/images/smoothflow.png";
   const productImage = getImageUrl(rawImg, "/images/smoothflow.png");
-
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 5,
-    minutes: 45,
-    seconds: 0,
-  });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) {
-          clearInterval(timer);
-          return prev;
-        }
-        let newS = prev.seconds - 1;
-        let newM = prev.minutes;
-        let newH = prev.hours;
-
-        if (newS < 0) {
-          newS = 59;
-          newM -= 1;
-        }
-        if (newM < 0) {
-          newM = 59;
-          newH -= 1;
-        }
-        return { hours: newH, minutes: newM, seconds: newS };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (val: number) => val.toString().padStart(2, "0");
 
   const scrollToOrder = () => {
     document.getElementById("order-section")?.scrollIntoView({ behavior: "smooth" });
@@ -62,7 +62,7 @@ export function SmoothflowPricing() {
             {/* Mega Offer Sticker */}
             <div className="absolute top-5 left-5 z-20 -rotate-[8deg] bg-brand text-white px-3 py-1.5 rounded-xl shadow-lg border border-white/20 flex flex-col items-center justify-center">
               <span className="text-[10px] font-bold tracking-widest leading-none mb-0.5">MEGA OFFER</span>
-              <span className="text-sm font-black leading-none">42% OFF</span>
+              <span className="text-sm font-black leading-none">39% OFF</span>
             </div>
 
             {/* Visual representation of product - full space */}
@@ -86,10 +86,10 @@ export function SmoothflowPricing() {
             <div className="flex flex-col items-center md:items-start mb-8 text-center md:text-left">
               <div className="flex items-center gap-3 justify-center md:justify-start w-full">
                 <span className="text-xl md:text-2xl text-[#1A1A1A]/40 line-through decoration-2 font-bold">
-                  3450 TK
+                  3280 TK
                 </span>
                 <span className="text-sm md:text-base text-[#1A1A1A]/70 font-semibold bg-brand-light px-3 py-1 rounded-full border border-brand/10">
-                  বাঁচলো 1451 TK
+                  বাঁচলো 1281 TK
                 </span>
               </div>
               <div className="mt-1">
@@ -98,26 +98,28 @@ export function SmoothflowPricing() {
             </div>
 
             <div className="bg-brand-light border border-brand/10 rounded-2xl p-4 mb-6 text-center">
-              <div className="flex items-center justify-center gap-2 text-brand font-bold mb-3">
-                <Clock className="w-5 h-5" />
-                <span className="text-[11px] uppercase tracking-widest">OFFER শেষ হতে বাকি</span>
+              <div className="flex items-center justify-center gap-2 text-brand-crimson font-bold mb-3">
+                <Timer className="w-5 h-5 animate-pulse" />
+                <span className="text-xs uppercase tracking-widest font-extrabold">OFFER শেষ হতে বাকি</span>
               </div>
-              <div className="flex justify-center gap-4 text-brand font-mono font-black text-3xl">
-                <div className="flex flex-col items-center">
-                  <span>{formatTime(timeLeft.hours)}</span>
-                  <span className="text-[9px] font-sans text-brand/60 uppercase mt-1 tracking-widest">Hours</span>
+              {countdown && (
+                <div className="flex justify-center gap-3 text-brand-crimson font-mono font-black text-3xl">
+                  <div className="flex flex-col items-center">
+                    <span>{pad(countdown.hours)}</span>
+                    <span className="text-[9px] font-sans text-brand-crimson/60 uppercase mt-1 tracking-widest">Hours</span>
+                  </div>
+                  <span className="text-brand-crimson/50">:</span>
+                  <div className="flex flex-col items-center">
+                    <span>{pad(countdown.minutes)}</span>
+                    <span className="text-[9px] font-sans text-brand-crimson/60 uppercase mt-1 tracking-widest">Mins</span>
+                  </div>
+                  <span className="text-brand-crimson/50">:</span>
+                  <div className="flex flex-col items-center">
+                    <span>{pad(countdown.seconds)}</span>
+                    <span className="text-[9px] font-sans text-brand-crimson/60 uppercase mt-1 tracking-widest">Secs</span>
+                  </div>
                 </div>
-                <span className="text-brand/50">:</span>
-                <div className="flex flex-col items-center">
-                  <span>{formatTime(timeLeft.minutes)}</span>
-                  <span className="text-[9px] font-sans text-brand/60 uppercase mt-1 tracking-widest">Mins</span>
-                </div>
-                <span className="text-brand/50">:</span>
-                <div className="flex flex-col items-center">
-                  <span>{formatTime(timeLeft.seconds)}</span>
-                  <span className="text-[9px] font-sans text-brand/60 uppercase mt-1 tracking-widest">Secs</span>
-                </div>
-              </div>
+              )}
             </div>
 
             <div>
