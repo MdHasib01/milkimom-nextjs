@@ -21,11 +21,11 @@ function toBengaliNumber(num: number): string {
 }
 
 const defaultBenefits = [
-  { accent: "বুকের দুধ", rest: "স্থায়ীভাবে বাড়ায়" },
-  { accent: "বন্ধ হয়ে যাওয়া", rest: "বুকের দুধ পুনরায় তৈরি করে" },
-  { accent: "বুকের দুধের", rest: "সব পুষ্টিগুণ বজায় রাখে" },
+  { accent: "বুকের দুধ", rest: "স্থায়ীভাবে বাড়ায়" },
+  { accent: "বুকের দুধের", rest: "সব পুষ্টিগুণ বজায় রাখে" },
+  { accent: "ফর্মুলা দুধের", rest: "খরচ বাঁচায়" },
   { accent: "বুকের দুধ", rest: "পাতলা হলে ঘন করে" },
-  { accent: "ফর্মুলা দুধের", rest: "খরচ বাঁচায়" },
+  { accent: "বন্ধ হয়ে যাওয়া", rest: "বুকের দুধ পুনরায় তৈরি করে" },
 ];
 
 export function SmoothflowBenefits() {
