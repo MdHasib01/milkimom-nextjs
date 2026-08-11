@@ -9,6 +9,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans), "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --font-heading: var(--font-sans), "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+  --color-brand: var(--primary);
+  --color-brand-dark: var(--brand-crimson-dark);
+  --color-brand-light: var(--brand-cream);
+  --color-brand-border: #FCE7F3;
   --color-brand-cream: var(--brand-cream);
   --color-brand-coral: var(--brand-coral);
   --color-brand-coral-dark: var(--brand-coral-dark);

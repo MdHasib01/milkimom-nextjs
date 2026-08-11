@@ -17,23 +17,23 @@ import { SiteFooter } from "@/components/site-footer";
 import { FloatingActions } from "@/components/floating-actions";
 
 export const metadata: Metadata = {
-  title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | স্মুথফ্লো™",
+  title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | SmoothFlow™",
   description:
-    "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান স্মুথফ্লো™ দিয়ে।",
+    "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান SmoothFlow™ দিয়ে।",
   openGraph: {
-    title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | স্মুথফ্লো™",
+    title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | SmoothFlow™",
     description:
-      "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান স্মুথফ্লো™ দিয়ে।",
-    siteName: "স্মুথফ্লো™",
+      "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান SmoothFlow™ দিয়ে।",
+    siteName: "SmoothFlow™",
     locale: "bn_BD",
     type: "website",
   },
 };
 
-export default function SmoothFlowLandingPage() {
+export default function StableflowLandingPage() {
   return (
-    <LandingPageThemeProvider productSlug="smoothflow">
-      <LandingPageContentProvider productSlug="smoothflow">
+    <LandingPageThemeProvider productSlug="stableflow">
+      <LandingPageContentProvider productSlug="stableflow">
         <div className="relative min-h-screen w-full max-w-full overflow-x-clip bg-white">
           <StableflowHero />
           <main>

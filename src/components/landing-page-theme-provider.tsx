@@ -29,6 +29,14 @@ const DEFAULT_THEME_COLORS: Record<string, ThemeColors> = {
     ctaTextColor: "#1e293b",
     backgroundColor: "#f0f9ff",
   },
+  stableflow: {
+    productSlug: "stableflow",
+    themeColor: "#E6106E",
+    accentColor: "#f472b6",
+    ctaColor: "#E6106E",
+    ctaTextColor: "#ffffff",
+    backgroundColor: "#FFF9FB",
+  },
 };
 
 export function LandingPageThemeProvider({
