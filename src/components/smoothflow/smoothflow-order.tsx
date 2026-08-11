@@ -74,7 +74,7 @@ const districts = [
   "Sherpur",
 ].sort();
 
-export function StableflowOrder() {
+export function SmoothflowOrder() {
   const router = useRouter();
   const { content } = useLandingPageContent();
 
@@ -125,7 +125,7 @@ export function StableflowOrder() {
         thana: thana || district,
         flavour: flavour || "Default",
         productName: content.productName || "স্মুথফ্লো",
-        productSlug: content.productSlug || "stableflow",
+        productSlug: content.productSlug || "smoothflow",
         quantity: 1,
         unitPrice: price,
         deliveryFee: deliveryCharge,

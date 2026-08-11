@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
-export function StableflowStickyCTA() {
+export function SmoothflowStickyCTA() {
   const { content } = useLandingPageContent();
   const [isVisible, setIsVisible] = useState(false);
 

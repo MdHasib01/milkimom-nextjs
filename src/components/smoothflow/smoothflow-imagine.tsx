@@ -9,7 +9,7 @@ const images = [
   "https://images.unsplash.com/photo-1555252834-311311028308?auto=format&fit=crop&w=1200&q=80",
 ];
 
-export function StableflowImagine() {
+export function SmoothflowImagine() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {

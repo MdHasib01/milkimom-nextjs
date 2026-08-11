@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
-export function StableflowPricing() {
-  const { content } = useLandingPageContent();
+export function SmoothflowPricing() {
+  const { content, getImageUrl } = useLandingPageContent();
+  const rawImg = content.howItWorksImage && content.howItWorksImage.trim()
+    ? content.howItWorksImage
+    : "/images/smoothflow.png";
+  const productImage = getImageUrl(rawImg, "/images/smoothflow.png");
+
   const [timeLeft, setTimeLeft] = useState({
     hours: 5,
     minutes: 45,
@@ -61,16 +66,15 @@ export function StableflowPricing() {
             </div>
 
             {/* Visual representation of product */}
-            <div className="relative z-10 w-44 h-56 bg-white rounded-2xl shadow-sm border border-brand/10 flex flex-col items-center justify-center p-4">
-              <div className="w-14 h-14 bg-brand-light rounded-xl flex items-center justify-center mb-3">
-                <span className="text-brand font-bold text-lg">SF</span>
-              </div>
-              <h4 className="font-bold text-[#1A1A1A] text-lg text-center">
-                {content.productNameEn || "SmoothFlow"}
-              </h4>
-              <p className="text-[10px] uppercase tracking-wider text-[#1A1A1A]/50 text-center mt-1 font-bold">
-                Formula
-              </p>
+            <div className="relative z-10 w-44 h-56 bg-white rounded-2xl shadow-sm border border-brand/10 flex flex-col items-center justify-center p-3 overflow-hidden">
+              <img
+                src={productImage}
+                alt={content.productNameEn || "SmoothFlow"}
+                className="w-full h-full object-contain drop-shadow-md"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/smoothflow.png";
+                }}
+              />
             </div>
           </div>
 

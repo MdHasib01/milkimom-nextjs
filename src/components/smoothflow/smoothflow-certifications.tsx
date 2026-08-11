@@ -49,7 +49,7 @@ const doctorsList = [
   },
 ];
 
-export function StableflowCertifications() {
+export function SmoothflowCertifications() {
   const { content } = useLandingPageContent();
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
 

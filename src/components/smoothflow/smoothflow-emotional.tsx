@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-export function StableflowEmotional() {
+export function SmoothflowEmotional() {
   return (
     <section className="py-10 md:py-16 overflow-hidden relative bg-white">
       {/* Full bleed image on mobile, contained on desktop */}

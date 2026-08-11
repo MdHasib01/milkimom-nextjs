@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
-export function StableflowGuarantee() {
+export function SmoothflowGuarantee() {
   const { content } = useLandingPageContent();
 
   return (

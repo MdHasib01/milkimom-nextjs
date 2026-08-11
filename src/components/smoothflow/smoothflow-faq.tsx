@@ -39,7 +39,7 @@ const faqs = [
   },
 ];
 
-export function StableflowFaq() {
+export function SmoothflowFaq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [showAll, setShowAll] = useState(false);
 

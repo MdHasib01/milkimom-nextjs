@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ShoppingBag, MessageCircle, Clock } from "lucide-react";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
-export function StableflowHero() {
+export function SmoothflowHero() {
   const { content } = useLandingPageContent();
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 59, seconds: 19 });
 

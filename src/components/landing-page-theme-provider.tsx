@@ -23,14 +23,6 @@ const DEFAULT_THEME_COLORS: Record<string, ThemeColors> = {
   },
   smoothflow: {
     productSlug: "smoothflow",
-    themeColor: "#0284c7",
-    accentColor: "#38bdf8",
-    ctaColor: "#f59e0b",
-    ctaTextColor: "#1e293b",
-    backgroundColor: "#f0f9ff",
-  },
-  stableflow: {
-    productSlug: "stableflow",
     themeColor: "#E6106E",
     accentColor: "#f472b6",
     ctaColor: "#E6106E",

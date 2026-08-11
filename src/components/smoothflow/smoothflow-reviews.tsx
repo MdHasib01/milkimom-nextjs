@@ -38,7 +38,7 @@ const reviewData = [
   },
 ];
 
-export function StableflowReviews() {
+export function SmoothflowReviews() {
   return (
     <section className="py-16 md:py-24 relative overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

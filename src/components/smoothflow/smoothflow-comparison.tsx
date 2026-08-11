@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, XCircle } from "lucide-react";
 
-export function StableflowComparison() {
+export function SmoothflowComparison() {
   return (
     <section className="py-10 md:py-16 relative overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
