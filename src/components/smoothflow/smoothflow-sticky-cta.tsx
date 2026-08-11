@@ -37,7 +37,7 @@ export function SmoothflowStickyCTA() {
         >
           <button
             onClick={scrollToOrder}
-            className="w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/30 flex items-center justify-center gap-3 transition-colors hover:opacity-95 cursor-pointer"
+            className="cta-shine w-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold py-3.5 rounded-full shadow-lg shadow-brand-cta/40 flex items-center justify-center gap-3 transition-colors cursor-pointer"
           >
             <ShoppingBag className="w-5 h-5" />
             <span>{content.productNameEn || "SmoothFlow"} — ৳1,999 | এখনই অর্ডার করুন</span>

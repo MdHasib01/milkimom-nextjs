@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, ShoppingBag } from "lucide-react";
 
 export function SmoothflowComparison() {
   return (
@@ -105,9 +105,10 @@ export function SmoothflowComparison() {
             <div className="flex justify-center pt-2">
               <a
                 href="#order-section"
-                className="inline-block bg-brand text-white font-bold text-[14px] md:text-[15px] px-4 md:px-5 py-[9px] md:py-[10px] rounded-full shadow-[0_4px_20px_rgba(230,16,110,0.3)] text-center transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                className="cta-shine inline-flex items-center justify-center gap-2 bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-base md:text-lg px-8 py-3.5 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
-                হ্যাঁ, আমি Pain ছাড়া Feeding চাই
+                <ShoppingBag className="size-5" />
+                <span>হ্যাঁ, আমি Pain ছাড়া Feeding চাই</span>
               </a>
             </div>
           </div>

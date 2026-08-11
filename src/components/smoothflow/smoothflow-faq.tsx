@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, ShoppingBag } from "lucide-react";
 
 const faqs = [
   {
@@ -106,9 +106,10 @@ export function SmoothflowFaq() {
           </button>
           <a
             href="#order-section"
-            className="w-full sm:w-auto bg-brand text-white font-bold text-lg md:text-xl px-8 py-4 md:px-10 rounded-full shadow-[0_4px_20px_rgba(230,16,110,0.3)] text-center transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl px-8 py-4 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
           >
-            হ্যাঁ, আমিও মুক্তি পেতে চাই
+            <ShoppingBag className="size-5" />
+            <span>হ্যাঁ, আমিও মুক্তি পেতে চাই</span>
           </a>
         </div>
       </div>
