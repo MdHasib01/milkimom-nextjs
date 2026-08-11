@@ -155,24 +155,24 @@ export function SmoothflowOrder() {
   };
 
   return (
-    <section id="order-section" className="py-12 md:py-24 relative bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 md:mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand leading-tight mb-3">
+    <section id="order-section" className="py-8 xs:py-12 sm:py-16 md:py-24 relative bg-white overflow-hidden">
+      <div className="max-w-6xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 sm:mb-10 md:mb-12 px-2">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand leading-tight mb-2 sm:mb-3 text-balance">
             {content.orderHeadline || "SmoothFlow অর্ডার করুন"}
           </h2>
-          <p className="text-lg md:text-xl text-[#1A1A1A]/80 font-medium">
+          <p className="text-xs xs:text-sm sm:text-base md:text-xl text-[#1A1A1A]/80 font-medium max-w-xl mx-auto">
             {content.orderSubheadline || "Breast Pain নিয়ে আরেকটা Feeding-এর জন্য অপেক্ষা নয়।"}
           </p>
         </div>
 
-        <div className="bg-brand-light rounded-2xl md:rounded-3xl shadow-[0_8px_30px_rgba(230,16,110,0.08)] border border-brand/10 overflow-hidden flex flex-col lg:flex-row">
+        <div className="bg-brand-light rounded-2xl md:rounded-3xl shadow-[0_8px_30px_rgba(230,16,110,0.08)] border border-brand/10 overflow-hidden flex flex-col lg:flex-row min-w-0">
           {/* Form */}
-          <div className="lg:w-1/2 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-brand/10 bg-white">
-            <h3 className="text-xl md:text-2xl font-black text-[#1A1A1A] mb-6 md:mb-8">Shipping Information</h3>
+          <div className="lg:w-1/2 p-4 xs:p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-brand/10 bg-white min-w-0">
+            <h3 className="text-lg xs:text-xl md:text-2xl font-black text-[#1A1A1A] mb-5 sm:mb-6 md:mb-8">Shipping Information</h3>
 
             {errorMessage && (
-              <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded-xl text-sm font-medium">
+              <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs sm:text-sm font-medium">
                 {errorMessage}
               </div>
             )}
@@ -269,8 +269,8 @@ export function SmoothflowOrder() {
           </div>
 
           {/* Summary */}
-          <div className="lg:w-1/2 p-6 md:p-10 bg-brand-light/40">
-            <h3 className="text-2xl font-black text-[#1A1A1A] mb-8">Order Summary</h3>
+          <div className="lg:w-1/2 p-4 xs:p-6 md:p-10 bg-brand-light/40 min-w-0">
+            <h3 className="text-lg xs:text-xl md:text-2xl font-black text-[#1A1A1A] mb-6 md:mb-8">Order Summary</h3>
 
             <div className="bg-white p-6 rounded-2xl border border-brand/10 mb-8">
               <div className="flex justify-between items-center mb-4 pb-4 border-b border-brand/10">

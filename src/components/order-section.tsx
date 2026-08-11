@@ -383,40 +383,41 @@ export function OrderSection() {
   const subheadline = content.orderSubheadline || "আপনার অর্ডারটি প্লেস করতে, অনুগ্রহ করে নিচের তথ্য গুলো দিয়ে সহযোগীতা করুন।";
 
   return (
-    <section id="pricing" className="relative overflow-hidden mx-auto max-w-5xl px-4 py-16 sm:py-24">
+    <section id="pricing" className="relative overflow-hidden mx-auto max-w-6xl px-3 xs:px-4 sm:px-6 md:px-8 py-10 xs:py-12 sm:py-16 lg:py-24">
+      <div id="order-section" className="absolute -top-24 pointer-events-none opacity-0" />
       <GridPattern patternType="lines" size={32} className="opacity-40" />
-      <Reveal className="mx-auto max-w-2xl text-center">
-        <h2 className="text-balance font-heading text-3xl font-extrabold text-primary sm:text-4xl flex items-center justify-center gap-3">
-          <ShoppingCart className="size-8 sm:size-9 text-primary shrink-0" />
+      <Reveal className="mx-auto max-w-2xl text-center px-2">
+        <h2 className="text-balance font-heading text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-extrabold text-primary flex items-center justify-center gap-2 xs:gap-3 flex-wrap leading-tight text-center">
+          <ShoppingCart className="size-6 xs:size-7 sm:size-8 md:size-9 text-primary shrink-0" />
           <span>{headline}</span>
         </h2>
-        <p className="mt-2.5 text-base font-medium text-muted-foreground sm:text-lg">
+        <p className="mt-2 sm:mt-3 text-xs xs:text-sm sm:text-base md:text-lg font-medium text-muted-foreground max-w-xl mx-auto leading-relaxed text-center">
           {subheadline}
         </p>
       </Reveal>
 
-      <Reveal delay={0.15} className="mt-10">
+      <Reveal delay={0.15} className="mt-6 sm:mt-10">
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-6 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start"
+          className="grid grid-cols-1 gap-6 rounded-2xl xs:rounded-3xl border border-border/80 bg-card p-3.5 xs:p-5 sm:p-7 md:p-8 shadow-sm sm:shadow-md lg:grid-cols-12 lg:items-start"
           noValidate
         >
-          {/* Left Column: Product Flavors & Delivery Form */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 min-w-0">
-            <div className="col-span-full">
-              <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
+          {/* Left Column: Product Flavors & Delivery Form (7 cols on lg) */}
+          <div className="space-y-6 lg:col-span-7 min-w-0">
+            <div>
+              <span className="text-xs xs:text-sm font-semibold uppercase tracking-wider text-brand-crimson">
                 স্বাদ বেছে নিন
               </span>
-              <h3 className="mt-1 font-heading text-lg font-bold text-foreground">
+              <h3 className="mt-1 font-heading text-base xs:text-lg sm:text-xl font-bold text-foreground">
                 ৪টি সুস্বাদু ফ্লেভারে পাওয়া যাচ্ছে
               </h3>
-              <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-crimson flex items-start gap-1 lg:hidden">
+              <p className="mt-0.5 text-xs sm:text-sm font-medium text-brand-crimson flex items-center gap-1 lg:hidden">
                 <span>পছন্দসই স্বাদ নির্বাচন করে নিচে আপনার ডেলিভারি তথ্য পূরণ করুন</span>
-                <ArrowDown className="size-4 shrink-0 text-brand-crimson animate-bounce mt-0.5" />
+                <ArrowDown className="size-3.5 shrink-0 text-brand-crimson animate-bounce" />
               </p>
             </div>
 
-            <RevealGroup className="col-span-full grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
               {effectiveFlavors.map((flavor) => {
                 const isSelected = flavor.id === selectedFlavor.id;
                 return (
@@ -426,7 +427,7 @@ export function OrderSection() {
                       onClick={() => setSelectedFlavorId(flavor.id)}
                       aria-pressed={isSelected}
                       className={cn(
-                        "group relative flex w-full h-full items-center gap-3.5 rounded-2xl border-2 p-3.5 text-left transition-all duration-200 min-h-[110px]",
+                        "group relative flex w-full h-full items-center gap-3 xs:gap-3.5 rounded-xl xs:rounded-2xl border-2 p-3 xs:p-3.5 text-left transition-all duration-200 min-h-[100px] xs:min-h-[110px] active:scale-[0.99]",
                         isSelected
                           ? "border-primary bg-primary/[0.03] shadow-md shadow-brand-crimson/10 ring-1 ring-primary/20"
                           : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
@@ -435,7 +436,7 @@ export function OrderSection() {
                       {flavor.tag && (
                         <span
                           className={cn(
-                            "absolute -top-2.5 right-3.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold shadow-xs z-10",
+                            "absolute -top-2.5 right-2.5 xs:right-3.5 rounded-full px-2 xs:px-2.5 py-0.5 text-[10px] xs:text-[11px] font-bold shadow-xs z-10 max-w-[85%] truncate",
                             flavor.popular
                               ? "bg-brand-crimson text-white"
                               : "bg-muted border border-border text-foreground/80"
@@ -448,7 +449,7 @@ export function OrderSection() {
                       {/* Product Image with Flavor-Specific Accent Color Background */}
                       <div
                         className={cn(
-                          "relative flex size-16 sm:size-20 shrink-0 items-center justify-center rounded-xl p-1 border transition-transform duration-200 group-hover:scale-105 overflow-hidden",
+                          "relative flex size-14 xs:size-16 sm:size-20 shrink-0 items-center justify-center rounded-xl p-1 border transition-transform duration-200 group-hover:scale-105 overflow-hidden",
                           flavor.accentBg,
                           `bg-gradient-to-br ${flavor.accentGradient}`
                         )}
@@ -459,24 +460,24 @@ export function OrderSection() {
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = "/images/product-jar.webp";
                           }}
-                          className="h-full w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-110"
+                          className="h-full w-auto max-w-full object-contain drop-shadow-xs transition-transform duration-200 group-hover:scale-110"
                         />
                       </div>
 
                       {/* Text Content Beside Product Image */}
-                      <div className="flex flex-1 flex-col justify-center min-w-0 pr-6">
-                        <span className="font-heading text-base font-bold text-foreground leading-tight">
+                      <div className="flex flex-1 flex-col justify-center min-w-0 pr-5 sm:pr-6">
+                        <span className="font-heading text-sm xs:text-base font-bold text-foreground leading-tight truncate xs:whitespace-normal">
                           {flavor.name}
                         </span>
-                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed whitespace-pre-line">
+                        <p className="mt-0.5 text-[11px] xs:text-xs text-muted-foreground line-clamp-2 leading-relaxed whitespace-pre-line">
                           {flavor.description}
                         </p>
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <span className="font-heading text-sm font-extrabold text-primary">
+                        <div className="mt-1 xs:mt-1.5 flex items-center gap-1.5 xs:gap-2 flex-wrap">
+                          <span className="font-heading text-xs xs:text-sm sm:text-base font-extrabold text-primary">
                             ৳{flavor.salePrice.toLocaleString("bn-BD")}
                           </span>
                           {flavor.regularPrice > flavor.salePrice && (
-                            <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/70">
+                            <span className="text-[10px] xs:text-xs text-muted-foreground line-through decoration-muted-foreground/70">
                               ৳{flavor.regularPrice.toLocaleString("bn-BD")}
                             </span>
                           )}
@@ -486,13 +487,13 @@ export function OrderSection() {
                       {/* Radio / Selection Checkbox Indicator */}
                       <span
                         className={cn(
-                          "absolute right-3 bottom-3 flex size-5 items-center justify-center rounded-full border-2 transition-all",
+                          "absolute right-2.5 bottom-2.5 xs:right-3 xs:bottom-3 flex size-4.5 xs:size-5 items-center justify-center rounded-full border-2 transition-all shrink-0",
                           isSelected
                             ? "border-primary bg-primary text-primary-foreground scale-105"
                             : "border-muted-foreground/30 bg-background"
                         )}
                       >
-                        {isSelected && <CheckCircle2 className="size-3.5 text-white" />}
+                        {isSelected && <CheckCircle2 className="size-3 xs:size-3.5 text-white" />}
                       </span>
                     </button>
                   </RevealItem>
@@ -500,124 +501,128 @@ export function OrderSection() {
               })}
             </RevealGroup>
 
-            <h3 className="col-span-full mt-2 font-heading text-lg font-bold text-foreground flex items-center gap-2">
-              <Truck className="size-5 text-primary shrink-0" />
-              <span>ডেলিভারি তথ্য</span>
-            </h3>
+            <div className="space-y-4 border-t border-border/60 pt-5">
+              <h3 className="font-heading text-base xs:text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+                <Truck className="size-4.5 xs:size-5 text-primary shrink-0" />
+                <span>ডেলিভারি তথ্য</span>
+              </h3>
 
-            {/* Field 1: Full Name */}
-            <div className="grid gap-1.5">
-              <Label htmlFor="name">পূর্ণ নাম</Label>
-              <Input
-                id="name"
-                autoComplete="name"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="আপনার নাম লিখুন"
-                className="h-11"
-              />
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 xs:gap-4">
+                {/* Field 1: Full Name */}
+                <div className="grid gap-1.5 col-span-full sm:col-span-1">
+                  <Label htmlFor="name" className="text-xs xs:text-sm font-medium">পূর্ণ নাম</Label>
+                  <Input
+                    id="name"
+                    autoComplete="name"
+                    value={form.name}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="আপনার নাম লিখুন"
+                    className="h-10 xs:h-11 text-xs xs:text-sm rounded-xl"
+                  />
+                </div>
 
-            {/* Field 2: Phone */}
-            <div className="grid gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="phone">মোবাইল নম্বর *</Label>
-                {isOtpVerified && verifiedPhone === form.phone.trim() && (
-                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="size-3.5" /> ওটিপি ভেরিফাইড
-                  </span>
-                )}
-              </div>
-              <div className="relative flex items-center">
-                <span className="absolute left-3.5 text-sm font-semibold text-muted-foreground select-none pointer-events-none">
-                  +88
-                </span>
-                <Input
-                  id="phone"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  value={form.phone}
-                  onChange={handlePhoneChange}
-                  aria-invalid={Boolean(errors.phone)}
-                  placeholder="01XXXXXXXXX"
-                  className={cn(
-                    "h-11 pl-12 pr-10 transition-all duration-200",
-                    isOtpVerified && verifiedPhone === form.phone.trim() && "border-emerald-500 ring-1 ring-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/10",
-                    !isOtpVerified && isCheckingPhone && "border-emerald-500 ring-2 ring-emerald-500/30",
-                    !isOtpVerified && isIpAlreadyInDb === false && "border-emerald-500 ring-1 ring-emerald-500/20",
-                    !isOtpVerified && isIpAlreadyInDb === true && "border-amber-500 ring-1 ring-amber-500/20"
-                  )}
-                />
-                <div className="absolute right-3 flex items-center pointer-events-none">
-                  {isCheckingPhone && (
-                    <Loader2 className="size-5 animate-spin text-emerald-600" />
-                  )}
-                  {!isCheckingPhone && isOtpVerified && verifiedPhone === form.phone.trim() && (
-                    <CheckCircle2 className="size-5 text-emerald-600 animate-in fade-in" />
-                  )}
-                  {!isCheckingPhone && (!isOtpVerified || verifiedPhone !== form.phone.trim()) && isIpAlreadyInDb === false && (
-                    <CheckCircle2 className="size-5 text-emerald-600 animate-in fade-in" />
-                  )}
-                  {!isCheckingPhone && (!isOtpVerified || verifiedPhone !== form.phone.trim()) && isIpAlreadyInDb === true && (
-                    <ShieldAlert className="size-5 text-amber-500 animate-in fade-in" />
-                  )}
+                {/* Field 2: Phone */}
+                <div className="grid gap-1.5 col-span-full sm:col-span-1">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="phone" className="text-xs xs:text-sm font-medium">মোবাইল নম্বর *</Label>
+                    {isOtpVerified && verifiedPhone === form.phone.trim() && (
+                      <span className="text-[10px] xs:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="size-3 xs:size-3.5" /> ভেরিফাইড
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 text-xs xs:text-sm font-semibold text-muted-foreground select-none pointer-events-none">
+                      +88
+                    </span>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      value={form.phone}
+                      onChange={handlePhoneChange}
+                      aria-invalid={Boolean(errors.phone)}
+                      placeholder="01XXXXXXXXX"
+                      className={cn(
+                        "h-10 xs:h-11 pl-11 xs:pl-12 pr-9 xs:pr-10 text-xs xs:text-sm rounded-xl transition-all duration-200",
+                        isOtpVerified && verifiedPhone === form.phone.trim() && "border-emerald-500 ring-1 ring-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/10",
+                        !isOtpVerified && isCheckingPhone && "border-emerald-500 ring-2 ring-emerald-500/30",
+                        !isOtpVerified && isIpAlreadyInDb === false && "border-emerald-500 ring-1 ring-emerald-500/20",
+                        !isOtpVerified && isIpAlreadyInDb === true && "border-amber-500 ring-1 ring-amber-500/20"
+                      )}
+                    />
+                    <div className="absolute right-2.5 xs:right-3 flex items-center pointer-events-none">
+                      {isCheckingPhone && (
+                        <Loader2 className="size-4 xs:size-5 animate-spin text-emerald-600" />
+                      )}
+                      {!isCheckingPhone && isOtpVerified && verifiedPhone === form.phone.trim() && (
+                        <CheckCircle2 className="size-4 xs:size-5 text-emerald-600 animate-in fade-in" />
+                      )}
+                      {!isCheckingPhone && (!isOtpVerified || verifiedPhone !== form.phone.trim()) && isIpAlreadyInDb === false && (
+                        <CheckCircle2 className="size-4 xs:size-5 text-emerald-600 animate-in fade-in" />
+                      )}
+                      {!isCheckingPhone && (!isOtpVerified || verifiedPhone !== form.phone.trim()) && isIpAlreadyInDb === true && (
+                        <ShieldAlert className="size-4 xs:size-5 text-amber-500 animate-in fade-in" />
+                      )}
+                    </div>
+                  </div>
+                  {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                </div>
+
+                {/* Field 3: Full Address */}
+                <div className="grid gap-1.5 col-span-full">
+                  <Label htmlFor="address" className="text-xs xs:text-sm font-medium">বাসার পূর্ণ ঠিকানা (এলাকা, থানা, জেলা সহ লিখুন)</Label>
+                  <Input
+                    id="address"
+                    autoComplete="street-address"
+                    value={form.address}
+                    onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                    placeholder="বাসা/হোল্ডিং নং, রোড, এলাকা, থানা, জেলা"
+                    className="h-10 xs:h-11 text-xs xs:text-sm rounded-xl"
+                  />
                 </div>
               </div>
-              {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
-            </div>
-
-            {/* Field 3: Full Address */}
-            <div className="grid gap-1.5 sm:col-span-2">
-              <Label htmlFor="address">বাসার পূর্ণ ঠিকানা (এলাকা, থানা, জেলা সহ লিখুন)</Label>
-              <Input
-                id="address"
-                autoComplete="street-address"
-                value={form.address}
-                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                placeholder="বাসা/হোল্ডিং নং, রোড, এলাকা, থানা, জেলা"
-                className="h-11"
-              />
             </div>
           </div>
 
-          {/* Right Column: Order Summary + Payment Method + bKash Details + Confirm Button */}
-          <div className="flex flex-col rounded-2xl bg-muted p-5 sm:p-6 min-w-0">
+          {/* Right Column: Order Summary + Payment Method + bKash Details + Confirm Button (5 cols on lg) */}
+          <div className="flex flex-col rounded-xl xs:rounded-2xl bg-muted/60 dark:bg-muted/30 p-4 xs:p-5 sm:p-6 min-w-0 border border-border/60 shadow-xs lg:col-span-5 lg:sticky lg:top-24">
             <div>
-              <h3 className="font-heading text-lg font-bold text-foreground">আপনার অর্ডার</h3>
+              <h3 className="font-heading text-base xs:text-lg font-bold text-foreground">আপনার অর্ডার</h3>
               
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
+              <div className="mt-3 flex items-start justify-between gap-2 text-xs xs:text-sm">
+                <span className="text-muted-foreground leading-snug">
                   {singleJarPrice.label} {content.productName || "মিল্কিমম"} ({selectedFlavor.name}) ·{" "}
                   {singleJarPrice.perJarDays} দিনের ডোজ
                 </span>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <span className="block font-semibold text-foreground">
                     ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
                   </span>
                   {selectedFlavor.regularPrice > selectedFlavor.salePrice && (
-                    <span className="block text-xs text-muted-foreground line-through">
+                    <span className="block text-[11px] xs:text-xs text-muted-foreground line-through">
                       ৳{selectedFlavor.regularPrice.toLocaleString("bn-BD")}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="mt-1 flex items-center justify-between text-sm text-muted-foreground">
+              <div className="mt-2 flex items-center justify-between text-xs xs:text-sm text-muted-foreground">
                 <span>ডেলিভারি চার্জ</span>
                 <span className="font-semibold text-brand-green">ফ্রি</span>
               </div>
 
-              <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                <span className="font-semibold text-foreground">সর্বমোট</span>
-                <span className="font-heading text-xl font-extrabold text-primary">
+              <div className="mt-3 flex items-center justify-between border-t border-border/80 pt-3">
+                <span className="font-semibold text-xs xs:text-sm text-foreground">সর্বমোট</span>
+                <span className="font-heading text-lg xs:text-xl sm:text-2xl font-extrabold text-primary">
                   ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
                 </span>
               </div>
 
-              {/* Payment Method Section (Placed on the right side before order confirm) */}
-              <div className="mt-6 border-t border-border pt-4">
-                <span className="text-sm font-bold text-foreground">পেমেন্ট পদ্ধতি বেছে নিন</span>
+              {/* Payment Method Section */}
+              <div className="mt-5 border-t border-border/80 pt-4">
+                <span className="text-xs xs:text-sm font-bold text-foreground">পেমেন্ট পদ্ধতি বেছে নিন</span>
                 <div className="mt-2.5 flex gap-2">
                   {(
                     [
@@ -628,9 +633,9 @@ export function OrderSection() {
                     <label
                       key={option.id}
                       className={cn(
-                        "flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+                        "flex flex-1 cursor-pointer items-center justify-center gap-1.5 xs:gap-2 rounded-xl border px-2 xs:px-3 py-2.5 text-xs xs:text-sm font-medium transition-all duration-150 select-none",
                         form.payment === option.id
-                          ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs"
+                          ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs ring-1 ring-primary/30"
                           : "border-border bg-card text-foreground/80 hover:border-brand-coral/40"
                       )}
                     >
@@ -648,60 +653,60 @@ export function OrderSection() {
                         <img
                           src="/assets/bkash-logo.webp"
                           alt="bKash"
-                          className="h-5 w-auto object-contain shrink-0"
+                          className="h-4 xs:h-5 w-auto object-contain shrink-0"
                         />
                       )}
-                      <span>{option.label}</span>
+                      <span className="whitespace-nowrap">{option.label}</span>
                     </label>
                   ))}
                 </div>
 
                 {/* Cash on Delivery Notice */}
                 {form.payment === "cod" && (
-                  <div className="mt-3.5 rounded-2xl border border-brand-green/30 bg-brand-green-light/80 p-3.5 text-xs text-foreground shadow-xs">
-                    <p className="flex items-center gap-2 font-bold text-brand-green text-sm">
+                  <div className="mt-3 rounded-xl xs:rounded-2xl border border-brand-green/30 bg-brand-green-light/80 p-3 xs:p-3.5 text-xs text-foreground shadow-xs">
+                    <p className="flex items-center gap-1.5 font-bold text-brand-green text-xs xs:text-sm">
                       <Truck className="size-4 shrink-0 text-brand-green" />
                       <span>ক্যাশ অন ডেলিভারি</span>
                     </p>
-                    <p className="mt-1 text-xs font-semibold text-brand-green leading-relaxed">
+                    <p className="mt-1 text-[11px] xs:text-xs font-semibold text-brand-green leading-relaxed">
                       সাপ্লিমেন্ট হাতে পেয়ে মূল্য পরিশোধ করবো।
                     </p>
                   </div>
                 )}
 
-                {/* bKash Payment Box (Image, Instructions & TrxID Input) */}
+                {/* bKash Payment Box */}
                 {form.payment === "bkash" && (
-                  <div className="mt-4 space-y-3.5 rounded-2xl border border-brand-coral/40 bg-card p-4 text-foreground shadow-sm">
+                  <div className="mt-3.5 space-y-3 rounded-xl xs:rounded-2xl border border-brand-coral/40 bg-card p-3 xs:p-4 text-foreground shadow-sm">
                     {/* bKash Cover Image Header */}
                     <div className="overflow-hidden rounded-xl border border-border bg-white p-2 text-center shadow-xs">
                       <img
                         src="/images/bkash.webp"
                         alt="bKash Payment"
-                        className="mx-auto h-auto max-h-56 w-full rounded-lg object-contain"
+                        className="mx-auto h-auto max-h-36 xs:max-h-48 sm:max-h-56 w-full rounded-lg object-contain"
                       />
                     </div>
 
                     {/* bKash Personal Number */}
-                    <div className="rounded-xl border border-brand-crimson/20 bg-brand-cream/50 p-3 text-center">
-                      <span className="block text-xs font-medium text-muted-foreground">
+                    <div className="rounded-xl border border-brand-crimson/20 bg-brand-cream/50 p-2.5 xs:p-3 text-center">
+                      <span className="block text-[11px] xs:text-xs font-medium text-muted-foreground">
                         বিকাশ পার্সোনাল নম্বর (Send Money)
                       </span>
-                      <span className="block font-mono text-lg font-bold tracking-wider text-brand-crimson select-all">
+                      <span className="block font-mono text-base xs:text-lg font-bold tracking-wider text-brand-crimson select-all mt-0.5">
                         01926-344244
                       </span>
                     </div>
 
                     {/* Bangla Instructions */}
-                    <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                      <p className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 sm:text-sm">
+                    <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-2.5 xs:p-3 text-[11px] xs:text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                      <p className="flex items-center gap-1.5 text-xs xs:text-sm font-bold text-amber-900 dark:text-amber-300">
                         <img
                           src="/assets/bkash-logo.webp"
                           alt="bKash"
-                          className="h-4.5 w-auto object-contain shrink-0 inline-block"
+                          className="h-4 w-auto object-contain shrink-0 inline-block"
                         />
                         <span>বিকাশ পেমেন্ট করার নির্দেশাবলী:</span>
                       </p>
-                      <ol className="mt-1.5 list-decimal list-inside space-y-1.5 pl-1 text-xs font-medium leading-relaxed text-muted-foreground">
+                      <ol className="mt-1.5 list-decimal list-inside space-y-1 pl-0.5 text-[11px] xs:text-xs font-medium leading-relaxed text-muted-foreground">
                         <li>
                           আপনার বিকাশ মোবাইল অ্যাপ অথবা{" "}
                           <span className="font-mono font-bold text-foreground">*247#</span> ডায়াল করুন।
@@ -716,7 +721,7 @@ export function OrderSection() {
                         <li>
                           মোট পরিমাণ:{" "}
                           <strong className="font-bold text-brand-crimson">
-                            {selectedFlavor.salePrice}/=
+                            ৳{selectedFlavor.salePrice}/=
                           </strong>{" "}
                           টাকা দিয়ে পিন দিন।
                         </li>
@@ -741,7 +746,7 @@ export function OrderSection() {
                         onChange={(e) => setForm((f) => ({ ...f, trxId: e.target.value }))}
                         aria-invalid={Boolean(errors.trxId)}
                         placeholder="bKash TrxID এখানে লিখুন (যেমন: 9AB12CD34E)"
-                        className="h-11 font-mono uppercase text-sm bg-background"
+                        className="h-10 xs:h-11 font-mono uppercase text-xs xs:text-sm bg-background rounded-xl"
                       />
                       {errors.trxId && (
                         <div className="flex items-center gap-1 text-xs font-semibold text-destructive mt-0.5">
@@ -757,8 +762,8 @@ export function OrderSection() {
 
             <div className="mt-5">
               {submitError && (
-                <div className="mb-3 flex items-center gap-2.5 rounded-2xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs sm:text-sm font-bold text-destructive shadow-xs">
-                  <AlertCircle className="size-5 shrink-0 text-destructive" />
+                <div className="mb-3 flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs xs:text-sm font-bold text-destructive shadow-xs">
+                  <AlertCircle className="size-4.5 shrink-0 text-destructive" />
                   <span>{submitError}</span>
                 </div>
               )}
@@ -766,21 +771,24 @@ export function OrderSection() {
               <Button
                 type="submit"
                 disabled={status === "submitting"}
-                className="cta-shine h-12 w-full gap-2 rounded-full bg-brand-cta text-base text-brand-cta-foreground hover:bg-brand-cta-dark"
+                className="cta-shine mt-4 h-12 xs:h-13 sm:h-14 w-full gap-2 rounded-full bg-brand-cta text-sm xs:text-base sm:text-lg font-bold text-brand-cta-foreground hover:bg-brand-cta-dark shadow-md shadow-brand-cta/20 active:scale-[0.99] transition-all cursor-pointer"
               >
                 {status === "submitting" ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <>
+                    <Loader2 className="size-5 animate-spin" />
+                    <span>অর্ডার প্রসেস হচ্ছে...</span>
+                  </>
                 ) : (
-                  "অর্ডার কনফার্ম করুন"
+                  <span>অর্ডার কনফার্ম করুন</span>
                 )}
               </Button>
 
-              <div className="mt-4 flex flex-col gap-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="size-4 text-brand-green" /> নিরাপদ ও সুরক্ষিত অর্ডার
+              <div className="mt-3.5 flex flex-wrap items-center justify-around gap-2 text-[11px] xs:text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="size-3.5 text-brand-green shrink-0" /> নিরাপদ ও সুরক্ষিত অর্ডার
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <Truck className="size-4 text-brand-green" /> সারাদেশে হোম ডেলিভারি
+                <span className="flex items-center gap-1">
+                  <Truck className="size-3.5 text-brand-green shrink-0" /> সারাদেশে হোম ডেলিভারি
                 </span>
               </div>
             </div>
@@ -791,7 +799,7 @@ export function OrderSection() {
       {/* Error Popup Modal */}
       {showErrorModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 xs:p-4 backdrop-blur-sm animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
           onClick={() => {
@@ -804,7 +812,7 @@ export function OrderSection() {
           }}
         >
           <div
-            className="relative w-full max-w-md rounded-3xl border border-brand-crimson/30 bg-card p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200"
+            className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl xs:rounded-3xl border border-brand-crimson/30 bg-card p-5 xs:p-6 sm:p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -817,20 +825,20 @@ export function OrderSection() {
                   phoneElem.focus({ preventScroll: true });
                 }
               }}
-              className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="absolute right-3.5 top-3.5 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <X className="size-5" />
             </button>
 
-            <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-brand-crimson/10 text-brand-crimson">
-              <PhoneCall className="size-8 animate-bounce" />
+            <div className="mx-auto flex size-14 xs:size-16 items-center justify-center rounded-full bg-brand-crimson/10 text-brand-crimson">
+              <PhoneCall className="size-7 xs:size-8 animate-bounce" />
             </div>
 
-            <h3 className="mt-4 font-heading text-xl font-bold text-foreground">
+            <h3 className="mt-3.5 font-heading text-lg xs:text-xl font-bold text-foreground">
               মোবাইল নম্বর প্রয়োজন
             </h3>
 
-            <p className="mt-2.5 text-sm font-medium text-foreground leading-relaxed">
+            <p className="mt-2 text-xs xs:text-sm font-medium text-foreground leading-relaxed">
               {modalErrorMessage === "invalid" ? (
                 <span>
                   অনুগ্রহ করে{" "}
@@ -850,7 +858,7 @@ export function OrderSection() {
               )}
             </p>
 
-            <div className="mt-6">
+            <div className="mt-5 xs:mt-6">
               <Button
                 type="button"
                 onClick={() => {
@@ -861,7 +869,7 @@ export function OrderSection() {
                     phoneElem.focus({ preventScroll: true });
                   }
                 }}
-                className="w-full rounded-full bg-brand-crimson text-white hover:bg-brand-crimson/90 font-bold h-11 text-sm shadow-md"
+                className="w-full rounded-full bg-brand-crimson text-white hover:bg-brand-crimson/90 font-bold h-10 xs:h-11 text-xs xs:text-sm shadow-md cursor-pointer"
               >
                 ঠিক আছে, নম্বর দিচ্ছি
               </Button>
@@ -872,21 +880,21 @@ export function OrderSection() {
 
       {/* Small Alert Toast Popup at Bottom */}
       {showCheckingPopup && (
-        <div className="fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-[70] animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto">
-          <div className="bg-slate-900/95 text-white backdrop-blur-md border border-slate-700/60 rounded-full shadow-2xl px-4 py-2.5 flex items-center gap-3 max-w-sm">
+        <div className="fixed bottom-20 xs:bottom-24 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:translate-x-0 z-[70] animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto max-w-sm mx-auto sm:mx-0">
+          <div className="bg-slate-900/95 text-white backdrop-blur-md border border-slate-700/60 rounded-full shadow-2xl px-3.5 py-2.5 flex items-center gap-2.5">
             {popupType === "checking" && (
-              <div className="relative flex items-center justify-center size-6 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">
-                <Loader2 className="size-4 animate-spin text-emerald-400" />
+              <div className="relative flex items-center justify-center size-5.5 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">
+                <Loader2 className="size-3.5 animate-spin text-emerald-400" />
               </div>
             )}
             {popupType === "tracked" && (
-              <div className="flex items-center justify-center size-6 rounded-full bg-amber-500/20 text-amber-400 shrink-0">
-                <ShieldAlert className="size-4 text-amber-400" />
+              <div className="flex items-center justify-center size-5.5 rounded-full bg-amber-500/20 text-amber-400 shrink-0">
+                <ShieldAlert className="size-3.5 text-amber-400" />
               </div>
             )}
             {popupType === "clean" && (
-              <div className="flex items-center justify-center size-6 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">
-                <CheckCircle2 className="size-4 text-emerald-400" />
+              <div className="flex items-center justify-center size-5.5 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0">
+                <CheckCircle2 className="size-3.5 text-emerald-400" />
               </div>
             )}
             <div className="flex-1 min-w-0 pr-1">
@@ -907,30 +915,30 @@ export function OrderSection() {
 
       {/* OTP Verification Modal Pop Up */}
       {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-background border border-primary/20 rounded-3xl shadow-2xl p-6 sm:p-8 text-center overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 xs:p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-background border border-primary/20 rounded-2xl xs:rounded-3xl shadow-2xl p-5 xs:p-6 sm:p-8 text-center">
             <button
               type="button"
               onClick={() => setShowOtpModal(false)}
-              className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="absolute right-3.5 top-3.5 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <X className="size-5" />
             </button>
 
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
-              <KeyRound className="size-7 animate-pulse text-primary" />
+            <div className="mx-auto flex size-12 xs:size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3 xs:mb-4">
+              <KeyRound className="size-6 xs:size-7 animate-pulse text-primary" />
             </div>
 
-            <h3 className="font-heading text-xl sm:text-2xl font-extrabold text-foreground">
+            <h3 className="font-heading text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground">
               মোবাইল ওটিপি (OTP) ভেরিফিকেশন
             </h3>
 
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            <p className="mt-2 text-xs xs:text-sm text-muted-foreground leading-relaxed">
               নিরাপত্তার স্বার্থে আপনার মোবাইল নম্বর{" "}
               <span className="font-bold text-foreground">{form.phone}</span>-এ ৪ ডিজিটের ভেরিফিকেশন কোড পাঠানো হয়েছে।
             </p>
 
-            <form onSubmit={handleVerifyOtpSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleVerifyOtpSubmit} className="mt-5 space-y-3.5">
               <div className="space-y-2">
                 <Input
                   type="text"
@@ -944,7 +952,7 @@ export function OrderSection() {
                     setOtpCode(converted);
                   }}
                   placeholder="1 2 3 4"
-                  className="h-14 text-center font-mono text-3xl font-extrabold tracking-[0.5em] rounded-2xl border-2 border-primary/30 focus-visible:ring-primary/40"
+                  className="h-12 xs:h-14 text-center font-mono text-2xl xs:text-3xl font-extrabold tracking-[0.5em] rounded-2xl border-2 border-primary/30 focus-visible:ring-primary/40"
                   autoFocus
                 />
               </div>
@@ -964,11 +972,11 @@ export function OrderSection() {
               <Button
                 type="submit"
                 disabled={isVerifyingOtp || !otpCode.trim()}
-                className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base shadow-lg shadow-primary/20"
+                className="w-full h-11 xs:h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs xs:text-sm sm:text-base shadow-lg shadow-primary/20 cursor-pointer"
               >
                 {isVerifyingOtp ? (
                   <>
-                    <Loader2 className="size-5 animate-spin mr-2" />
+                    <Loader2 className="size-4 xs:size-5 animate-spin mr-2" />
                     যাচাই করা হচ্ছে...
                   </>
                 ) : (
@@ -987,7 +995,7 @@ export function OrderSection() {
                     type="button"
                     disabled={isSendingOtp}
                     onClick={() => handleSendOtp(form.phone.trim())}
-                    className="font-bold text-primary hover:underline flex items-center gap-1"
+                    className="font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className={cn("size-3.5", isSendingOtp && "animate-spin")} />
                     পুনরায় ওটিপি পাঠান
