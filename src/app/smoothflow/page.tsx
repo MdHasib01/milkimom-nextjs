@@ -4,7 +4,6 @@ import { LandingPageContentProvider } from "@/components/landing-page-content-pr
 import { SmoothflowHero } from "@/components/smoothflow/smoothflow-hero";
 import { SmoothflowImagine } from "@/components/smoothflow/smoothflow-imagine";
 import { SmoothflowBenefits } from "@/components/smoothflow/smoothflow-benefits";
-import { FlavorsSection } from "@/components/flavors-section";
 import { SmoothflowReviews } from "@/components/smoothflow/smoothflow-reviews";
 import { SmoothflowCertifications } from "@/components/smoothflow/smoothflow-certifications";
 import { SmoothflowFaq } from "@/components/smoothflow/smoothflow-faq";
