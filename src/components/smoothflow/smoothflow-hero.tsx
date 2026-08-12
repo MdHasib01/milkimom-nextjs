@@ -63,8 +63,8 @@ export function SmoothflowHero() {
   return (
     <>
       {/* 1. TOP URGENCY BAR */}
-      <div className="w-full bg-brand text-white py-2.5 px-3 flex justify-center items-center text-sm font-medium z-[9999] fixed top-0 left-0 shadow-sm">
-        <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-3">
+      <div className="w-full max-w-full bg-brand text-white py-2.5 px-3 flex justify-center items-center text-sm font-medium z-[9999] fixed top-0 inset-x-0 shadow-sm overflow-hidden">
+        <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-3 max-w-full">
           <span className="text-xs sm:text-sm tracking-wide text-center font-extrabold">
             {content.announcementText || "42% Offer শেষ হতে বাকি"}
           </span>
@@ -80,18 +80,18 @@ export function SmoothflowHero() {
       </div>
 
       {/* HERO MAIN */}
-      <section className="relative overflow-hidden pt-[70px] md:pt-[86px] pb-14 md:pb-20 min-h-[70vh] flex flex-col items-center justify-center">
+      <section className="relative overflow-hidden pt-[70px] md:pt-[86px] pb-12 md:pb-20 min-h-[70vh] flex flex-col items-center justify-center w-full max-w-full">
         <GridPattern size={36} className="opacity-15" />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-32 -z-10 h-[32rem]"
+          className="pointer-events-none absolute inset-x-0 -top-32 -z-10 h-[32rem] max-w-full overflow-hidden"
           style={{
             background:
               "radial-gradient(60% 60% at 50% 0%, rgba(227,122,105,0.18), transparent)",
           }}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center w-full max-w-full">
           {/* 2. MAIN HERO HEADLINE */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -99,10 +99,10 @@ export function SmoothflowHero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="max-w-[850px] mx-auto w-full mb-5"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-black text-[#1A1A1A] leading-[1.1] mb-3 md:mb-5 tracking-tight">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-[72px] font-black text-[#1A1A1A] leading-[1.15] mb-3 md:mb-5 tracking-tight text-center break-words max-w-full">
               বাচ্চাকে দুধ খাওয়াতে গেলেই<br className="hidden md:block" /> বুকের ব্যথা?
             </h1>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1A1A1A] leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1A1A1A] leading-tight text-center break-words max-w-full">
               <span className="text-brand">মাত্র ২৪ ঘন্টায়</span> মুক্তি পান।
             </h2>
           </motion.div>
@@ -112,14 +112,14 @@ export function SmoothflowHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl mx-auto w-full mb-8"
+            className="max-w-2xl mx-auto w-full mb-6 sm:mb-8 px-1"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-brand-coral/30 bg-gradient-to-br from-white via-rose-50/40 to-orange-50/30 p-5 sm:p-6 shadow-md shadow-brand-coral/10 backdrop-blur-sm">
+            <div className="relative overflow-hidden rounded-2xl border border-brand-coral/30 bg-gradient-to-br from-white via-rose-50/40 to-orange-50/30 p-4 sm:p-6 shadow-md shadow-brand-coral/10 backdrop-blur-sm">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-crimson to-brand-coral" />
-              <p className="text-base sm:text-lg text-slate-800 leading-relaxed font-medium text-center">
+              <p className="text-sm sm:text-base md:text-lg text-slate-800 leading-relaxed font-medium text-center">
                 বুকের এক পাশে <span className="font-bold text-brand-crimson">শক্ত চাকার মতো অনুভূতি</span>, চাপ,{" "}
                 <span className="font-bold text-brand-crimson">Tenderness</span>, আর Feed করানোর সময় অস্বস্তি—এগুলো সবই{" "}
-                <span className="font-extrabold text-brand-crimson bg-brand-coral/15 px-2 py-0.5 rounded-md inline-block">Clogged-Duct Related</span>।
+                <span className="font-extrabold text-brand-crimson bg-brand-coral/15 px-2 py-0.5 rounded-md inline-block max-w-full break-words">Clogged-Duct Related</span>।
               </p>
             </div>
           </motion.div>
@@ -129,23 +129,23 @@ export function SmoothflowHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-4 flex flex-wrap items-center justify-center gap-3"
+            className="mt-2 sm:mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-full px-2 sm:px-0"
           >
             <Button
               onClick={scrollToOrder}
-              className="cta-shine h-12 gap-2 rounded-full bg-brand-cta px-6 text-base text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark cursor-pointer"
+              className="cta-shine min-h-[48px] h-auto py-3 sm:py-0 sm:h-12 w-full sm:w-auto gap-2 rounded-full bg-brand-cta px-4 sm:px-6 text-sm sm:text-base text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark cursor-pointer justify-center text-center whitespace-normal sm:whitespace-nowrap"
             >
-              <ShoppingBag className="size-5" />
+              <ShoppingBag className="size-5 shrink-0" />
               <span>{content.heroCtaText || "SmoothFlow অর্ডার করতে এখানে ক্লিক করুন"}</span>
             </Button>
 
             <Button
               asChild
               variant="outline"
-              className="h-12 gap-2 rounded-full border-brand-coral/40 px-6 text-base text-brand-crimson hover:bg-brand-coral/10"
+              className="min-h-[48px] h-auto py-3 sm:py-0 sm:h-12 w-full sm:w-auto gap-2 rounded-full border-brand-coral/40 px-4 sm:px-6 text-sm sm:text-base text-brand-crimson hover:bg-brand-coral/10 justify-center text-center"
             >
               <a href={siteConfig.messenger} target="_blank" rel="noopener noreferrer">
-                <MessengerIcon className="size-5" />
+                <MessengerIcon className="size-5 shrink-0" />
                 <span>মেসেজ করুন</span>
               </a>
             </Button>
