@@ -67,7 +67,7 @@ export function MotherVisionSection() {
             <div className="lg:col-span-7">
               <Reveal delay={0.15}>
                 <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1 text-xs font-extrabold text-primary shadow-xs">
-                  <span>স্মুথফ্লো কেয়ার সলিউশন</span>
+                  <span>SmoothFlow কেয়ার সলিউশন</span>
                 </span>
 
                 <h2 className="mt-4 font-heading text-2xl font-black text-foreground sm:text-3xl lg:text-4xl leading-snug">

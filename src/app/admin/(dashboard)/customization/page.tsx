@@ -214,7 +214,7 @@ export default function AdminCustomizationPage() {
     footerAddress: "",
     howItWorksBadge: "কি কাজ করে?",
     howItWorksTitle: "একটি ডোজে ৫টি উপকারিতা",
-    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
+    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি SmoothFlow মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
     howItWorksImage: "",
     benefitsItems: DEFAULT_BENEFITS_LIST,
     carouselItems: DEFAULT_CAROUSEL_SLIDES,

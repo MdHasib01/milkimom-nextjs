@@ -91,7 +91,7 @@ export function PainEmpathyBanner() {
                     সারাদিন <span className="text-primary underline decoration-primary/30 underline-offset-4">&ldquo;আরও বাড়ছে না তো?&rdquo;</span> চিন্তা ছেড়ে
                   </p>
                   <p className="text-sm sm:text-base text-muted-foreground font-semibold mt-0.5">
-                    আজই স্মুথফ্লো দিয়ে দুশ্চিন্তামুক্ত থাকুন ও নিশ্চিন্তে ফিডিং করান।
+                    আজই SmoothFlow দিয়ে দুশ্চিন্তামুক্ত থাকুন ও নিশ্চিন্তে ফিডিং করান।
                   </p>
                 </div>
 

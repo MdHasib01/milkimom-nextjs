@@ -152,7 +152,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
   },
   smoothflow: {
     productSlug: "smoothflow",
-    productName: "স্মুথফ্লো",
+    productName: "SmoothFlow",
     productNameEn: "SmoothFlow",
     logoType: "text",
     logoImage: "/images/logo.webp",
@@ -179,7 +179,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     footerAddress: "202-J, Road-6, Mohammadiya Housing society, Mohammadpur, Dhaka.",
     howItWorksBadge: "কি কাজ করে?",
     howItWorksTitle: "একটি ডোজে ৫টি উপকারিতা",
-    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি স্মুথফ্লো মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
+    howItWorksSubtitle: "প্রকৃতি ও বিজ্ঞানের সমন্বয়ে তৈরি SmoothFlow মা ও শিশু উভয়ের জন্যই সামগ্রিক উপকার নিয়ে আসে।",
     howItWorksImage: "/images/smoothflow.png",
     benefitsItems: DEFAULT_BENEFITS_SMOOTHFLOW,
     carouselItems: DEFAULT_CAROUSEL_ITEMS,
@@ -328,7 +328,7 @@ export function LandingPageContentProvider({
   function replaceBrandName(text: string): string {
     if (!text) return "";
     if (content.productSlug === "milkimom") return text;
-    const targetBrand = content.productName || "স্মুথফ্লো";
+    const targetBrand = content.productName || "SmoothFlow";
     return text.replace(/মিল্কিমম/g, targetBrand).replace(/Milkimom/g, content.productNameEn || "SmoothFlow");
   }
 
