@@ -123,7 +123,7 @@ export function OrderSection() {
 
   const deliveryCharge = 60;
   const totalPrice = (selectedFlavor?.salePrice || 1999) + deliveryCharge;
-  const regularPriceVal = selectedFlavor?.regularPrice || (isSmoothflow ? 3290 : 8990);
+  const regularPriceVal = selectedFlavor?.regularPrice || (isSmoothflow ? 3450 : 8990);
   const savingsVal = regularPriceVal > (selectedFlavor?.salePrice || 1999) ? regularPriceVal - (selectedFlavor?.salePrice || 1999) : 0;
   const productNameEn = content.productNameEn || (isSmoothflow ? "SmoothFlow" : "Milkimom");
 

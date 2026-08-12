@@ -164,9 +164,9 @@ export const singleJarPrice = {
 
 export const smoothflowSingleJarPrice = {
   label: "১ জার",
-  regularPrice: 3290,
+  regularPrice: 3450,
   salePrice: 1999,
-  saving: 1291,
+  saving: 1451,
   perJarDays: 15,
 };
 

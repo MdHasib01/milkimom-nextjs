@@ -156,7 +156,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     productNameEn: "SmoothFlow",
     logoType: "text",
     logoImage: "/images/logo.webp",
-    announcementText: "⚡ SmoothFlow বিশেষ অফার! ৩৯% ছাড় - লঞ্চ প্রাইস মাত্র ৳১,৯৯৯ (রেগুলার ৳৩,২৮০, সাশ্রয় ৳১,২৮১)!",
+    announcementText: "42% Offer শেষ হতে বাকি",
     heroBadge: "১০০% সাইডইফেক্ট মুক্ত ও সেফ ফর্মুলা",
     heroTitle: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান।",
     heroTitleHighlight: "মাত্র ২৪ ঘন্টায় মুক্তি পান।",
@@ -171,7 +171,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     doctorImage: "/assets/doctor/doctor.png",
     orderHeadline: "SmoothFlow অর্ডার করুন",
     orderSubheadline: "Breast Pain নিয়ে আরেকটা Feeding-এর জন্য অপেক্ষা নয়।",
-    guaranteeTitle: "100% Satisfaction Guarantee",
+    guaranteeTitle: "৩ দিনের Money Back Guarantee",
     guaranteeText: "যদি SmoothFlow ব্যবহার করে আপনি কোনো পরিবর্তন অনুভব না করেন, আমাদের জানান। আমরা আপনার সম্পূর্ণ টাকা রিফান্ড করে দেব। কোনো শর্ত প্রযোজ্য নয়।",
     footerText: "SmoothFlow™ - মা ও সন্তানের স্বাস্থ্য সুরক্ষায় বিশ্বস্ত পার্টনার।",
     footerPhone: "01517-102603",
@@ -248,7 +248,10 @@ export function LandingPageContentProvider({
               productNameEn: json.data.productNameEn || initialContent.productNameEn,
               logoType: json.data.logoType || initialContent.logoType,
               logoImage: json.data.logoImage || initialContent.logoImage,
-              announcementText: json.data.announcementText || initialContent.announcementText,
+              announcementText:
+                isSmoothflow && (!json.data.announcementText || json.data.announcementText.includes("৩৯%"))
+                  ? "42% Offer শেষ হতে বাকি"
+                  : json.data.announcementText || initialContent.announcementText,
               heroBadge: json.data.heroBadge || initialContent.heroBadge,
               heroTitle: json.data.heroTitle || initialContent.heroTitle,
               heroTitleHighlight: json.data.heroTitleHighlight !== undefined ? json.data.heroTitleHighlight : initialContent.heroTitleHighlight,
@@ -263,7 +266,10 @@ export function LandingPageContentProvider({
               doctorImage: json.data.doctorImage || initialContent.doctorImage,
               orderHeadline: json.data.orderHeadline || initialContent.orderHeadline,
               orderSubheadline: json.data.orderSubheadline || initialContent.orderSubheadline,
-              guaranteeTitle: json.data.guaranteeTitle || initialContent.guaranteeTitle,
+              guaranteeTitle:
+                isSmoothflow && (!json.data.guaranteeTitle || json.data.guaranteeTitle === "100% Satisfaction Guarantee")
+                  ? "৩ দিনের Money Back Guarantee"
+                  : json.data.guaranteeTitle || initialContent.guaranteeTitle,
               guaranteeText: json.data.guaranteeText || initialContent.guaranteeText,
               footerText: json.data.footerText || initialContent.footerText,
               footerPhone: json.data.footerPhone || initialContent.footerPhone,

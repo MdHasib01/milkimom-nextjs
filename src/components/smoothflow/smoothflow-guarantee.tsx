@@ -30,7 +30,9 @@ export function SmoothflowGuarantee() {
           </div>
 
           <h3 className="text-lg md:text-xl font-bold text-[#1A1A1A] mb-3">
-            {content.guaranteeTitle || "৩ দিনের Money Back Guarantee"}
+            {!content.guaranteeTitle || content.guaranteeTitle === "100% Satisfaction Guarantee"
+              ? "৩ দিনের Money Back Guarantee"
+              : content.guaranteeTitle}
           </h3>
 
           <p className="text-sm md:text-base text-[#1A1A1A]/70 leading-relaxed font-medium">

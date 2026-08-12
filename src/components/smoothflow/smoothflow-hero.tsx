@@ -65,12 +65,8 @@ export function SmoothflowHero() {
       {/* 1. TOP URGENCY BAR */}
       <div className="w-full bg-brand text-white py-2.5 px-3 flex justify-center items-center text-sm font-medium z-[9999] fixed top-0 left-0 shadow-sm">
         <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-3">
-          <span className="text-xs sm:text-sm tracking-wide text-center">
-            {content.announcementText || (
-              <>
-                আজকের স্পেশাল অফার — <span className="font-extrabold">৩৯%</span> পর্যন্ত ছাড় + সারাদেশে ফ্রি ডেলিভারি
-              </>
-            )}
+          <span className="text-xs sm:text-sm tracking-wide text-center font-extrabold">
+            {content.announcementText || "42% Offer শেষ হতে বাকি"}
           </span>
           {countdown && (
             <div className="flex items-center gap-1.5 bg-white/20 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold font-mono tracking-wider shadow-sm">

@@ -62,7 +62,7 @@ export function SmoothflowPricing() {
             {/* Mega Offer Sticker */}
             <div className="absolute top-5 left-5 z-20 -rotate-[8deg] bg-brand text-white px-3 py-1.5 rounded-xl shadow-lg border border-white/20 flex flex-col items-center justify-center">
               <span className="text-[10px] font-bold tracking-widest leading-none mb-0.5">MEGA OFFER</span>
-              <span className="text-sm font-black leading-none">39% OFF</span>
+              <span className="text-sm font-black leading-none">42% OFF</span>
             </div>
 
             {/* Visual representation of product - full space */}
@@ -86,10 +86,10 @@ export function SmoothflowPricing() {
             <div className="flex flex-col items-center md:items-start mb-8 text-center md:text-left">
               <div className="flex items-center gap-3 justify-center md:justify-start w-full">
                 <span className="text-xl md:text-2xl text-[#1A1A1A]/40 line-through decoration-2 font-bold">
-                  3280 TK
+                  3450 TK
                 </span>
                 <span className="text-sm md:text-base text-[#1A1A1A]/70 font-semibold bg-brand-light px-3 py-1 rounded-full border border-brand/10">
-                  বাঁচলো 1281 TK
+                  বাঁচলো 1451 TK
                 </span>
               </div>
               <div className="mt-1">
