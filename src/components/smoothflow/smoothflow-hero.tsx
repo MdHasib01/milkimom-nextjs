@@ -107,18 +107,21 @@ export function SmoothflowHero() {
             </h2>
           </motion.div>
 
-          {/* 4. SUPPORTING COPY */}
+          {/* 4. SUPPORTING COPY BOX */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-xl mx-auto w-full mb-8"
+            className="max-w-2xl mx-auto w-full mb-8"
           >
-            <p className="mx-auto text-balance text-base text-muted-foreground sm:text-lg font-medium text-center">
-              বুকের এক পাশে <span className="font-bold text-primary">শক্ত চাকার মতো অনুভূতি</span>, চাপ,{" "}
-              <span className="font-bold text-primary">Tenderness</span>, আর Feed করানোর সময় অস্বস্তি—এগুলো সবই{" "}
-              <span className="font-bold text-primary">Clogged-Duct Related</span>।
-            </p>
+            <div className="relative overflow-hidden rounded-2xl border border-brand-coral/30 bg-gradient-to-br from-white via-rose-50/40 to-orange-50/30 p-5 sm:p-6 shadow-md shadow-brand-coral/10 backdrop-blur-sm">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-crimson to-brand-coral" />
+              <p className="text-base sm:text-lg text-slate-800 leading-relaxed font-medium text-center">
+                বুকের এক পাশে <span className="font-bold text-brand-crimson">শক্ত চাকার মতো অনুভূতি</span>, চাপ,{" "}
+                <span className="font-bold text-brand-crimson">Tenderness</span>, আর Feed করানোর সময় অস্বস্তি—এগুলো সবই{" "}
+                <span className="font-extrabold text-brand-crimson bg-brand-coral/15 px-2 py-0.5 rounded-md inline-block">Clogged-Duct Related</span>।
+              </p>
+            </div>
           </motion.div>
 
           {/* 5. PRIMARY CTA & 6. SECONDARY CTA */}
