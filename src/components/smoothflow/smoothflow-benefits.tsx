@@ -30,7 +30,7 @@ const defaultBenefits = [
 
 export function SmoothflowBenefits() {
   const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
-  const title = content.howItWorksTitle || "একটি ডোজে ৫টি উপকারিতা";
+  const title = content.howItWorksTitle || "SmoothFlow-এর ৫টি উপকারিতা";
 
   const rawImg = content.howItWorksImage && content.howItWorksImage.trim()
     ? content.howItWorksImage

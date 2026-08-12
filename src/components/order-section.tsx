@@ -121,7 +121,7 @@ export function OrderSection() {
     [effectiveFlavors, selectedFlavorId]
   );
 
-  const deliveryCharge = 60;
+  const deliveryCharge = 0;
   const totalPrice = (selectedFlavor?.salePrice || 1999) + deliveryCharge;
   const regularPriceVal = selectedFlavor?.regularPrice || (isSmoothflow ? 3450 : 8990);
   const savingsVal = regularPriceVal > (selectedFlavor?.salePrice || 1999) ? regularPriceVal - (selectedFlavor?.salePrice || 1999) : 0;
@@ -549,8 +549,8 @@ export function OrderSection() {
                 {/* Delivery Charge Row */}
                 <div className="flex items-center justify-between text-xs xs:text-sm text-muted-foreground font-medium pt-0.5">
                   <span>Delivery Charge</span>
-                  <span className="font-semibold text-foreground">
-                    ৳{deliveryCharge.toLocaleString("bn-BD")}
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    {deliveryCharge > 0 ? `৳${deliveryCharge.toLocaleString("bn-BD")}` : "ফ্রি (Free)"}
                   </span>
                 </div>
 
