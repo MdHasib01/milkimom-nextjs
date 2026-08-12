@@ -41,12 +41,12 @@ export default function SmoothFlowLandingPage() {
             <SmoothflowBenefits />
             <SmoothflowReviews />
             <SmoothflowCertifications />
+            <SmoothflowFaq />
             <SmoothflowComparison />
             <SmoothflowEmotional />
+            <SmoothflowGuarantee />
             <SmoothflowPricing />
             <SmoothflowOrder />
-            <SmoothflowFaq />
-            <SmoothflowGuarantee />
           </main>
           <SiteFooter />
           <SmoothflowStickyCTA />
