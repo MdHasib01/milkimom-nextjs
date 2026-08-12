@@ -1,48 +1,59 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Star, Quote } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 
-const reviewData = [
-  {
-    id: 1,
-    name: "নুসরাত জাহান",
-    location: "ঢাকা",
-    rating: 5,
-    comment: "Feed করানোর সময় বুক শক্ত হয়ে অসম্ভব ব্যথা করতো। SmoothFlow ব্যবহার করার পর প্রথম দিনেই অলৌকিকভাবে স্বস্তি পেয়েছি!",
-    time: "২ দিন আগে",
-  },
-  {
-    id: 2,
-    name: "মোসাম্মাৎ রাবেয়া",
-    location: "চট্টগ্রাম",
-    rating: 5,
-    comment: "Clogged duct নিয়ে খুব দুঃশ্চিন্তায় ছিলাম। ২ দিনের মধ্যেই শক্ত চাকাটা নরম হয়ে যায় এবং ব্যথা পুরোপুরি চলে যায়।",
-    time: "৪ দিন আগে",
-  },
-  {
-    id: 3,
-    name: "ফাতিমা আক্তার",
-    location: "সিলেট",
-    rating: 5,
-    comment: "প্রত্যেকবার দুধ খাওয়াতে গেলে চোখে পানি চলে আসতো। SmoothFlow নেওয়ার পর এখন খুব শান্তিতে বাচ্চাকে ফিড করাতে পারি।",
-    time: "১ সপ্তাহ আগে",
-  },
-  {
-    id: 4,
-    name: "শারমিন সুলতানা",
-    location: "রাজশাহী",
-    rating: 5,
-    comment: "ডাক্তারের পরামর্শে এটা খাওয়া শুরু করি। কোনো পার্শ্বপ্রতিক্রিয়া ছাড়াই খুব দ্রুত কাজ করেছে। সব নতুন মায়েদের জন্য রিকমেন্ডেড!",
-    time: "১ সপ্তাহ আগে",
-  },
+const reviewImages = [
+  { id: 1, src: "/images/smoothflow-review/Review 1.jpg", alt: "Smoothflow Customer Review 1" },
+  { id: 2, src: "/images/smoothflow-review/Review 2.jpg", alt: "Smoothflow Customer Review 2" },
+  { id: 3, src: "/images/smoothflow-review/Review 3.jpg", alt: "Smoothflow Customer Review 3" },
+  { id: 4, src: "/images/smoothflow-review/Review 4.jpg", alt: "Smoothflow Customer Review 4" },
+  { id: 5, src: "/images/smoothflow-review/Review 5.jpg", alt: "Smoothflow Customer Review 5" },
 ];
 
 export function SmoothflowReviews() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % reviewImages.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + reviewImages.length) % reviewImages.length);
+  };
+
+  // Auto-play interval for carousel
+  useEffect(() => {
+    if (isPaused || selectedImage !== null) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % reviewImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isPaused, selectedImage]);
+
+  // Scroll container when active index changes
+  useEffect(() => {
+    if (scrollRef.current) {
+      const container = scrollRef.current;
+      const card = container.children[currentIndex] as HTMLElement;
+      if (card) {
+        container.scrollTo({
+          left: card.offsetLeft - container.offsetLeft - (container.clientWidth - card.clientWidth) / 2,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [currentIndex]);
+
   return (
     <section className="py-16 md:py-24 relative overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 md:mb-16">
+        {/* Headings */}
+        <div className="text-center mb-10 md:mb-14">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#1A1A1A] leading-tight mb-4">
             “আপনার মতো অন্য মায়েরাও এই একই জায়গায় ছিলেন।”
           </h2>
@@ -51,50 +62,92 @@ export function SmoothflowReviews() {
           </p>
         </div>
 
-        {/* Mobile: Horizontal scroll, Desktop: Grid */}
-        <div className="flex overflow-x-auto pb-8 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:overflow-visible snap-x snap-mandatory hide-scrollbar">
-          {reviewData.map((review, index) => (
-            <motion.div
-              key={review.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="min-w-[80vw] sm:min-w-[320px] md:min-w-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-brand/10 flex-shrink-0 bg-brand-light hover:border-brand/30 transition-all p-6 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex gap-1 text-amber-400">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-amber-400" />
-                    ))}
-                  </div>
-                  <Quote className="w-6 h-6 text-brand/20" />
-                </div>
-                <p className="text-[#1A1A1A]/80 text-sm sm:text-base leading-relaxed mb-6 font-medium">
-                  "{review.comment}"
-                </p>
-              </div>
+        {/* Carousel Container */}
+        <div
+          className="relative max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-2 sm:px-6"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevSlide}
+            aria-label="Previous Review Image"
+            className="absolute -left-2 sm:-left-6 md:-left-8 top-1/2 -translate-y-1/2 w-9 h-9 md:w-11 md:h-11 bg-white rounded-full flex items-center justify-center shadow-lg border border-brand/15 text-brand hover:bg-brand hover:text-white transition-all z-20 cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
 
-              <div className="pt-4 border-t border-brand/10 flex items-center justify-between text-xs text-[#1A1A1A]/60">
-                <div>
-                  <span className="font-bold text-[#1A1A1A] block text-sm">{review.name}</span>
-                  <span>{review.location}</span>
+          <button
+            onClick={nextSlide}
+            aria-label="Next Review Image"
+            className="absolute -right-2 sm:-right-6 md:-right-8 top-1/2 -translate-y-1/2 w-9 h-9 md:w-11 md:h-11 bg-white rounded-full flex items-center justify-center shadow-lg border border-brand/15 text-brand hover:bg-brand hover:text-white transition-all z-20 cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+
+          {/* Responsive Image Carousel Slider */}
+          <div
+            ref={scrollRef}
+            className="flex overflow-x-auto pb-4 pt-2 -mx-2 sm:mx-0 px-2 sm:px-0 gap-3 sm:gap-5 snap-x snap-mandatory hide-scrollbar items-center justify-start sm:justify-center"
+          >
+            {reviewImages.map((review, idx) => (
+              <motion.div
+                key={review.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+                className={`min-w-[70vw] sm:min-w-[320px] md:min-w-[380px] snap-center bg-white rounded-2xl p-2 shadow-[0_6px_25px_rgba(0,0,0,0.05)] border ${
+                  idx === currentIndex
+                    ? "border-brand/50 ring-2 ring-brand/20 shadow-brand/10"
+                    : "border-brand/15 hover:border-brand/30"
+                } flex-shrink-0 transition-all duration-300 relative group cursor-pointer`}
+                onClick={() => {
+                  setCurrentIndex(idx);
+                  setSelectedImage(review.src);
+                }}
+              >
+                <div className="relative overflow-hidden rounded-xl bg-brand-light/30 flex justify-center items-center">
+                  <img
+                    src={review.src}
+                    alt={review.alt}
+                    className="w-full h-auto max-h-[320px] sm:max-h-[380px] object-contain rounded-xl"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                    <span className="bg-white/90 text-[#1A1A1A] font-semibold text-xs px-3 py-1 rounded-full shadow flex items-center gap-1">
+                      <Maximize2 className="w-3.5 h-3.5 text-brand" /> বড় করে দেখতে ক্লিক করুন
+                    </span>
+                  </div>
                 </div>
-                <span className="bg-white/80 px-2.5 py-1 rounded-full text-brand font-semibold border border-brand/10">
-                  {review.time}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Carousel Pagination Dots */}
+          <div className="flex justify-center items-center gap-2 mt-6">
+            {reviewImages.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                aria-label={`Go to review image slide ${idx + 1}`}
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === currentIndex
+                    ? "w-8 bg-brand"
+                    : "w-2.5 bg-brand/20 hover:bg-brand/40"
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
+        {/* CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="mt-6 md:mt-12 w-full flex justify-center"
+          className="mt-10 md:mt-14 w-full flex justify-center"
         >
           <a
             href="#order-section"
@@ -104,6 +157,35 @@ export function SmoothflowReviews() {
           </a>
         </motion.div>
       </div>
+
+      {/* Lightbox Modal for Zooming Image */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div className="relative max-w-4xl max-h-[90vh] w-full flex items-center justify-center">
+              <button
+                onClick={() => setSelectedImage(null)}
+                aria-label="Close Preview"
+                className="absolute -top-10 right-0 text-white hover:text-brand transition-colors p-2 cursor-pointer bg-white/10 rounded-full"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <img
+                src={selectedImage}
+                alt="Review enlarged preview"
+                className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style jsx global>{`
         .hide-scrollbar::-webkit-scrollbar {
