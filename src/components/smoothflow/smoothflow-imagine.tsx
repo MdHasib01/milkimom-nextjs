@@ -24,15 +24,13 @@ export function SmoothflowImagine() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 md:mb-16"
+        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 md:mb-16 w-full flex justify-center"
       >
-        <div className="w-full rounded-2xl md:rounded-3xl overflow-hidden bg-white shadow-sm border border-brand/10">
-          <img
-            src="/images/smoothflow/Before-After.jpg"
-            alt="Before vs After SmoothFlow"
-            className="w-full h-auto object-contain block"
-          />
-        </div>
+        <img
+          src="/images/smoothflow/Before-After.jpg"
+          alt="Before vs After SmoothFlow"
+          className="w-full h-auto max-w-full rounded-2xl sm:rounded-3xl object-contain block border-0 shadow-none"
+        />
       </motion.div>
 
       {/* 3. Closing Line */}
