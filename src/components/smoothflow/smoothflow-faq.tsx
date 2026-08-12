@@ -56,12 +56,9 @@ export function SmoothflowFaq() {
   }));
 
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-4 py-16 sm:py-24">
+    <section id="faq" className="mx-auto max-w-3xl px-4 pt-4 pb-12 sm:pt-6 sm:pb-16">
       <Reveal className="text-center">
-        <span className="text-sm font-semibold uppercase tracking-wide text-brand-crimson">
-          প্রশ্নোত্তর
-        </span>
-        <h2 className="mt-2 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
+        <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
           SmoothFlow নিয়ে আপনার প্রশ্নের উত্তর
         </h2>
       </Reveal>
