@@ -52,7 +52,7 @@ export function LandingPageThemeProvider({
           if (json.success && json.data && isMounted) {
             setTheme({
               productSlug: json.data.productSlug || productSlug,
-              themeColor: json.data.themeColor || initialColors.themeColor,
+              themeColor: productSlug === "smoothflow" ? "#E6106E" : (json.data.themeColor || initialColors.themeColor),
               accentColor: json.data.accentColor || initialColors.accentColor,
               ctaColor: json.data.ctaColor || initialColors.ctaColor,
               ctaTextColor: json.data.ctaTextColor || initialColors.ctaTextColor,
