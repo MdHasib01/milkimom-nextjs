@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import {
   ShieldCheck,
   FlaskConical,
-  Stethoscope,
   Award,
   Leaf,
+  BadgeCheck,
+  Sprout,
   ChevronLeft,
   ChevronRight,
   Quote,
@@ -17,11 +18,12 @@ import {
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
 const certs = [
-  { id: 1, title: "Heavy Metal Tested", icon: FlaskConical },
-  { id: 2, title: "Microbiology Tested", icon: Stethoscope },
-  { id: 3, title: "GMP Certified", icon: ShieldCheck },
-  { id: 4, title: "ISO 9001:2015", icon: Award },
-  { id: 5, title: "100% Natural", icon: Leaf },
+  { id: 1, title: "ISO Certified", icon: Award },
+  { id: 2, title: "Halal Certified", icon: BadgeCheck },
+  { id: 3, title: "100% Vegan", icon: Sprout },
+  { id: 4, title: "GMP Certified", icon: ShieldCheck },
+  { id: 5, title: "Lab Tested", icon: FlaskConical },
+  { id: 6, title: "100% Natural", icon: Leaf },
 ];
 
 const doctorsList = [
@@ -102,7 +104,7 @@ export function SmoothflowCertifications() {
         {/* Headings */}
         <div className="text-center mb-6 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand leading-tight">
-            {content.doctorTitle || "বিশেষজ্ঞ ডাক্তারদের মতামত ও কারণসমূহ"}
+            {content.doctorTitle || "মেডিকেল ও পুষ্টিবিজ্ঞান বিশেষজ্ঞদের সুপারিশকৃত"}
           </h2>
           <p className="mt-2 text-sm sm:text-base text-[#1A1A1A]/70 font-medium">
             দেশের স্বনামধন্য চিকিৎসকদের সুপারিশকৃত ও ল্যাব-সার্টিফাইড সমাধান
