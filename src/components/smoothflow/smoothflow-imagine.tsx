@@ -5,7 +5,7 @@ import { ShoppingBag } from "lucide-react";
 
 export function SmoothflowImagine() {
   return (
-    <section className="py-12 md:py-20 relative overflow-hidden bg-white">
+    <section className="pt-2 pb-12 md:pt-4 md:pb-20 relative overflow-hidden bg-white">
       {/* 1. Main Headline */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
         <motion.h2
