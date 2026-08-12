@@ -379,8 +379,8 @@ export function OrderSection() {
     executeSaveOrder();
   }
 
-  const headline = content.orderHeadline || "অর্ডার ফর্ম";
-  const subheadline = content.orderSubheadline || "আপনার অর্ডারটি প্লেস করতে, অনুগ্রহ করে নিচের তথ্য গুলো দিয়ে সহযোগীতা করুন।";
+  const headline = content.orderHeadline || (isSmoothflow ? "SmoothFlow অর্ডার করুন" : "অর্ডার ফর্ম");
+  const subheadline = content.orderSubheadline || (isSmoothflow ? "Breast Pain নিয়ে আরেকটা Feeding-এর জন্য অপেক্ষা নয়।" : "আপনার অর্ডারটি প্লেস করতে, অনুগ্রহ করে নিচের তথ্য গুলো দিয়ে সহযোগীতা করুন।");
 
   return (
     <section id="pricing" className="relative overflow-hidden mx-auto max-w-6xl px-3 xs:px-4 sm:px-6 md:px-8 py-10 xs:py-12 sm:py-16 lg:py-24">
