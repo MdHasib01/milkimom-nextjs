@@ -30,14 +30,15 @@ export function SmoothflowGuarantee() {
           </div>
 
           <h3 className="text-lg md:text-xl font-bold text-[#1A1A1A] mb-3">
-            {!content.guaranteeTitle || content.guaranteeTitle === "100% Satisfaction Guarantee"
+            {!content.guaranteeTitle || content.guaranteeTitle === "100% Satisfaction Guarantee" || content.guaranteeTitle.includes("১০০%")
               ? "৩ দিনের Money Back Guarantee"
               : content.guaranteeTitle}
           </h3>
 
           <p className="text-sm md:text-base text-[#1A1A1A]/70 leading-relaxed font-medium">
-            {content.guaranteeText ||
-              "যদি SmoothFlow ব্যবহার করে আপনি কোনো পরিবর্তন অনুভব না করেন, আমাদের জানান। আমরা আপনার সম্পূর্ণ টাকা রিফান্ড করে দেব। কোনো শর্ত প্রযোজ্য নয়।"}
+            {!content.guaranteeText || content.guaranteeText.includes("পণ্য হাতে পেয়ে")
+              ? "যদি SmoothFlow ব্যবহার করে আপনি কোনো পরিবর্তন অনুভব না করেন, আমাদের জানান। আমরা আপনার সম্পূর্ণ টাকা রিফান্ড করে দেব। কোনো শর্ত প্রযোজ্য নয়।"
+              : content.guaranteeText}
           </p>
         </motion.div>
       </div>

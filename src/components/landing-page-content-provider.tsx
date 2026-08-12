@@ -250,7 +250,7 @@ export function LandingPageContentProvider({
               logoType: json.data.logoType || initialContent.logoType,
               logoImage: json.data.logoImage || initialContent.logoImage,
               announcementText:
-                isSmoothflow && (!json.data.announcementText || json.data.announcementText.includes("৩৯%"))
+                isSmoothflow && (!json.data.announcementText || json.data.announcementText.includes("৩৯%") || json.data.announcementText.includes("--"))
                   ? "42% Offer শেষ হতে বাকি"
                   : json.data.announcementText || initialContent.announcementText,
               heroBadge: json.data.heroBadge || initialContent.heroBadge,
@@ -268,10 +268,13 @@ export function LandingPageContentProvider({
               orderHeadline: json.data.orderHeadline || initialContent.orderHeadline,
               orderSubheadline: json.data.orderSubheadline || initialContent.orderSubheadline,
               guaranteeTitle:
-                isSmoothflow && (!json.data.guaranteeTitle || json.data.guaranteeTitle === "100% Satisfaction Guarantee")
+                isSmoothflow && (!json.data.guaranteeTitle || json.data.guaranteeTitle === "100% Satisfaction Guarantee" || json.data.guaranteeTitle.includes("১০০%"))
                   ? "৩ দিনের Money Back Guarantee"
                   : json.data.guaranteeTitle || initialContent.guaranteeTitle,
-              guaranteeText: json.data.guaranteeText || initialContent.guaranteeText,
+              guaranteeText:
+                isSmoothflow && (!json.data.guaranteeText || json.data.guaranteeText.includes("পণ্য হাতে পেয়ে"))
+                  ? "যদি SmoothFlow ব্যবহার করে আপনি কোনো পরিবর্তন অনুভব না করেন, আমাদের জানান। আমরা আপনার সম্পূর্ণ টাকা রিফান্ড করে দেব। কোনো শর্ত প্রযোজ্য নয়।"
+                  : json.data.guaranteeText || initialContent.guaranteeText,
               footerText: json.data.footerText || initialContent.footerText,
               footerPhone: json.data.footerPhone || initialContent.footerPhone,
               footerEmail: json.data.footerEmail || initialContent.footerEmail,
