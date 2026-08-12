@@ -18,18 +18,18 @@ export function SmoothflowImagine() {
         </motion.h2>
       </div>
 
-      {/* 2. Before-After Image Section (No Carousel) */}
+      {/* 2. Before-After Image Section (Full bleed on mobile) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 md:mb-16 w-full flex justify-center"
+        className="w-full md:max-w-5xl mx-auto px-0 md:px-6 lg:px-8 mb-8 md:mb-16 flex justify-center"
       >
         <img
           src="/images/smoothflow/Before-After.jpg"
           alt="Before vs After SmoothFlow"
-          className="w-full h-auto max-w-full rounded-2xl sm:rounded-3xl object-contain block border-0 shadow-none"
+          className="w-full h-auto max-w-full rounded-none md:rounded-3xl object-contain block border-0 shadow-none"
         />
       </motion.div>
 
