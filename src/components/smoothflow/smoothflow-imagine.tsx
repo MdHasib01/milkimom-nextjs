@@ -14,7 +14,7 @@ export function SmoothflowImagine() {
           viewport={{ once: true }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black text-[#1A1A1A] leading-tight text-center mb-8 md:mb-12 max-w-4xl"
         >
-          পরের Feeding-টা যদি Breast Pain ছাড়া হতো…
+          পরের Feeding-টা যদি <span className="text-brand">Breast Pain</span> ছাড়া হতো…
         </motion.h2>
       </div>
 
@@ -44,7 +44,7 @@ export function SmoothflowImagine() {
           className="text-center w-full"
         >
           <p className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-black text-[#1A1A1A] leading-tight max-w-4xl mx-auto">
-            শুধু স্বস্তিতে বাচ্চাকে Feed করানোর মুহূর্তটা থাকতো।
+            শুধু <span className="text-brand">স্বস্তিতে</span> বাচ্চাকে <span className="text-brand">Feed</span> করানোর মুহূর্তটা থাকতো।
           </p>
         </motion.div>
 
