@@ -35,7 +35,7 @@ export function SiteFooter() {
   const brandName = content.productName ? `${content.productName}™` : siteConfig.name;
 
   return (
-    <footer className="border-t border-border bg-card">
+    <footer className="border-t border-border bg-card overflow-hidden">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
         <div className={`grid grid-cols-1 gap-8 items-center sm:items-start text-center sm:text-left ${
           isSmoothflow ? "sm:grid-cols-2" : "sm:grid-cols-3"

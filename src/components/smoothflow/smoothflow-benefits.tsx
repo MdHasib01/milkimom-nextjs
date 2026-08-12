@@ -76,7 +76,7 @@ export function SmoothflowBenefits() {
               <div
                 key={index}
                 style={position}
-                className="absolute w-28 -translate-x-1/2 -translate-y-1/2 sm:w-40 md:w-44 lg:w-48 xl:w-56"
+                className="absolute w-24 -translate-x-1/2 -translate-y-1/2 sm:w-40 md:w-44 lg:w-48 xl:w-56"
               >
                 <Reveal delay={0.1 * index} y={12}>
                   <div className="flex flex-col items-center gap-1 rounded-xl border border-brand/20 bg-white p-2 text-center shadow-md sm:gap-2 sm:rounded-2xl sm:p-3 hover:border-brand/40 transition-colors">

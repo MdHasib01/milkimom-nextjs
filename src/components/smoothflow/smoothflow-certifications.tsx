@@ -99,7 +99,7 @@ export function SmoothflowCertifications() {
   }, [currentDocIndex]);
 
   return (
-    <section className="py-8 md:py-20 relative bg-brand-light">
+    <section className="py-8 md:py-20 relative bg-brand-light overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Headings */}
         <div className="text-center mb-6 md:mb-12">

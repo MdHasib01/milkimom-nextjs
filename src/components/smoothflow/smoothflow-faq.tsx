@@ -56,7 +56,7 @@ export function SmoothflowFaq() {
   }));
 
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-4 pt-4 pb-12 sm:pt-6 sm:pb-16">
+    <section id="faq" className="mx-auto max-w-3xl px-4 pt-4 pb-12 sm:pt-6 sm:pb-16 overflow-hidden">
       <Reveal className="text-center">
         <h2 className="text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
           SmoothFlow নিয়ে আপনার প্রশ্নের উত্তর

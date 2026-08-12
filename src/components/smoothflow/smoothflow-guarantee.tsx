@@ -8,7 +8,7 @@ export function SmoothflowGuarantee() {
   const { content } = useLandingPageContent();
 
   return (
-    <section className="pt-2 pb-10 md:pt-4 md:pb-16 relative bg-white">
+    <section className="pt-2 pb-10 md:pt-4 md:pb-16 relative bg-white overflow-hidden">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1A1A1A] mb-4">
           <span className="text-brand">100%</span> Satisfaction Guarantee
