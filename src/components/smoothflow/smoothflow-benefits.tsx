@@ -42,16 +42,16 @@ export function SmoothflowBenefits() {
     : defaultBenefits;
 
   return (
-    <section className="pt-8 pb-16 md:pt-12 md:pb-24 relative bg-white overflow-hidden">
+    <section className="pt-2 pb-0 md:pt-4 md:pb-0 mb-0 relative bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 md:mb-16">
+        <div className="text-center mb-4 md:mb-6">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand leading-tight">
             {title}
           </h2>
         </div>
 
         {/* Radial orbit layout matching Milkimom design with Bengali number badges */}
-        <div className="relative mx-auto mt-8 aspect-square w-full max-w-[420px] sm:mt-16 sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
+        <div className="relative mx-auto mt-2 aspect-square w-full max-w-[420px] sm:mt-4 sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
           <RotatingOrbit />
           <div className="absolute inset-0 flex items-center justify-center">
             <Float distance={8} duration={3.5}>
