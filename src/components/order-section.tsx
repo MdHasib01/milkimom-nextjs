@@ -99,8 +99,10 @@ export function OrderSection() {
 
   const effectiveFlavors = useMemo(() => {
     if (isSmoothflow) {
-      return flavors.map((f) => ({
+      return flavors.map((f, idx) => ({
         ...f,
+        name: `Flavour ${idx + 1}`,
+        nameEn: `Flavour ${idx + 1}`,
         regularPrice: f.regularPrice === 8990 || !f.regularPrice ? smoothflowSingleJarPrice.regularPrice : f.regularPrice,
         salePrice: f.salePrice === 4990 || !f.salePrice ? smoothflowSingleJarPrice.salePrice : f.salePrice,
         image: f.smoothflowImage || "/images/smoothflow.png",
@@ -118,6 +120,12 @@ export function OrderSection() {
       effectiveFlavors[0],
     [effectiveFlavors, selectedFlavorId]
   );
+
+  const deliveryCharge = 60;
+  const totalPrice = (selectedFlavor?.salePrice || 1999) + deliveryCharge;
+  const regularPriceVal = selectedFlavor?.regularPrice || (isSmoothflow ? 3290 : 8990);
+  const savingsVal = regularPriceVal > (selectedFlavor?.salePrice || 1999) ? regularPriceVal - (selectedFlavor?.salePrice || 1999) : 0;
+  const productNameEn = content.productNameEn || (isSmoothflow ? "SmoothFlow" : "Milkimom");
 
   async function triggerPhoneIpCheck(phoneNum: string, overrideFlavor?: typeof selectedFlavor) {
     if (isCheckingPhone || phoneNum === lastCheckedPhone) return;
@@ -313,7 +321,7 @@ export function OrderSection() {
   async function executeSaveOrder() {
     setStatus("submitting");
 
-    const productNameEn = content.productNameEn || (content.productSlug === "smoothflow" ? "SmoothFlow" : "Milkimom");
+    const priceToSave = isSmoothflow ? totalPrice : selectedFlavor.salePrice;
     const { fbp, fbc } = getFbBrowserIds();
     const result = await saveOrder({
       product: `${productNameEn} Complete Dose`,
@@ -324,7 +332,7 @@ export function OrderSection() {
       address: form.address.trim() || "",
       flavour: selectedFlavor.nameEn || selectedFlavor.name,
       paymentMethod: form.payment === "bkash" ? "bKash" : "COD",
-      price: selectedFlavor.salePrice,
+      price: priceToSave,
       transactionId: form.payment === "bkash" ? form.trxId.trim() : undefined,
       pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
       orderTime: new Date().toISOString(),
@@ -339,7 +347,7 @@ export function OrderSection() {
       if (result.status === 201 && !checkoutTracked.current) {
         checkoutTracked.current = true;
         trackInitiateCheckout({
-          value: selectedFlavor.salePrice,
+          value: priceToSave,
           currency: "BDT",
         });
       }
@@ -511,213 +519,334 @@ export function OrderSection() {
             </div>
           </div>
 
-          {/* Right Column: Order Summary + Payment Method + bKash Details + Confirm Button (5 cols on lg) */}
-          <div className="flex flex-col rounded-xl xs:rounded-2xl bg-muted/60 dark:bg-muted/30 p-4 xs:p-5 sm:p-6 min-w-0 border border-border/60 shadow-xs lg:col-span-5 lg:sticky lg:top-24">
-            <div>
-              <h3 className="font-heading text-base xs:text-lg font-bold text-foreground">আপনার অর্ডার</h3>
-              
-              <div className="mt-3 flex items-start justify-between gap-2 text-xs xs:text-sm">
-                <span className="text-muted-foreground leading-snug">
-                  {singleJarPrice.label} {content.productName || "মিল্কিমম"} ({selectedFlavor.name}) ·{" "}
-                  {singleJarPrice.perJarDays} দিনের ডোজ
+          {/* Right Column: Order Summary + Payment Method + Confirm Button (5 cols on lg) */}
+          {isSmoothflow ? (
+            /* --- SMOOTHFLOW ORDER SUMMARY COLUMN --- */
+            <div className="flex flex-col rounded-xl xs:rounded-2xl bg-muted/60 dark:bg-muted/30 p-4 xs:p-5 sm:p-6 min-w-0 border border-border/60 shadow-xs lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+              <h3 className="font-heading text-base xs:text-lg font-bold text-foreground">
+                Order Summary
+              </h3>
+
+              {/* Inner Card Container */}
+              <div className="rounded-xl border border-border/80 bg-card p-4 shadow-2xs space-y-3">
+                {/* Product Row */}
+                <div className="flex items-start justify-between gap-2 text-xs xs:text-sm">
+                  <span className="font-bold text-foreground leading-snug">
+                    {productNameEn} × 1
+                  </span>
+                  <div className="text-right shrink-0">
+                    {regularPriceVal > selectedFlavor.salePrice && (
+                      <span className="block text-[11px] xs:text-xs text-muted-foreground line-through italic">
+                        ৳{regularPriceVal.toLocaleString("bn-BD")}
+                      </span>
+                    )}
+                    <span className="block font-bold text-foreground">
+                      ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Delivery Charge Row */}
+                <div className="flex items-center justify-between text-xs xs:text-sm text-muted-foreground font-medium pt-0.5">
+                  <span>Delivery Charge</span>
+                  <span className="font-semibold text-foreground">
+                    ৳{deliveryCharge.toLocaleString("bn-BD")}
+                  </span>
+                </div>
+
+                {/* Savings Pill Box */}
+                {savingsVal > 0 && (
+                  <div className="rounded-xl border border-primary/20 bg-primary/10 py-1.5 px-3 text-center text-xs font-bold text-primary">
+                    আপনার Saving: ৳{savingsVal.toLocaleString("bn-BD")}
+                  </div>
+                )}
+
+                {/* Total Row */}
+                <div className="border-t border-border/80 pt-3 flex items-center justify-between">
+                  <span className="font-semibold text-xs xs:text-sm text-foreground">
+                    সর্বমোট
+                  </span>
+                  <span className="font-heading text-lg xs:text-xl sm:text-2xl font-extrabold text-primary">
+                    ৳{totalPrice.toLocaleString("bn-BD")}
+                  </span>
+                </div>
+              </div>
+
+              {/* PAYMENT METHOD Section */}
+              <div className="border-t border-border/80 pt-4">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary mb-2.5 block">
+                  PAYMENT METHOD
                 </span>
-                <div className="text-right shrink-0">
-                  <span className="block font-semibold text-foreground">
+                
+                <div className="flex flex-col gap-2">
+                  <label className="flex cursor-pointer items-center justify-between rounded-xl border border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary/30 px-3.5 py-2.5 text-xs xs:text-sm transition-all duration-150 select-none bg-card shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex size-4 items-center justify-center rounded-full border border-primary bg-primary">
+                        <span className="size-1.5 rounded-full bg-white" />
+                      </span>
+                      <span>Cash on Delivery</span>
+                    </div>
+                    <Truck className="size-4 xs:size-4.5 text-primary shrink-0" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="cod"
+                      checked={form.payment === "cod"}
+                      onChange={() => setForm((f) => ({ ...f, payment: "cod" }))}
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Submit Button & Micro-copy & Social Proof Counter */}
+              <div className="pt-2">
+                {submitError && (
+                  <div className="mb-3 flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs xs:text-sm font-bold text-destructive shadow-xs">
+                    <AlertCircle className="size-4.5 shrink-0 text-destructive" />
+                    <span>{submitError}</span>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="cta-shine mt-2 h-12 xs:h-13 sm:h-14 w-full gap-2 rounded-full bg-brand-cta text-sm xs:text-base sm:text-lg font-bold text-brand-cta-foreground hover:bg-brand-cta-dark shadow-md shadow-brand-cta/20 active:scale-[0.99] transition-all cursor-pointer"
+                >
+                  {status === "submitting" ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin" />
+                      <span>অর্ডার প্রসেস হচ্ছে...</span>
+                    </>
+                  ) : (
+                    <span>অর্ডার Confirm করুন</span>
+                  )}
+                </Button>
+
+                <div className="mt-3.5 flex items-center justify-center gap-4 text-xs font-semibold text-primary">
+                  <span className="flex items-center gap-1">
+                    ✓ Secure Order
+                  </span>
+                  <span className="flex items-center gap-1">
+                    ✓ Cash on Delivery
+                  </span>
+                </div>
+
+                <div className="mt-5 text-center pt-3 border-t border-border/60">
+                  <div className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
+                    14,022+
+                  </div>
+                  <div className="text-xs text-muted-foreground font-semibold mt-0.5">
+                    Mother ইতোমধ্যে {productNameEn} অর্ডার করেছেন
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* --- MILKIMOM ORDER SUMMARY COLUMN (PREVIOUS DESIGN WITH BKASH) --- */
+            <div className="flex flex-col rounded-xl xs:rounded-2xl bg-muted/60 dark:bg-muted/30 p-4 xs:p-5 sm:p-6 min-w-0 border border-border/60 shadow-xs lg:col-span-5 lg:sticky lg:top-24">
+              <div>
+                <h3 className="font-heading text-base xs:text-lg font-bold text-foreground">আপনার অর্ডার</h3>
+                
+                <div className="mt-3 flex items-start justify-between gap-2 text-xs xs:text-sm">
+                  <span className="text-muted-foreground leading-snug">
+                    {singleJarPrice.label} {content.productName || "মিল্কিমম"} ({selectedFlavor.name}) ·{" "}
+                    {singleJarPrice.perJarDays} দিনের ডোজ
+                  </span>
+                  <div className="text-right shrink-0">
+                    <span className="block font-semibold text-foreground">
+                      ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
+                    </span>
+                    {selectedFlavor.regularPrice > selectedFlavor.salePrice && (
+                      <span className="block text-[11px] xs:text-xs text-muted-foreground line-through">
+                        ৳{selectedFlavor.regularPrice.toLocaleString("bn-BD")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-2 flex items-center justify-between text-xs xs:text-sm text-muted-foreground">
+                  <span>ডেলিভারি চার্জ</span>
+                  <span className="font-semibold text-brand-green">ফ্রি</span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between border-t border-border/80 pt-3">
+                  <span className="font-semibold text-xs xs:text-sm text-foreground">সর্বমোট</span>
+                  <span className="font-heading text-lg xs:text-xl sm:text-2xl font-extrabold text-primary">
                     ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
                   </span>
-                  {selectedFlavor.regularPrice > selectedFlavor.salePrice && (
-                    <span className="block text-[11px] xs:text-xs text-muted-foreground line-through">
-                      ৳{selectedFlavor.regularPrice.toLocaleString("bn-BD")}
-                    </span>
+                </div>
+
+                {/* Payment Method Section */}
+                <div className="mt-5 border-t border-border/80 pt-4">
+                  <span className="text-xs xs:text-sm font-bold text-foreground">পেমেন্ট পদ্ধতি বেছে নিন</span>
+                  <div className="mt-2.5 flex gap-2">
+                    {(
+                      [
+                        { id: "cod", label: "ক্যাশ অন ডেলিভারি" },
+                        { id: "bkash", label: "বিকাশ" },
+                      ] as const
+                    ).map((option) => (
+                      <label
+                        key={option.id}
+                        className={cn(
+                          "flex flex-1 cursor-pointer items-center justify-center gap-1.5 xs:gap-2 rounded-xl border px-2 xs:px-3 py-2.5 text-xs xs:text-sm font-medium transition-all duration-150 select-none",
+                          form.payment === option.id
+                            ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs ring-1 ring-primary/30"
+                            : "border-border bg-card text-foreground/80 hover:border-brand-coral/40"
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value={option.id}
+                          checked={form.payment === option.id}
+                          onChange={() =>
+                            setForm((f) => ({ ...f, payment: option.id as "cod" | "bkash" }))
+                          }
+                          className="sr-only"
+                        />
+                        {option.id === "bkash" && (
+                          <img
+                            src="/assets/bkash-logo.webp"
+                            alt="bKash"
+                            className="h-4 xs:h-5 w-auto object-contain shrink-0"
+                          />
+                        )}
+                        <span className="whitespace-nowrap">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Cash on Delivery Notice */}
+                  {form.payment === "cod" && (
+                    <div className="mt-3 rounded-xl xs:rounded-2xl border border-brand-green/30 bg-brand-green-light/80 p-3 xs:p-3.5 text-xs text-foreground shadow-xs">
+                      <p className="flex items-center gap-1.5 font-bold text-brand-green text-xs xs:text-sm">
+                        <Truck className="size-4 shrink-0 text-brand-green" />
+                        <span>ক্যাশ অন ডেলিভারি</span>
+                      </p>
+                      <p className="mt-1 text-[11px] xs:text-xs font-semibold text-brand-green leading-relaxed">
+                        সাপ্লিমেন্ট হাতে পেয়ে মূল্য পরিশোধ করবো।
+                      </p>
+                    </div>
+                  )}
+
+                  {/* bKash Payment Box */}
+                  {form.payment === "bkash" && (
+                    <div className="mt-3.5 space-y-3 rounded-xl border border-brand-coral/40 bg-card p-3 xs:p-4 text-foreground shadow-xs">
+                      <div className="overflow-hidden rounded-xl border border-border bg-white p-2 text-center shadow-xs">
+                        <img
+                          src="/images/bkash.webp"
+                          alt="bKash Payment"
+                          className="mx-auto h-auto max-h-36 xs:max-h-48 sm:max-h-56 w-full rounded-lg object-contain"
+                        />
+                      </div>
+
+                      <div className="rounded-xl border border-brand-crimson/20 bg-brand-cream/50 p-2.5 xs:p-3 text-center">
+                        <span className="block text-[11px] xs:text-xs font-medium text-muted-foreground">
+                          বিকাশ পার্সোনাল নম্বর (Send Money)
+                        </span>
+                        <span className="block font-mono text-base xs:text-lg font-bold tracking-wider text-brand-crimson select-all mt-0.5">
+                          01926-344244
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-2.5 xs:p-3 text-[11px] xs:text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                        <p className="flex items-center gap-1.5 text-xs xs:text-sm font-bold text-amber-900 dark:text-amber-300">
+                          <img
+                            src="/assets/bkash-logo.webp"
+                            alt="bKash"
+                            className="h-4 w-auto object-contain shrink-0 inline-block"
+                          />
+                          <span>বিকাশ পেমেন্ট করার নির্দেশাবলী:</span>
+                        </p>
+                        <ol className="mt-1.5 list-decimal list-inside space-y-1 pl-0.5 text-[11px] xs:text-xs font-medium leading-relaxed text-muted-foreground">
+                          <li>
+                            আপনার বিকাশ মোবাইল অ্যাপ অথবা{" "}
+                            <span className="font-mono font-bold text-foreground">*247#</span> ডায়াল করুন।
+                          </li>
+                          <li>
+                            <strong className="text-foreground">Send Money</strong> অপশনটি সিলেক্ট করুন।
+                          </li>
+                          <li>
+                            প্রাপক নম্বর লিখুন:{" "}
+                            <strong className="font-mono text-brand-crimson">01926-344244</strong>
+                          </li>
+                          <li>
+                            মোট পরিমাণ:{" "}
+                            <strong className="font-bold text-brand-crimson">
+                              ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}/=
+                            </strong>{" "}
+                            টাকা দিয়ে পিন দিন।
+                          </li>
+                          <li>
+                            সেন্ড মানি সফল হওয়ার পর প্রাপ্ত{" "}
+                            <strong className="text-foreground">Transaction ID (TrxID)</strong> নিচের ইনপুট বক্সে লিখুন।
+                          </li>
+                        </ol>
+                      </div>
+
+                      <div className="grid gap-1.5">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="trxId" className="text-xs font-bold text-foreground">
+                            বিকাশ ট্রানজেকশন আইডি (TrxID) <span className="text-destructive">*</span>
+                          </Label>
+                          <span className="text-[10px] text-muted-foreground">উদাহরণ: 9AB12CD34E</span>
+                        </div>
+                        <Input
+                          id="trxId"
+                          value={form.trxId}
+                          onChange={(e) => setForm((f) => ({ ...f, trxId: e.target.value }))}
+                          aria-invalid={Boolean(errors.trxId)}
+                          placeholder="bKash TrxID এখানে লিখুন (যেমন: 9AB12CD34E)"
+                          className="h-10 xs:h-11 font-mono uppercase text-xs xs:text-sm bg-background rounded-xl"
+                        />
+                        {errors.trxId && (
+                          <div className="flex items-center gap-1 text-xs font-semibold text-destructive mt-0.5">
+                            <AlertCircle className="size-3.5 shrink-0" />
+                            <span>{errors.trxId}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className="mt-2 flex items-center justify-between text-xs xs:text-sm text-muted-foreground">
-                <span>ডেলিভারি চার্জ</span>
-                <span className="font-semibold text-brand-green">ফ্রি</span>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between border-t border-border/80 pt-3">
-                <span className="font-semibold text-xs xs:text-sm text-foreground">সর্বমোট</span>
-                <span className="font-heading text-lg xs:text-xl sm:text-2xl font-extrabold text-primary">
-                  ৳{selectedFlavor.salePrice.toLocaleString("bn-BD")}
-                </span>
-              </div>
-
-              {/* Payment Method Section */}
-              <div className="mt-5 border-t border-border/80 pt-4">
-                <span className="text-xs xs:text-sm font-bold text-foreground">পেমেন্ট পদ্ধতি বেছে নিন</span>
-                <div className="mt-2.5 flex gap-2">
-                  {(
-                    [
-                      { id: "cod", label: "ক্যাশ অন ডেলিভারি" },
-                      { id: "bkash", label: "বিকাশ" },
-                    ] as const
-                  ).map((option) => (
-                    <label
-                      key={option.id}
-                      className={cn(
-                        "flex flex-1 cursor-pointer items-center justify-center gap-1.5 xs:gap-2 rounded-xl border px-2 xs:px-3 py-2.5 text-xs xs:text-sm font-medium transition-all duration-150 select-none",
-                        form.payment === option.id
-                          ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs ring-1 ring-primary/30"
-                          : "border-border bg-card text-foreground/80 hover:border-brand-coral/40"
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value={option.id}
-                        checked={form.payment === option.id}
-                        onChange={() =>
-                          setForm((f) => ({ ...f, payment: option.id as "cod" | "bkash" }))
-                        }
-                        className="sr-only"
-                      />
-                      {option.id === "bkash" && (
-                        <img
-                          src="/assets/bkash-logo.webp"
-                          alt="bKash"
-                          className="h-4 xs:h-5 w-auto object-contain shrink-0"
-                        />
-                      )}
-                      <span className="whitespace-nowrap">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Cash on Delivery Notice */}
-                {form.payment === "cod" && (
-                  <div className="mt-3 rounded-xl xs:rounded-2xl border border-brand-green/30 bg-brand-green-light/80 p-3 xs:p-3.5 text-xs text-foreground shadow-xs">
-                    <p className="flex items-center gap-1.5 font-bold text-brand-green text-xs xs:text-sm">
-                      <Truck className="size-4 shrink-0 text-brand-green" />
-                      <span>ক্যাশ অন ডেলিভারি</span>
-                    </p>
-                    <p className="mt-1 text-[11px] xs:text-xs font-semibold text-brand-green leading-relaxed">
-                      সাপ্লিমেন্ট হাতে পেয়ে মূল্য পরিশোধ করবো।
-                    </p>
+              <div className="mt-5">
+                {submitError && (
+                  <div className="mb-3 flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs xs:text-sm font-bold text-destructive shadow-xs">
+                    <AlertCircle className="size-4.5 shrink-0 text-destructive" />
+                    <span>{submitError}</span>
                   </div>
                 )}
 
-                {/* bKash Payment Box */}
-                {form.payment === "bkash" && (
-                  <div className="mt-3.5 space-y-3 rounded-xl xs:rounded-2xl border border-brand-coral/40 bg-card p-3 xs:p-4 text-foreground shadow-sm">
-                    {/* bKash Cover Image Header */}
-                    <div className="overflow-hidden rounded-xl border border-border bg-white p-2 text-center shadow-xs">
-                      <img
-                        src="/images/bkash.webp"
-                        alt="bKash Payment"
-                        className="mx-auto h-auto max-h-36 xs:max-h-48 sm:max-h-56 w-full rounded-lg object-contain"
-                      />
-                    </div>
+                <Button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="cta-shine mt-4 h-12 xs:h-13 sm:h-14 w-full gap-2 rounded-full bg-brand-cta text-sm xs:text-base sm:text-lg font-bold text-brand-cta-foreground hover:bg-brand-cta-dark shadow-md shadow-brand-cta/20 active:scale-[0.99] transition-all cursor-pointer"
+                >
+                  {status === "submitting" ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin" />
+                      <span>অর্ডার প্রসেস হচ্ছে...</span>
+                    </>
+                  ) : (
+                    <span>অর্ডার কনফার্ম করুন</span>
+                  )}
+                </Button>
 
-                    {/* bKash Personal Number */}
-                    <div className="rounded-xl border border-brand-crimson/20 bg-brand-cream/50 p-2.5 xs:p-3 text-center">
-                      <span className="block text-[11px] xs:text-xs font-medium text-muted-foreground">
-                        বিকাশ পার্সোনাল নম্বর (Send Money)
-                      </span>
-                      <span className="block font-mono text-base xs:text-lg font-bold tracking-wider text-brand-crimson select-all mt-0.5">
-                        01926-344244
-                      </span>
-                    </div>
-
-                    {/* Bangla Instructions */}
-                    <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-2.5 xs:p-3 text-[11px] xs:text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                      <p className="flex items-center gap-1.5 text-xs xs:text-sm font-bold text-amber-900 dark:text-amber-300">
-                        <img
-                          src="/assets/bkash-logo.webp"
-                          alt="bKash"
-                          className="h-4 w-auto object-contain shrink-0 inline-block"
-                        />
-                        <span>বিকাশ পেমেন্ট করার নির্দেশাবলী:</span>
-                      </p>
-                      <ol className="mt-1.5 list-decimal list-inside space-y-1 pl-0.5 text-[11px] xs:text-xs font-medium leading-relaxed text-muted-foreground">
-                        <li>
-                          আপনার বিকাশ মোবাইল অ্যাপ অথবা{" "}
-                          <span className="font-mono font-bold text-foreground">*247#</span> ডায়াল করুন।
-                        </li>
-                        <li>
-                          <strong className="text-foreground">Send Money</strong> অপশনটি সিলেক্ট করুন।
-                        </li>
-                        <li>
-                          প্রাপক নম্বর লিখুন:{" "}
-                          <strong className="font-mono text-brand-crimson">01926-344244</strong>
-                        </li>
-                        <li>
-                          মোট পরিমাণ:{" "}
-                          <strong className="font-bold text-brand-crimson">
-                            ৳{selectedFlavor.salePrice}/=
-                          </strong>{" "}
-                          টাকা দিয়ে পিন দিন।
-                        </li>
-                        <li>
-                          সেন্ড মানি সফল হওয়ার পর প্রাপ্ত{" "}
-                          <strong className="text-foreground">Transaction ID (TrxID)</strong> নিচের ইনপুট বক্সে লিখুন।
-                        </li>
-                      </ol>
-                    </div>
-
-                    {/* Trx ID Field */}
-                    <div className="grid gap-1.5">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="trxId" className="text-xs font-bold text-foreground">
-                          বিকাশ ট্রানজেকশন আইডি (TrxID) <span className="text-destructive">*</span>
-                        </Label>
-                        <span className="text-[10px] text-muted-foreground">উদাহরণ: 9AB12CD34E</span>
-                      </div>
-                      <Input
-                        id="trxId"
-                        value={form.trxId}
-                        onChange={(e) => setForm((f) => ({ ...f, trxId: e.target.value }))}
-                        aria-invalid={Boolean(errors.trxId)}
-                        placeholder="bKash TrxID এখানে লিখুন (যেমন: 9AB12CD34E)"
-                        className="h-10 xs:h-11 font-mono uppercase text-xs xs:text-sm bg-background rounded-xl"
-                      />
-                      {errors.trxId && (
-                        <div className="flex items-center gap-1 text-xs font-semibold text-destructive mt-0.5">
-                          <AlertCircle className="size-3.5 shrink-0" />
-                          <span>{errors.trxId}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-5">
-              {submitError && (
-                <div className="mb-3 flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs xs:text-sm font-bold text-destructive shadow-xs">
-                  <AlertCircle className="size-4.5 shrink-0 text-destructive" />
-                  <span>{submitError}</span>
+                <div className="mt-3.5 flex flex-wrap items-center justify-around gap-2 text-[11px] xs:text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <ShieldCheck className="size-3.5 text-brand-green shrink-0" /> নিরাপদ ও সুরক্ষিত অর্ডার
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Truck className="size-3.5 text-brand-green shrink-0" /> সারাদেশে হোম ডেলিভারি
+                  </span>
                 </div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={status === "submitting"}
-                className="cta-shine mt-4 h-12 xs:h-13 sm:h-14 w-full gap-2 rounded-full bg-brand-cta text-sm xs:text-base sm:text-lg font-bold text-brand-cta-foreground hover:bg-brand-cta-dark shadow-md shadow-brand-cta/20 active:scale-[0.99] transition-all cursor-pointer"
-              >
-                {status === "submitting" ? (
-                  <>
-                    <Loader2 className="size-5 animate-spin" />
-                    <span>অর্ডার প্রসেস হচ্ছে...</span>
-                  </>
-                ) : (
-                  <span>অর্ডার কনফার্ম করুন</span>
-                )}
-              </Button>
-
-              <div className="mt-3.5 flex flex-wrap items-center justify-around gap-2 text-[11px] xs:text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="size-3.5 text-brand-green shrink-0" /> নিরাপদ ও সুরক্ষিত অর্ডার
-                </span>
-                <span className="flex items-center gap-1">
-                  <Truck className="size-3.5 text-brand-green shrink-0" /> সারাদেশে হোম ডেলিভারি
-                </span>
               </div>
             </div>
-          </div>
+          )}
         </form>
       </Reveal>
 

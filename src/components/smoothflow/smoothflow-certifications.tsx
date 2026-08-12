@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   ShieldCheck,
-  CheckCircle2,
   FlaskConical,
   Stethoscope,
   Award,
@@ -30,7 +29,6 @@ const doctorsList = [
     id: 1,
     name: "ডা. মোঃ সাদ্দাম",
     qualifications: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
-    title: "গাইনি ও প্রসূতি রোগ বিশেষজ্ঞ",
     quote:
       "“SmoothFlow-এর নিরাপদ এবং প্রাকৃতিক উপাদানগুলো অত্যন্ত কার্যকরভাবে ব্রেস্টের Clogged Duct এবং ব্যথা উপশম করতে সাহায্য করে। দুধ খাওয়ানোর সময় অস্বস্তিতে ভোগা প্রতিটি মায়ের জন্য এটি একটি চমৎকার সমাধান।”",
     img: "/assets/doctors/saddam.webp",
@@ -39,7 +37,6 @@ const doctorsList = [
     id: 2,
     name: "ডা. মোঃ নাজমুল",
     qualifications: "এমবিবিএস, ডিজিইউ, শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
-    title: "শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
     quote:
       "“ব্রেস্ট এংগর্জমেন্ট এবং ফিডিংয়ের ব্যথায় মায়েরা যে কষ্টের মুখোমুখি হন, SmoothFlow তা প্রাকৃতিক উপায়ে সমাধান করে। মায়েরা যেন নির্বিঘ্নে সন্তানকে দুধ খাওয়াতে পারেন, তাতে এটি অত্যন্ত সহায়ক।”",
     img: "/assets/doctors/nazmul.webp",
@@ -48,7 +45,6 @@ const doctorsList = [
     id: 3,
     name: "ডা. হাদিসুর রহমান",
     qualifications: "এমবিবিএস, শিশু ও মাতৃত্ব বিষয়ক বিশেষজ্ঞ",
-    title: "মাতৃত্ব ও শিশু রোগ বিশেষজ্ঞ",
     quote:
       "“স্মুথফ্লো-এর সুষম ফর্মুলা মায়ের বুকের শক্ত চাকার অনুভূতি ও চাপ দূর করে দুধের স্বাভাবিক প্রবাহ নিশ্চিত করে। এটি শতভাগ নিরাপদ এবং পার্শ্বপ্রতিক্রিয়ামুক্ত।”",
     img: "/assets/doctors/hadis.webp",
@@ -57,7 +53,6 @@ const doctorsList = [
     id: 4,
     name: "ডা. আব্দুল ওয়াহিদ",
     qualifications: "এমবিবিএস, এফসিপিএস",
-    title: "মেডিকেল বোর্ড সদস্য",
     quote:
       "“ল্যাকটেশনাল অস্বস্তি ও ব্যথায় ভুগছেন এমন মায়েদের জন্য SmoothFlow একটি চিকিৎসাবিজ্ঞান সমর্থিত ও সম্পূর্ণ নির্ভরযোগ্য প্রাকৃতিক সমাধান।”",
     img: "/assets/doctors/wahid.webp",
@@ -190,12 +185,6 @@ export function SmoothflowCertifications() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="inline-flex items-center gap-1 bg-brand-light text-brand text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-brand/15">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          {doc.title}
-                        </span>
-                      </div>
                       <h3 className="font-extrabold text-[#1A1A1A] text-base sm:text-lg leading-snug truncate">
                         {doc.name}
                       </h3>
