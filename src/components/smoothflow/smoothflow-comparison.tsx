@@ -5,7 +5,7 @@ import { CheckCircle2, XCircle, ShoppingBag } from "lucide-react";
 
 export function SmoothflowComparison() {
   return (
-    <section className="py-10 md:py-16 relative overflow-hidden bg-white">
+    <section className="pt-2 pb-10 md:pt-4 md:pb-16 relative overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#111111] rounded-[24px] p-6 md:p-10 lg:p-12 shadow-2xl text-white">
           <div className="text-center mb-10">
