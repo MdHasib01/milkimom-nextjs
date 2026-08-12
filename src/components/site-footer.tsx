@@ -26,7 +26,9 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
   const isSmoothflow = content.productSlug === "smoothflow";
 
-  const footerText = content.footerText || `${siteConfig.tagline} — মা ও শিশুর সুস্থতায় প্রকৃতির শক্তি।`;
+  const footerText = isSmoothflow
+    ? "Smoothflow - ২৪ ঘণ্টায় ফিডিং পেইন থেকে মুক্তির উপায়"
+    : (content.footerText || `${siteConfig.tagline} — মা ও শিশুর সুস্থতায় প্রকৃতির শক্তি।`);
   const phoneDisplay = content.footerPhone || siteConfig.phoneDisplay;
   const email = content.footerEmail || siteConfig.email;
   const address = content.footerAddress || siteConfig.address;

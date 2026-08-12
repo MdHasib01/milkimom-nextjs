@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Maximize2, ShoppingBag } from "lucide-react";
 
 const reviewImages = [
   { id: 1, src: "/images/smoothflow-review/Review 1.jpg", alt: "Smoothflow Customer Review 1" },
@@ -151,9 +151,10 @@ export function SmoothflowReviews() {
         >
           <a
             href="#order-section"
-            className="w-full sm:w-auto bg-brand text-white font-bold text-lg md:text-xl px-8 py-4 md:px-10 rounded-full shadow-[0_4px_20px_rgba(230,16,110,0.3)] text-center transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl px-8 py-4 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
           >
-            হ্যাঁ, আমিও Feeding-এ স্বস্তি চাই
+            <ShoppingBag className="size-5" />
+            <span>হ্যাঁ, আমিও Feeding-এ স্বস্তি চাই</span>
           </a>
         </motion.div>
       </div>
