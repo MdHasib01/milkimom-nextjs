@@ -113,8 +113,8 @@ const DEFAULT_DOCTORS_LIST: DoctorItemData[] = [
   {
     id: "saddam",
     name: "ডা. মোঃ সাদ্দাম",
-    degree: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
-    title: "মেডিকেল বোর্ড অনুমোদিত",
+    degree: "এমবিবিএস, এফসিপিএস",
+    title: "",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
     image: "/assets/doctors/saddam.webp",
@@ -123,8 +123,8 @@ const DEFAULT_DOCTORS_LIST: DoctorItemData[] = [
   {
     id: "nazmul",
     name: "ডা. মোঃ নাজমুল",
-    degree: "এমবিবিএস, ডিজিইউ, শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
-    title: "মেডিকেল বোর্ড অনুমোদিত",
+    degree: "এমবিবিএস, ডিজিইউ",
+    title: "",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
     image: "/assets/doctors/nazmul.webp",
@@ -1604,7 +1604,7 @@ export default function AdminCustomizationPage() {
                         value={doc.degree || ""}
                         onChange={(e) => handleUpdateDoctor(index, { degree: e.target.value })}
                         disabled={isModerator}
-                        placeholder="e.g. এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)"
+                        placeholder="e.g. এমবিবিএস, এফসিপিএস"
                         className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                       />
                     </div>

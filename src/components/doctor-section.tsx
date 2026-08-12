@@ -15,7 +15,7 @@ const defaultDoctors = [
     id: "saddam",
     name: "ডা. মোঃ সাদ্দাম",
     image: "/assets/doctors/saddam.webp",
-    title: "গাইনি ও প্রসূতি রোগ বিশেষজ্ঞ",
+    title: "",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
       "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
@@ -25,7 +25,7 @@ const defaultDoctors = [
     id: "nazmul",
     name: "ডা. মোঃ নাজমুল",
     image: "/assets/doctors/nazmul.webp",
-    title: "শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
+    title: "",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description:
       "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
@@ -68,7 +68,7 @@ export function DoctorSection() {
     .sort((a: any, b: any) => (Number(a?.sortOrder) || 0) - (Number(b?.sortOrder) || 0))
     .map((doc) => ({
       ...doc,
-      title: doc.title || "মেডিকেল বোর্ড অনুমোদিত",
+      title: doc.title || "",
       subtitle: doc.subtitle || "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
       image: getImageUrl(doc.image, "/assets/doctors/saddam.webp"),
       description: replaceBrandName(doc.description || ""),
@@ -148,10 +148,12 @@ export function DoctorSection() {
             </div>
 
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-semibold text-brand-green sm:text-sm">
-                <BadgeCheck className="size-4" />
-                {activeDoctor.title}
-              </span>
+              {activeDoctor.title ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-semibold text-brand-green sm:text-sm">
+                  <BadgeCheck className="size-4" />
+                  {activeDoctor.title}
+                </span>
+              ) : null}
               <h3 className="mt-3 text-balance font-heading text-2xl font-bold text-foreground sm:text-3xl">
                 {activeDoctor.subtitle}
               </h3>

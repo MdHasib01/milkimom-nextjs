@@ -79,8 +79,8 @@ const DEFAULT_DOCTOR_ITEMS: DoctorItemData[] = [
   {
     id: "saddam",
     name: "ডা. মোঃ সাদ্দাম",
-    degree: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
-    title: "গাইনি ও প্রসূতি রোগ বিশেষজ্ঞ",
+    degree: "এমবিবিএস, এফসিপিএস",
+    title: "",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
     image: "/assets/doctors/saddam.webp",
@@ -89,8 +89,8 @@ const DEFAULT_DOCTOR_ITEMS: DoctorItemData[] = [
   {
     id: "nazmul",
     name: "ডা. মোঃ নাজমুল",
-    degree: "এমবিবিএস, ডিজিইউ, শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
-    title: "শিশু ও মাতৃ পুষ্টি বিশেষজ্ঞ",
+    degree: "এমবিবিএস, ডিজিইউ",
+    title: "",
     subtitle: "চিকিৎসকের তত্ত্বাবধানে তৈরি ফর্মুলা",
     description: "মিল্কিমম তৈরি হয়েছে গভর্নমেন্ট রেজিস্টার্ড চিকিৎসকদের তত্ত্বাবধানে, ৪৮০০+ বছরের প্রাচীন আয়ুর্বেদিক জ্ঞান ও আধুনিক বিজ্ঞানের গবেষণার সমন্বয়ে। প্রতিটি ব্যাচ ল্যাব টেস্টেড ও BSTI সার্টিফাইড, যাতে মা ও শিশু উভয়ের জন্যই এটি সম্পূর্ণ নিরাপদ থাকে।",
     image: "/assets/doctors/nazmul.webp",
@@ -131,7 +131,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     heroImage: "/images/product-jar.webp",
     doctorTitle: "বিশেষজ্ঞ ডাক্তারের পরামর্শ",
     doctorName: "ডাঃ তানজিলা রহমান",
-    doctorDegree: "এমবিবিএস, এফসিপিএস (গাইনি এন্ড অব্স)",
+    doctorDegree: "এমবিবিএস, এফসিপিএস",
     doctorQuote: "মায়ের বুকের দুধ নবজাতকের জন্য সর্বোত্তম পুষ্টি। মিল্কিমম সম্পূর্ণ প্রাকৃতিক উপাদানে তৈরি যা নিরাপদভাবে দুধ উৎপাদনে কার্যকর সাহায্য করে।",
     doctorImage: "/assets/doctor/doctor.png",
     orderHeadline: "আজই অর্ডার করুন মিল্কিমম™",
@@ -166,7 +166,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     heroImage: "/images/product-jar.webp",
     doctorTitle: "বিশ্বাস রাখার কারণসমূহ",
     doctorName: "Dr. Sarah Ahmed",
-    doctorDegree: "MBBS, FCPS (Gynecology & Obstetrics)",
+    doctorDegree: "MBBS, FCPS",
     doctorQuote: "SmoothFlow is formulated with safe, clinically proven ingredients that gently help relieve clogged ducts and breast tenderness.",
     doctorImage: "/assets/doctor/doctor.png",
     orderHeadline: "SmoothFlow অর্ডার করুন",
@@ -211,6 +211,7 @@ export function LandingPageContentProvider({
   children: React.ReactNode;
 }) {
   const initialContent = overrideContent || DEFAULT_SECTION_CONTENTS[productSlug] || DEFAULT_SECTION_CONTENTS.milkimom;
+  const isSmoothflow = productSlug === "smoothflow";
   const [content, setContent] = useState<LandingPageSectionContent>(initialContent);
   const [isLoading, setIsLoading] = useState<boolean>(!overrideContent && showLoader);
 
