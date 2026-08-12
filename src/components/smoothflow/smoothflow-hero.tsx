@@ -81,7 +81,7 @@ export function SmoothflowHero() {
 
       {/* HERO MAIN */}
       <section className="relative overflow-hidden pt-[70px] md:pt-[86px] pb-14 md:pb-20 min-h-[70vh] flex flex-col items-center justify-center">
-        <GridPattern size={36} className="opacity-50" />
+        <GridPattern size={36} className="opacity-15" />
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 -top-32 -z-10 h-[32rem]"

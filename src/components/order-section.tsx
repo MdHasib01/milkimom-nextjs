@@ -99,10 +99,8 @@ export function OrderSection() {
 
   const effectiveFlavors = useMemo(() => {
     if (isSmoothflow) {
-      return flavors.map((f, idx) => ({
+      return flavors.map((f) => ({
         ...f,
-        name: `Flavour ${idx + 1}`,
-        nameEn: `Flavour ${idx + 1}`,
         regularPrice: f.regularPrice === 8990 || !f.regularPrice ? smoothflowSingleJarPrice.regularPrice : f.regularPrice,
         salePrice: f.salePrice === 4990 || !f.salePrice ? smoothflowSingleJarPrice.salePrice : f.salePrice,
         image: f.smoothflowImage || "/images/smoothflow.png",
@@ -314,6 +312,10 @@ export function OrderSection() {
       nextErrors.phone = "সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন";
     }
 
+    if (form.payment === "bkash" && !form.trxId.trim()) {
+      nextErrors.trxId = "বিকাশ ট্রানজেকশন আইডি (TrxID) লিখুন";
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
@@ -423,7 +425,7 @@ export function OrderSection() {
                 <div className="grid gap-1.5 col-span-full">
                   <Label htmlFor="flavor-select" className="text-xs xs:text-sm font-semibold flex items-center justify-between">
                     <span>পছন্দসই ফ্লেভার সিলেক্ট করুন *</span>
-                    <span className="text-[11px] text-brand-crimson font-bold">
+                    <span className="text-[11px] text-primary font-bold">
                       ({effectiveFlavors.length}টি ফ্লেভারে পাওয়া যাচ্ছে)
                     </span>
                   </Label>
@@ -532,7 +534,7 @@ export function OrderSection() {
                 {/* Product Row */}
                 <div className="flex items-start justify-between gap-2 text-xs xs:text-sm">
                   <span className="font-bold text-foreground leading-snug">
-                    {productNameEn} × 1
+                    {productNameEn} ({selectedFlavor.name}) × 1
                   </span>
                   <div className="text-right shrink-0">
                     {regularPriceVal > selectedFlavor.salePrice && (
@@ -578,25 +580,139 @@ export function OrderSection() {
                   PAYMENT METHOD
                 </span>
                 
-                <div className="flex flex-col gap-2">
-                  <label className="flex cursor-pointer items-center justify-between rounded-xl border border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary/30 px-3.5 py-2.5 text-xs xs:text-sm transition-all duration-150 select-none bg-card shadow-xs">
-                    <div className="flex items-center gap-2.5">
-                      <span className="flex size-4 items-center justify-center rounded-full border border-primary bg-primary">
-                        <span className="size-1.5 rounded-full bg-white" />
-                      </span>
-                      <span>Cash on Delivery</span>
-                    </div>
-                    <Truck className="size-4 xs:size-4.5 text-primary shrink-0" />
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="cod"
-                      checked={form.payment === "cod"}
-                      onChange={() => setForm((f) => ({ ...f, payment: "cod" }))}
-                      className="sr-only"
-                    />
-                  </label>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      { id: "cod", label: "Cash on Delivery" },
+                      { id: "bkash", label: "বিকাশ" },
+                    ] as const
+                  ).map((option) => (
+                    <label
+                      key={option.id}
+                      className={cn(
+                        "flex flex-1 cursor-pointer items-center justify-center gap-1.5 xs:gap-2 rounded-xl border px-2 xs:px-3 py-2.5 text-xs xs:text-sm font-medium transition-all duration-150 select-none",
+                        form.payment === option.id
+                          ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs ring-1 ring-primary/30"
+                          : "border-border bg-card text-foreground/80 hover:border-primary/40"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="payment_smoothflow"
+                        value={option.id}
+                        checked={form.payment === option.id}
+                        onChange={() =>
+                          setForm((f) => ({ ...f, payment: option.id as "cod" | "bkash" }))
+                        }
+                        className="sr-only"
+                      />
+                      {option.id === "bkash" && (
+                        <img
+                          src="/assets/bkash-logo.webp"
+                          alt="bKash"
+                          className="h-4 xs:h-5 w-auto object-contain shrink-0"
+                        />
+                      )}
+                      <span className="whitespace-nowrap">{option.label}</span>
+                    </label>
+                  ))}
                 </div>
+
+                {/* Cash on Delivery Notice */}
+                {form.payment === "cod" && (
+                  <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs text-foreground shadow-xs">
+                    <p className="flex items-center gap-1.5 font-bold text-primary text-xs xs:text-sm">
+                      <Truck className="size-4 shrink-0 text-primary" />
+                      <span>Cash on Delivery</span>
+                    </p>
+                    <p className="mt-1 text-[11px] xs:text-xs font-semibold text-muted-foreground leading-relaxed">
+                      সাপ্লিমেন্ট হাতে পেয়ে মূল্য পরিশোধ করবো।
+                    </p>
+                  </div>
+                )}
+
+                {/* bKash Payment Box */}
+                {form.payment === "bkash" && (
+                  <div className="mt-3.5 space-y-3 rounded-xl border border-primary/30 bg-card p-3 xs:p-4 text-foreground shadow-xs">
+                    <div className="overflow-hidden rounded-xl border border-border bg-white p-2 text-center shadow-xs">
+                      <img
+                        src="/images/bkash.webp"
+                        alt="bKash Payment"
+                        className="mx-auto h-auto max-h-36 xs:max-h-48 sm:max-h-56 w-full rounded-lg object-contain"
+                      />
+                    </div>
+
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 xs:p-3 text-center">
+                      <span className="block text-[11px] xs:text-xs font-medium text-muted-foreground">
+                        বিকাশ পার্সোনাল নম্বর (Send Money)
+                      </span>
+                      <span className="block font-mono text-base xs:text-lg font-bold tracking-wider text-primary select-all mt-0.5">
+                        01926-344244
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-2.5 xs:p-3 text-[11px] xs:text-xs text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                      <p className="flex items-center gap-1.5 text-xs xs:text-sm font-bold text-amber-900 dark:text-amber-300">
+                        <img
+                          src="/assets/bkash-logo.webp"
+                          alt="bKash"
+                          className="h-4 w-auto object-contain shrink-0 inline-block"
+                        />
+                        <span>বিকাশ পেমেন্ট করার নির্দেশাবলী:</span>
+                      </p>
+                      <ol className="mt-1.5 list-decimal list-inside space-y-1 pl-0.5 text-[11px] xs:text-xs font-medium leading-relaxed text-muted-foreground">
+                        <li>
+                          আপনার বিকাশ মোবাইল অ্যাপ অথবা{" "}
+                          <span className="font-mono font-bold text-foreground">*247#</span> ডায়াল করুন।
+                        </li>
+                        <li>
+                          <strong className="text-foreground">Send Money</strong> অপশনটি সিলেক্ট করুন।
+                        </li>
+                        <li>
+                          প্রাপক নম্বর লিখুন:{" "}
+                          <strong className="font-mono text-primary font-bold">01926-344244</strong>
+                        </li>
+                        <li>
+                          মোট পরিমাণ:{" "}
+                          <strong className="font-bold text-primary">
+                            ৳{totalPrice.toLocaleString("bn-BD")}/=
+                          </strong>{" "}
+                          টাকা দিয়ে পিন দিন।
+                        </li>
+                        <li>
+                          সেন্ড মানি সফল হওয়ার পর প্রাপ্ত{" "}
+                          <strong className="text-foreground">Transaction ID (TrxID)</strong> নিচের ইনপুট বক্সে লিখুন।
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="grid gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="smoothflow-trxId" className="text-xs font-bold text-foreground">
+                          বিকাশ ট্রানজেকশন আইডি (TrxID) <span className="text-destructive">*</span>
+                        </Label>
+                        <span className="text-[10px] text-muted-foreground">উদাহরণ: 9AB12CD34E</span>
+                      </div>
+                      <Input
+                        id="smoothflow-trxId"
+                        value={form.trxId}
+                        onChange={(e) => {
+                          setForm((f) => ({ ...f, trxId: e.target.value }));
+                          if (errors.trxId) setErrors((prev) => ({ ...prev, trxId: undefined }));
+                        }}
+                        aria-invalid={Boolean(errors.trxId)}
+                        placeholder="bKash TrxID এখানে লিখুন (যেমন: 9AB12CD34E)"
+                        className="h-10 xs:h-11 font-mono uppercase text-xs xs:text-sm bg-background rounded-xl"
+                      />
+                      {errors.trxId && (
+                        <div className="flex items-center gap-1 text-xs font-semibold text-destructive mt-0.5">
+                          <AlertCircle className="size-3.5 shrink-0" />
+                          <span>{errors.trxId}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Submit Button & Micro-copy & Social Proof Counter */}
