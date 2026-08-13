@@ -26,7 +26,11 @@ export function LandingPageLoader({ productSlug = "milkimom" }: LandingPageLoade
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-pink-50/40 via-white to-rose-50/30 px-4 select-none transition-all duration-500 overflow-hidden"
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center ${
+        isMilkready
+          ? "bg-gradient-to-b from-sky-50/60 via-white to-sky-50/40"
+          : "bg-gradient-to-b from-pink-50/40 via-white to-rose-50/30"
+      } px-4 select-none transition-all duration-500 overflow-hidden`}
       style={{ minHeight: "100vh" }}
       aria-label="Product Reveal"
     >
@@ -76,6 +80,10 @@ export function LandingPageLoader({ productSlug = "milkimom" }: LandingPageLoade
                 priority
               />
             </div>
+          ) : isMilkready ? (
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              <span style={{ color: brandColor }}>Milk</span>Ready™
+            </h1>
           ) : (
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
               <span style={{ color: brandColor }}>Smooth</span>Flow™
@@ -87,7 +95,7 @@ export function LandingPageLoader({ productSlug = "milkimom" }: LandingPageLoade
         <div
           className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold shadow-sm border"
           style={{
-            backgroundColor: isMilkimom ? "#fff5f8" : "#fff0f6",
+            backgroundColor: isMilkimom ? "#fff5f8" : isMilkready ? "#f0f9ff" : "#fff0f6",
             borderColor: `${brandColor}33`,
             color: brandColor,
           }}

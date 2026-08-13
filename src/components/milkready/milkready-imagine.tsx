@@ -25,22 +25,24 @@ export function MilkreadyImagine() {
         </motion.h2>
       </div>
 
-      {/* Before Vs After Visual - Edge-to-edge full width on mobile, no border, no radius */}
+      {/* Before Vs After Visual - Edge-to-edge full width on mobile, rounded with shadow on tablet/desktop */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.99 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-4xl mx-auto px-0"
+        className="w-full max-w-4xl mx-auto px-0 sm:px-4 md:px-6"
       >
-        <img
-          src="/images/milkready/Before Vs After.jpg"
-          alt="Delivery এর পর Formula Milk না দিয়ে নিজের বুকের দুধ খাওয়ানোর প্রস্তুতি - Before Vs After"
-          className="w-full h-auto object-contain block"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/images/milkready/before-vs-after.jpg";
-          }}
-        />
+        <div className="overflow-hidden rounded-none sm:rounded-2xl md:rounded-3xl sm:shadow-lg sm:border sm:border-slate-200/80">
+          <img
+            src="/images/milkready/Before Vs After.jpg"
+            alt="Delivery এর পর Formula Milk না দিয়ে নিজের বুকের দুধ খাওয়ানোর প্রস্তুতি - Before Vs After"
+            className="w-full h-auto object-contain block rounded-none sm:rounded-2xl md:rounded-3xl"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/milkready/before-vs-after.jpg";
+            }}
+          />
+        </div>
       </motion.div>
 
       <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">

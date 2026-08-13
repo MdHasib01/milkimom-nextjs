@@ -25,9 +25,13 @@ export function SiteFooter() {
   const { content } = useLandingPageContent();
   const year = new Date().getFullYear();
   const isSmoothflow = content.productSlug === "smoothflow";
+  const isMilkready = content.productSlug === "milkready";
+  const hideQuickLinks = isSmoothflow || isMilkready;
 
   const footerText = isSmoothflow
     ? "Smoothflow - ২৪ ঘণ্টায় ফিডিং পেইন থেকে মুক্তির উপায়"
+    : isMilkready
+    ? "MilkReady - ডেলিভারি পূর্ববর্তী প্রাকৃতিক প্রস্তুতি"
     : (content.footerText || `${siteConfig.tagline} — মা ও শিশুর সুস্থতায় প্রকৃতির শক্তি।`);
   const phoneDisplay = content.footerPhone || siteConfig.phoneDisplay;
   const email = content.footerEmail || siteConfig.email;
@@ -38,7 +42,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-card overflow-hidden">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
         <div className={`grid grid-cols-1 gap-8 items-center sm:items-start text-center sm:text-left ${
-          isSmoothflow ? "sm:grid-cols-2" : "sm:grid-cols-3"
+          hideQuickLinks ? "sm:grid-cols-2" : "sm:grid-cols-3"
         }`}>
           {/* Brand Column */}
           <div className="flex flex-col items-center sm:items-start">
@@ -68,8 +72,8 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Quick Links Column - Hidden on SmoothFlow */}
-          {!isSmoothflow && (
+          {/* Quick Links Column - Hidden on SmoothFlow and MilkReady */}
+          {!hideQuickLinks && (
             <div className="flex flex-col items-center sm:items-start">
               <h3 className="font-heading text-sm font-bold text-foreground">
                 কুইক লিংক

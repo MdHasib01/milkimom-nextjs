@@ -1,31 +1,31 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { AlertCircle, HeartHandshake } from "lucide-react";
 
 export function MilkreadyEmotional() {
   return (
-    <section className="py-10 md:py-16 px-4 bg-white border-b border-slate-200/60">
-      <div className="max-w-3xl mx-auto text-center">
-        {/* Mother & Baby Caring Imagery */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative w-full h-56 sm:h-72 md:h-80 rounded-2xl overflow-hidden shadow-md mb-6 border border-slate-200"
-        >
-          <Image
-            src="/images/milkready/emotional-mother.jpg"
-            alt="Loving mother holding newborn baby"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 768px"
+    <section className="py-8 md:py-16 overflow-hidden bg-white border-b border-slate-200/60">
+      {/* Pain Vs Money Visual - Edge-to-edge on mobile, rounded with shadow on tablet/desktop */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.99 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-4xl mx-auto px-0 sm:px-4 md:px-6 mb-6 md:mb-8"
+      >
+        <div className="overflow-hidden rounded-none sm:rounded-2xl md:rounded-3xl sm:shadow-lg sm:border sm:border-slate-200/80">
+          <img
+            src="/images/milkready/Pain Vs Money.jpg"
+            alt="বুকের দুধ না হলে, সেই ক্ষতি টাকা দিয়ে মাপা যায় না - Pain Vs Money"
+            className="w-full h-auto object-contain block rounded-none sm:rounded-2xl md:rounded-3xl"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/milkready/pain-vs-money.jpg";
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
-        </motion.div>
+        </div>
+      </motion.div>
 
+      <div className="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8">
         <motion.h2 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -36,7 +36,7 @@ export function MilkreadyEmotional() {
           বুকের দুধ না হলে, সেই ক্ষতি <span className="text-rose-600">টাকা দিয়ে মাপা যায় না</span>।
         </motion.h2>
 
-        <div className="flex flex-col gap-3 text-slate-700 text-xs sm:text-sm md:text-base px-3 leading-relaxed max-w-xl mx-auto">
+        <div className="flex flex-col gap-3 text-slate-700 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mx-auto">
           <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-3.5 text-rose-900 font-semibold">
             Formula Milk-এর পেছনে খরচ হতে পারে ৮–১০ লাখ টাকা।
           </div>
