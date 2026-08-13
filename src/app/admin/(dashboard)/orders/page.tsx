@@ -53,13 +53,6 @@ import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
 
-/**
- * Statuses that count as a real sale. Mirrors PURCHASE_STATUSES in
- * server/controllers/orderController.js — these are the orders reported to
- * Meta as a Purchase and eligible for the Google Ads conversion upload.
- */
-const PURCHASE_STATUSES: string[] = ["Confirmed", "Shipped", "Delivered"];
-
 // Same format the public order form enforces
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -189,7 +182,6 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isExporting, setIsExporting] = useState(false);
-  const [isExportingGoogleAds, setIsExportingGoogleAds] = useState(false);
 
   // Bulk & Single Delete States
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -743,77 +735,6 @@ export default function AdminOrdersPage() {
     }
   }
 
-  /**
-   * Exports confirmed orders that carry a Google click id, in the exact upload
-   * format Google Ads expects at Tools → Conversions → Uploads.
-   *
-   * There is no gtag on the site: the browser never sees a Google conversion,
-   * so the click id captured on the landing page plus this file is how a
-   * confirmed sale gets credited back to the Google campaign that produced it.
-   */
-  async function handleExportGoogleAds() {
-    setIsExportingGoogleAds(true);
-    try {
-      const result = await fetchOrders({
-        status: statusFilter || undefined,
-        phone: phoneSearch.trim() || undefined,
-        page: 1,
-        limit: 5000,
-      });
-
-      const source = (result.success && Array.isArray(result.data) ? result.data : orders) as Order[];
-
-      // Only confirmed-or-later sales, and only ones Google can actually match.
-      const exportData = source.filter(
-        (o) =>
-          PURCHASE_STATUSES.includes(o.status) &&
-          o.source !== "admin" &&
-          Boolean(o.attribution?.gclid)
-      );
-
-      if (exportData.length === 0) {
-        alert(
-          "No confirmed orders with a Google click id (gclid) found.\n\n" +
-            "Only orders placed after Google Ads attribution tracking went live can be uploaded."
-        );
-        return;
-      }
-
-      // Google wants "yyyy-MM-dd HH:mm:ss" in the timezone declared on line 1.
-      const conversionTime = (value?: string | null) => {
-        const d = value ? new Date(value) : new Date();
-        const pad = (n: number) => String(n).padStart(2, "0");
-        return (
-          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
-          `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-        );
-      };
-
-      const lines = [
-        "Parameters:TimeZone=+0600",
-        "Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency",
-        ...exportData.map((o) =>
-          [
-            csvCell(o.attribution?.gclid),
-            csvCell(
-              `${getOrderProductDetails(o.product, o.pageUrl, o.productSlug).name} Confirmed Order`
-            ),
-            csvCell(conversionTime(o.statusUpdatedAt || o.orderTime || o.createdAt)),
-            o.price,
-            "BDT",
-          ].join(",")
-        ),
-      ];
-
-      const dateStr = new Date().toISOString().split("T")[0];
-      downloadCsv(`google_ads_offline_conversions_${dateStr}.csv`, lines.join("\n"));
-    } catch {
-      alert("Failed to export Google Ads conversions. Please try again.");
-    } finally {
-      setIsExportingGoogleAds(false);
-    }
-  }
-
   // Selection logic for checkmarks
   const cancelledOrdersOnPage = orders.filter((o) => o.status === "Cancelled");
   const cancelledIdsOnPage = cancelledOrdersOnPage.map((o) => o._id);
@@ -1004,24 +925,6 @@ export default function AdminOrdersPage() {
                 <Download size={14} />
               )}
               Export Excel
-            </button>
-          )}
-
-          {/* Google Ads offline conversion upload file. The site has no gtag,
-              so this is how a confirmed sale gets credited to its Google campaign. */}
-          {activeTab === "orders" && (
-            <button
-              onClick={handleExportGoogleAds}
-              disabled={isExportingGoogleAds}
-              title="Export confirmed orders with a Google click id, ready to upload at Google Ads → Tools → Conversions → Uploads"
-              className="flex items-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800 transition hover:bg-blue-100 disabled:opacity-50 dark:border-blue-800/40 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
-            >
-              {isExportingGoogleAds ? (
-                <Loader2 size={14} className="animate-spin text-blue-700 dark:text-blue-300" />
-              ) : (
-                <Download size={14} />
-              )}
-              Google Ads
             </button>
           )}
 
