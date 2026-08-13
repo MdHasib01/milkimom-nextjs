@@ -10,12 +10,19 @@ interface LandingPageLoaderProps {
 
 export function LandingPageLoader({ productSlug = "milkimom" }: LandingPageLoaderProps) {
   const isMilkimom = productSlug === "milkimom";
-  const brandColor = isMilkimom ? "#bd0052" : "#E6106E";
-  const brandName = isMilkimom ? "মিল্কিমম™" : "SmoothFlow™";
+  const isMilkready = productSlug === "milkready";
+  const brandColor = isMilkimom ? "#bd0052" : isMilkready ? "#0284c7" : "#E6106E";
+  const brandName = isMilkimom ? "মিল্কিমম™" : isMilkready ? "MilkReady™" : "SmoothFlow™";
   const badgeText = isMilkimom
     ? "১০০% সাইডইফেক্ট মুক্ত ও ন্যাচারাল"
+    : isMilkready
+    ? "ডেলিভারি পূর্ববর্তী প্রস্তুতি"
     : "১০০% সাইডইফেক্ট মুক্ত ও সেফ ফর্মুলা";
-  const productImage = isMilkimom ? "/images/product-jar.webp" : "/images/smoothflow.png";
+  const productImage = isMilkimom
+    ? "/images/product-jar.webp"
+    : isMilkready
+    ? "/images/milkready/product-jar.png"
+    : "/images/smoothflow.png";
 
   return (
     <div

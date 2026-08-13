@@ -139,7 +139,7 @@ export function applyProductPricing(
       ...f,
       regularPrice: 5650,
       salePrice: 3399,
-      image: "/images/milkready/product-jar.jpg",
+      image: "/images/milkready/product-jar.png",
     }));
   }
 

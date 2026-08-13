@@ -1,107 +1,97 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { Float, Reveal } from "@/components/motion/reveal";
+import { RotatingOrbit } from "@/components/rotating-orbit";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 
-export function MilkreadyBenefits() {
-  const { content } = useLandingPageContent();
+const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
-  const benefitsList = content.benefitsItems && content.benefitsItems.length > 0
-    ? content.benefitsItems.map((b) => `${b.accent} ${b.rest}`.trim())
-    : [
-        "Breastfeeding Preparation",
-        "Maternal Nutrition Support",
-        "Breast Tissue Support",
-        "Milk Duct Preparation",
-        "Post-Delivery Feeding Readiness",
-      ];
+const RADIUS_X = 42;
+const RADIUS_Y = 36;
+
+function polarPosition(index: number, total: number) {
+  const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+  const x = 50 + RADIUS_X * Math.cos(angle);
+  const y = 50 + RADIUS_Y * Math.sin(angle);
+  return { left: `${x}%`, top: `${y}%` };
+}
+
+function toBengaliNumber(num: number): string {
+  return num.toString().replace(/\d/g, (d) => bengaliDigits[parseInt(d)] || d);
+}
+
+const defaultBenefits = [
+  { accent: "Breastfeeding Preparation", rest: "নিশ্চিত করে" },
+  { accent: "Maternal Nutrition Support", rest: "দেয়" },
+  { accent: "Breast Tissue Support", rest: "দেয়" },
+  { accent: "Milk Duct Preparation", rest: "প্রস্তুত করে" },
+  { accent: "Post-Delivery Feeding Readiness", rest: "নিশ্চিত করে" },
+];
+
+export function MilkreadyBenefits() {
+  const { content, getImageUrl, replaceBrandName } = useLandingPageContent();
+  const title = content.howItWorksTitle || "MilkReady এর উপকারিতা";
+
+  const rawImg = content.howItWorksImage && content.howItWorksImage.trim()
+    ? content.howItWorksImage
+    : "/images/milkready/product-jar.png";
+  const jarImg = getImageUrl(rawImg, "/images/milkready/product-jar.png");
+
+  const benefitsList = Array.isArray(content.benefitsItems) && content.benefitsItems.length > 0 && content.benefitsItems[0]?.accent !== "বুকের দুধ"
+    ? content.benefitsItems
+    : defaultBenefits;
 
   return (
-    <section className="py-10 md:py-16 px-4 bg-white relative overflow-hidden">
-      <div className="max-w-4xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mb-8 md:mb-12"
-        >
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-[#0284c7] mb-2.5">
-            <Sparkles className="size-3.5" />
-            <span>উপকারিতা</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0284c7]">
-            {content.howItWorksTitle || "MilkReady এর উপকারিতা"}
+    <section className="pt-2 pb-0 md:pt-4 md:pb-0 mb-0 relative bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-4 md:mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand leading-tight">
+            {title}
           </h2>
-        </motion.div>
+        </div>
 
-        {/* Benefits Display */}
-        <div className="relative w-full max-w-2xl mx-auto flex flex-col md:block items-center md:h-[380px]">
-          
-          {/* Central Product Image Container */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="md:absolute top-1/2 left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-10 rounded-full p-3 shadow-lg shadow-sky-500/10 mb-6 md:mb-0 w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center border-4 border-[#0284c7]/30 bg-gradient-to-b from-sky-50 to-white relative"
-          >
-            {/* Radial Lines (desktop only) */}
-            <div className="hidden md:block absolute w-[340px] h-[340px] rounded-full border-2 border-dashed border-sky-300/40 pointer-events-none -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[spin_60s_linear_infinite]" />
-            
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden">
-              <Image 
-                src="/images/milkready/product-jar.jpg" 
-                alt="MilkReady Product" 
-                fill
-                className="object-contain p-1 rounded-full"
-                sizes="200px"
+        {/* Radial orbit layout matching Smoothflow design with Bengali number badges */}
+        <div className="relative mx-auto mt-2 aspect-square w-full max-w-[420px] sm:mt-4 sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
+          <RotatingOrbit />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Float distance={8} duration={3.5}>
+              <img
+                src={jarImg}
+                alt={content.productNameEn || "MilkReady"}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/milkready/product-jar.png";
+                }}
+                className="h-28 w-auto object-contain drop-shadow-2xl sm:h-44 md:h-[228px] lg:h-64 xl:h-[300px]"
               />
-            </div>
-          </motion.div>
-
-          {/* Benefit Nodes - Stacked nicely on mobile, circular positioning on desktop */}
-          <div className="flex flex-col gap-3 w-full max-w-sm md:max-w-none md:block relative z-20">
-            {benefitsList.map((benefit, i) => {
-              // 5 nodes surrounding product circle
-              const angles = [-90, -18, 54, 126, 198];
-              const angle = (angles[i] * Math.PI) / 180;
-              const radius = 175; // pixels distance from center
-              
-              const left = `calc(50% + ${Math.cos(angle) * radius}px)`;
-              const top = `calc(50% + ${Math.sin(angle) * radius}px)`;
-
-              return (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="md:absolute md:-translate-x-1/2 md:-translate-y-1/2 bg-gradient-to-r from-sky-50 to-white px-4 py-2.5 rounded-xl border border-sky-200/80 flex items-center gap-2.5 shadow-sm hover:shadow-md hover:border-[#0284c7] transition-all"
-                  style={{ 
-                    '--md-left': left, 
-                    '--md-top': top,
-                  } as React.CSSProperties}
-                >
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#0284c7] shrink-0 ring-4 ring-sky-100" />
-                  <span className="font-bold text-xs sm:text-sm text-slate-800 tracking-tight">{benefit}</span>
-                </motion.div>
-              );
-            })}
+            </Float>
           </div>
 
-          <style dangerouslySetInnerHTML={{__html: `
-            @media (min-width: 768px) {
-              .md\\:absolute {
-                left: var(--md-left) !important;
-                top: var(--md-top) !important;
-              }
-            }
-          `}} />
+          {benefitsList.map((benefit: any, index: number) => {
+            const accentText = benefit.accent !== undefined ? benefit.accent : defaultBenefits[index]?.accent || "";
+            const restText = benefit.rest !== undefined ? benefit.rest : defaultBenefits[index]?.rest || "";
 
+            const position = polarPosition(index, benefitsList.length);
+
+            return (
+              <div
+                key={index}
+                style={position}
+                className="absolute w-24 -translate-x-1/2 -translate-y-1/2 sm:w-40 md:w-44 lg:w-48 xl:w-56"
+              >
+                <Reveal delay={0.1 * index} y={12}>
+                  <div className="flex flex-col items-center gap-1 rounded-xl border border-brand/20 bg-white p-2 text-center shadow-md sm:gap-2 sm:rounded-2xl sm:p-3 hover:border-brand/40 transition-colors">
+                    <span className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white sm:size-9 sm:text-sm md:size-10 md:text-base shadow-sm">
+                      {toBengaliNumber(index + 1)}
+                    </span>
+                    <p className="text-[11px] leading-tight sm:text-sm sm:leading-snug md:text-base lg:text-lg">
+                      <span className="font-bold text-brand">{replaceBrandName(accentText)}</span>{" "}
+                      {restText && <span className="font-normal text-[#1A1A1A]">{replaceBrandName(restText)}</span>}
+                    </p>
+                  </div>
+                </Reveal>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

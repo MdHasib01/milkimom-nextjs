@@ -76,13 +76,13 @@ export function MilkreadyPricing() {
           </div>
 
           {/* Product Jar Visual */}
-          <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-4 relative rounded-2xl p-2 bg-gradient-to-b from-sky-50 to-white border border-sky-100 flex items-center justify-center">
+          <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-4 relative flex items-center justify-center">
             <div className="relative w-full h-full">
               <Image 
-                src="/images/milkready/product-jar.jpg" 
+                src="/images/milkready/product-jar.png" 
                 alt="MilkReady Complete Dose" 
                 fill
-                className="object-contain rounded-xl"
+                className="object-contain drop-shadow-xl"
                 sizes="160px"
               />
             </div>
