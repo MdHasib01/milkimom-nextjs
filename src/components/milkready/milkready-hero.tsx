@@ -130,7 +130,7 @@ export function MilkreadyHero() {
           >
             <Button
               onClick={scrollToOrder}
-              className="cta-shine min-h-[48px] h-auto py-3 sm:py-0 sm:h-12 w-full sm:w-auto gap-2 rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white px-6 sm:px-8 text-sm sm:text-base font-bold shadow-md shadow-sky-600/25 hover:shadow-lg active:scale-95 transition-all cursor-pointer justify-center text-center"
+              className="cta-shine min-h-[48px] h-auto py-3 sm:py-0 sm:h-12 w-full sm:w-auto gap-2 rounded-full bg-brand-cta px-4 sm:px-6 text-sm sm:text-base font-bold text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark cursor-pointer justify-center text-center whitespace-normal sm:whitespace-nowrap active:scale-95 transition-all"
             >
               <ShoppingBag className="size-5 shrink-0" strokeWidth={2.5} />
               <span>{content.heroCtaText || "MilkReady অর্ডার করতে ক্লিক করুন"}</span>

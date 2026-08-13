@@ -127,7 +127,7 @@ export function MilkreadyCertifications() {
           <div className="text-center mt-8">
             <Button
               onClick={scrollToOrder}
-              className="cta-shine w-full sm:w-auto px-8 py-3.5 h-auto rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-sm sm:text-base shadow-md shadow-sky-600/20 active:scale-95 transition-all cursor-pointer"
+              className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-black text-base md:text-lg px-8 py-3.5 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-all hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
             >
               হ্যাঁ, আমিও MilkReady নিতে চাই
             </Button>

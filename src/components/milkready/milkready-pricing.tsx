@@ -119,7 +119,7 @@ export function MilkreadyPricing() {
 
           <Button
             onClick={scrollToOrder}
-            className="cta-shine w-full py-4 h-auto rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white font-extrabold text-base shadow-md shadow-sky-600/25 active:scale-95 transition-all cursor-pointer"
+            className="cta-shine w-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-black text-lg py-4 px-6 rounded-full shadow-lg shadow-brand-cta/40 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
           >
             <ShoppingBag className="size-5 shrink-0" strokeWidth={2.5} />
             <span>এখনই MilkReady অর্ডার করুন</span>

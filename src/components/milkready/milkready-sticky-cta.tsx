@@ -90,7 +90,7 @@ export function MilkreadyStickyCTA() {
         <div className="flex items-center shrink-0">
           <button
             onClick={scrollToOrder}
-            className="cta-shine h-10 sm:h-11 gap-2 rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white px-4 sm:px-6 text-xs sm:text-base font-extrabold shadow-md shadow-sky-600/25 whitespace-nowrap shrink-0 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+            className="cta-shine h-10 sm:h-11 gap-2 rounded-full bg-brand-cta px-4 sm:px-6 text-xs sm:text-base font-extrabold text-brand-cta-foreground hover:bg-brand-cta-dark shadow-md whitespace-nowrap shrink-0 flex items-center justify-center transition-all cursor-pointer"
           >
             <ShoppingBag className="size-4 shrink-0" strokeWidth={2.5} />
             <span>অর্ডার করুন</span>
