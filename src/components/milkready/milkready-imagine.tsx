@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ShoppingBag } from "lucide-react";
 
 export function MilkreadyImagine() {
   const scrollToOrder = () => {
@@ -47,12 +48,16 @@ export function MilkreadyImagine() {
           সেই <span className="text-[#0284c7]">Happiness</span> পৃথিবীতে আর কোথাও নেই।
         </p>
 
-        <Button
-          onClick={scrollToOrder}
-          className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-base md:text-lg px-8 py-3.5 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
-        >
-          হ্যাঁ, আমি Happy হতে চাই
-        </Button>
+        <div className="flex justify-center w-full">
+          <button
+            type="button"
+            onClick={scrollToOrder}
+            className="cta-shine w-full sm:w-auto min-h-[54px] sm:min-h-[58px] h-auto py-4 px-8 md:px-10 rounded-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl shadow-lg shadow-brand-cta/40 text-center transition-all hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2.5 cursor-pointer select-none"
+          >
+            <ShoppingBag className="size-5 sm:size-6 shrink-0" strokeWidth={2.5} />
+            <span>হ্যাঁ, আমি Happy হতে চাই</span>
+          </button>
+        </div>
       </div>
     </section>
   );

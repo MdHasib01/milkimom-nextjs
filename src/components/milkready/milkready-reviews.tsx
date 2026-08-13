@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, CheckCircle2, Quote } from "lucide-react";
+import { Star, CheckCircle2, Quote, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -117,13 +117,15 @@ export function MilkreadyReviews() {
           ))}
         </div>
 
-        <div className="text-center">
-          <Button
+        <div className="text-center flex justify-center w-full">
+          <button
+            type="button"
             onClick={scrollToOrder}
-            className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-base md:text-lg px-8 py-3.5 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="cta-shine w-full sm:w-auto min-h-[54px] sm:min-h-[58px] h-auto py-4 px-8 md:px-10 rounded-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl shadow-lg shadow-brand-cta/40 text-center transition-all hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2.5 cursor-pointer select-none"
           >
-            হ্যাঁ, আমিও Delivery-এর আগেই Ready হতে চাই
-          </Button>
+            <ShoppingBag className="size-5 sm:size-6 shrink-0" strokeWidth={2.5} />
+            <span>হ্যাঁ, আমিও Delivery-এর আগেই Ready হতে চাই</span>
+          </button>
         </div>
       </div>
     </section>

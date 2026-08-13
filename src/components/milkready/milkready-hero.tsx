@@ -128,13 +128,14 @@ export function MilkreadyHero() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-full px-2 sm:px-0"
           >
-            <Button
+            <button
+              type="button"
               onClick={scrollToOrder}
-              className="cta-shine min-h-[48px] h-auto py-3 sm:py-0 sm:h-12 w-full sm:w-auto gap-2 rounded-full bg-brand-cta px-4 sm:px-6 text-sm sm:text-base font-bold text-brand-cta-foreground shadow-lg shadow-brand-cta/40 hover:bg-brand-cta-dark cursor-pointer justify-center text-center whitespace-normal sm:whitespace-nowrap active:scale-95 transition-all"
+              className="cta-shine min-h-[54px] sm:min-h-[58px] h-auto py-4 px-6 sm:px-8 rounded-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark text-base sm:text-lg font-bold shadow-lg shadow-brand-cta/40 cursor-pointer justify-center text-center whitespace-normal sm:whitespace-nowrap transition-all hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center gap-2.5 w-full sm:w-auto select-none"
             >
-              <ShoppingBag className="size-5 shrink-0" strokeWidth={2.5} />
+              <ShoppingBag className="size-5 sm:size-6 shrink-0" strokeWidth={2.5} />
               <span>{content.heroCtaText || "MilkReady অর্ডার করতে ক্লিক করুন"}</span>
-            </Button>
+            </button>
 
             <Button
               asChild

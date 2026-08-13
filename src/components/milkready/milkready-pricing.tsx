@@ -117,13 +117,14 @@ export function MilkreadyPricing() {
             </div>
           )}
 
-          <Button
+          <button
+            type="button"
             onClick={scrollToOrder}
-            className="cta-shine w-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-black text-lg py-4 px-6 rounded-full shadow-lg shadow-brand-cta/40 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
+            className="cta-shine w-full min-h-[54px] sm:min-h-[58px] h-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-black text-lg py-4 px-6 rounded-full shadow-lg shadow-brand-cta/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 select-none"
           >
-            <ShoppingBag className="size-5 shrink-0" strokeWidth={2.5} />
+            <ShoppingBag className="size-5 sm:size-6 shrink-0" strokeWidth={2.5} />
             <span>এখনই MilkReady অর্ডার করুন</span>
-          </Button>
+          </button>
         </motion.div>
       </div>
     </section>

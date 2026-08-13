@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, HelpCircle, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const FAQS = [
@@ -122,12 +122,14 @@ export function MilkreadyFaq() {
             )}
           </Button>
 
-          <Button
+          <button
+            type="button"
             onClick={scrollToOrder}
-            className="cta-shine w-full sm:w-auto bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-base md:text-lg px-8 py-3.5 md:px-10 rounded-full shadow-lg shadow-brand-cta/40 text-center transition-transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="cta-shine w-full sm:w-auto min-h-[54px] sm:min-h-[58px] h-auto py-4 px-8 md:px-10 rounded-full bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta-dark font-bold text-lg md:text-xl shadow-lg shadow-brand-cta/40 text-center transition-all hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center gap-2.5 cursor-pointer select-none"
           >
-            হ্যাঁ, আমিও প্রস্তুতি নিতে চাই
-          </Button>
+            <ShoppingBag className="size-5 sm:size-6 shrink-0" strokeWidth={2.5} />
+            <span>হ্যাঁ, আমিও প্রস্তুতি নিতে চাই</span>
+          </button>
         </div>
       </div>
     </section>
