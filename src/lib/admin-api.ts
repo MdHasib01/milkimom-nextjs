@@ -225,6 +225,9 @@ export interface Flavour {
   description: string;
   price: number;
   offerPrice: number | null;
+  /** Prices for the different product sold on the /smoothflow landing. */
+  smoothflowPrice?: number | null;
+  smoothflowOfferPrice?: number | null;
   weight: number;
   invoiceCode: string;
   tag: string;

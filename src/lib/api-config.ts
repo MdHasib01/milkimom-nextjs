@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
   bulkOrders: `${API_BASE_URL}/api/orders/bulk`,
   orderById: (id: string) => `${API_BASE_URL}/api/orders/${id}`,
   orderStatus: (id: string) => `${API_BASE_URL}/api/orders/${id}/status`,
+  orderAttribution: (id: string) => `${API_BASE_URL}/api/orders/${id}/attribution`,
   orderCheckFraud: (id: string) => `${API_BASE_URL}/api/orders/${id}/check-fraud`,
   login: `${API_BASE_URL}/api/auth/login`,
   me: `${API_BASE_URL}/api/auth/me`,

@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-import { flavors as fallbackFlavors, singleJarPrice } from "./content";
+import {
+  flavors as fallbackFlavors,
+  singleJarPrice,
+  smoothflowSingleJarPrice,
+} from "./content";
 import { API_ENDPOINTS } from "./api-config";
 
 /**
@@ -25,6 +29,9 @@ export interface DisplayFlavor {
   salePrice: number;
   /** Regular price, shown struck through when higher than salePrice. */
   regularPrice: number;
+  /** Same two, for the different product sold on the /smoothflow landing. */
+  smoothflowSalePrice: number;
+  smoothflowRegularPrice: number;
   icon: (typeof fallbackFlavors)[number]["icon"];
   image: string;
   smoothflowImage?: string;
@@ -39,6 +46,8 @@ interface ApiFlavour {
   description?: string;
   price: number;
   offerPrice?: number | null;
+  smoothflowPrice?: number | null;
+  smoothflowOfferPrice?: number | null;
   tag?: string;
   image?: string;
   smoothflowImage?: string;
@@ -53,6 +62,8 @@ export const FALLBACK_FLAVORS: DisplayFlavor[] = fallbackFlavors.map((f) => ({
   popular: f.popular,
   salePrice: singleJarPrice.salePrice,
   regularPrice: singleJarPrice.regularPrice,
+  smoothflowSalePrice: smoothflowSingleJarPrice.salePrice,
+  smoothflowRegularPrice: smoothflowSingleJarPrice.regularPrice,
   icon: f.icon,
   image: f.image,
   smoothflowImage: "",
@@ -69,6 +80,14 @@ function mapApiFlavour(f: ApiFlavour, index: number): DisplayFlavor {
   const offer = Number(f.offerPrice);
   const sale = Number.isFinite(offer) && offer > 0 && offer < regular ? offer : regular;
 
+  // The /smoothflow landing sells a different product at its own price. These
+  // used to be guessed from the Milkimom price (`salePrice === 4990 ? 1999`),
+  // which broke the moment an admin edited the Milkimom price.
+  const sfRegular = Number(f.smoothflowPrice) || smoothflowSingleJarPrice.regularPrice;
+  const sfOffer = Number(f.smoothflowOfferPrice);
+  const sfSale =
+    Number.isFinite(sfOffer) && sfOffer > 0 && sfOffer < sfRegular ? sfOffer : sfRegular;
+
   return {
     id: f._id || visual.id,
     name: f.name || visual.name,
@@ -82,12 +101,36 @@ function mapApiFlavour(f: ApiFlavour, index: number): DisplayFlavor {
     popular: Boolean(f.tag),
     salePrice: sale,
     regularPrice: regular,
+    smoothflowSalePrice: sfSale,
+    smoothflowRegularPrice: sfRegular,
     icon: visual.icon,
     image: f.image ? f.image : visual.image,
     smoothflowImage: f.smoothflowImage || "",
     accentBg: visual.accentBg,
     accentGradient: visual.accentGradient,
   };
+}
+
+/**
+ * Rewrites a catalog for the landing page that is rendering it.
+ *
+ * One flavour catalog serves both landings, but /smoothflow sells a different
+ * product with its own price and image. Every consumer must go through this so
+ * the price shown, the price submitted and the price the server charges cannot
+ * drift apart.
+ */
+export function applyProductPricing(
+  flavors: DisplayFlavor[],
+  productSlug: string
+): DisplayFlavor[] {
+  if (productSlug !== "smoothflow") return flavors;
+
+  return flavors.map((f) => ({
+    ...f,
+    regularPrice: f.smoothflowRegularPrice,
+    salePrice: f.smoothflowSalePrice,
+    image: f.smoothflowImage || "/images/smoothflow.png",
+  }));
 }
 
 export function useFlavors(): DisplayFlavor[] {

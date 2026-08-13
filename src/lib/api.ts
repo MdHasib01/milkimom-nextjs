@@ -1,7 +1,11 @@
 import { API_ENDPOINTS, MOTHER_COUNT_PATH } from "./api-config";
+import type { Attribution } from "./attribution";
 
 export interface OrderPayload {
   product: string;
+  /** Which landing page sold this — decides the server-side price and the
+   *  product Meta reports the Purchase against. */
+  productSlug: string;
   customerName: string;
   phone: string;
   district: string;
@@ -9,15 +13,18 @@ export interface OrderPayload {
   address: string;
   flavour: string;
   paymentMethod: "COD" | "bKash";
+  /** Display price only. The server re-resolves it from the catalog. */
   price: number;
   transactionId?: string;
   pageUrl?: string;
   orderTime?: string;
   ipAddress?: string;
-  /** Meta browser id cookies, stored so the delivered-order Purchase (sent
+  /** Meta browser id cookies, stored so the confirmed-order Purchase (sent
    *  server-side via the Conversions API) can be matched to the ad click. */
   fbp?: string;
   fbc?: string;
+  /** Click ids and campaign params captured on the landing page. */
+  attribution?: Attribution | null;
 }
 
 export interface ApiResult<T = unknown> {
@@ -59,6 +66,24 @@ export function saveOrder(order: OrderPayload) {
   return request(API_ENDPOINTS.orders, {
     method: "POST",
     body: JSON.stringify(order),
+  });
+}
+
+/**
+ * Tops up tracking identifiers on a just-placed order from the thank-you page.
+ *
+ * The Meta `_fbp` cookie is written by fbevents.js, which loads after the page
+ * is interactive — a quick submit can beat it, leaving the order without one.
+ * By the thank-you page it is reliably there. The server only fills fields
+ * that are still empty and refuses anything but a recent pending order.
+ */
+export function updateOrderAttribution(
+  orderId: string,
+  payload: { fbp?: string; fbc?: string; attribution?: Attribution | null }
+) {
+  return request(API_ENDPOINTS.orderAttribution(orderId), {
+    method: "PATCH",
+    body: JSON.stringify(payload),
   });
 }
 

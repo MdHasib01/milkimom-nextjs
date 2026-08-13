@@ -53,6 +53,13 @@ import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
 
+/**
+ * Statuses that count as a real sale. Mirrors PURCHASE_STATUSES in
+ * server/controllers/orderController.js — these are the orders reported to
+ * Meta as a Purchase and eligible for the Google Ads conversion upload.
+ */
+const PURCHASE_STATUSES: string[] = ["Confirmed", "Shipped", "Delivered"];
+
 // Same format the public order form enforces
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -64,9 +71,28 @@ const STATUS_COLORS: Record<string, string> = {
   Cancelled: "bg-red-100 text-red-800 border-red-200",
 };
 
+interface Attribution {
+  fbclid?: string;
+  gclid?: string;
+  gbraid?: string;
+  wbraid?: string;
+  ttclid?: string;
+  msclkid?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+  referrer?: string;
+  landingUrl?: string;
+  landingPath?: string;
+  firstSeenAt?: string;
+}
+
 interface Order {
   _id: string;
   product?: string;
+  productSlug?: "milkimom" | "smoothflow";
   pageUrl?: string;
   customerName: string;
   phone: string;
@@ -86,6 +112,13 @@ interface Order {
   source?: "web" | "admin";
   ipAddress?: string;
   ipLocation?: IpLocation;
+  fbp?: string;
+  fbc?: string;
+  attribution?: Attribution;
+  metaPurchaseSentAt?: string | null;
+  metaPurchaseValue?: number | null;
+  metaPurchaseStatus?: "" | "sent" | "failed";
+  metaPurchaseError?: string;
   steadfastConsignmentId?: string;
   steadfastTrackingCode?: string;
   steadfastStatus?: string;
@@ -101,15 +134,18 @@ interface Order {
   };
 }
 
-function getOrderProductDetails(productName?: string, pageUrl?: string) {
+function getOrderProductDetails(productName?: string, pageUrl?: string, productSlug?: string) {
   const prod = (productName || "").trim();
   const url = (pageUrl || "").toLowerCase();
 
-  const isSmoothflow =
-    prod.toLowerCase().includes("smoothflow") ||
-    prod.includes("স্মুথফ্লো") ||
-    url.includes("/smoothflow") ||
-    url.includes("smoothflow");
+  // productSlug is set at order time and authoritative. Orders placed before
+  // it existed fall back to sniffing the product name and landing URL.
+  const isSmoothflow = productSlug
+    ? productSlug === "smoothflow"
+    : prod.toLowerCase().includes("smoothflow") ||
+      prod.includes("স্মুথফ্লো") ||
+      url.includes("/smoothflow") ||
+      url.includes("smoothflow");
 
   if (isSmoothflow) {
     return {
@@ -153,6 +189,7 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingGoogleAds, setIsExportingGoogleAds] = useState(false);
 
   // Bulk & Single Delete States
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -577,6 +614,25 @@ export default function AdminOrdersPage() {
     }
   }
 
+  // Quotes and escapes a value so commas, quotes and newlines inside it
+  // (referrers and landing URLs are full of them) cannot break the CSV.
+  function csvCell(value: unknown) {
+    return `"${String(value ?? "").replace(/"/g, '""')}"`;
+  }
+
+  // UTF-8 BOM keeps MS Excel from mangling the Bengali columns.
+  function downloadCsv(filename: string, content: string) {
+    const blob = new Blob([`﻿${content}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   // Export Filtered Orders to Excel (CSV with UTF-8 BOM encoding)
   async function handleExportExcel() {
     setIsExporting(true);
@@ -599,6 +655,7 @@ export default function AdminOrdersPage() {
       const headers = [
         "Order ID",
         "Date",
+        "Product",
         "Customer Name",
         "Phone",
         "Address",
@@ -616,52 +673,144 @@ export default function AdminOrdersPage() {
         "Courier Status",
         "Updated By",
         "Update Time",
+        // Ad attribution, captured on the landing page
+        "UTM Source",
+        "UTM Medium",
+        "UTM Campaign",
+        "UTM Content",
+        "UTM Term",
+        "GCLID",
+        "GBRAID",
+        "WBRAID",
+        "FBCLID",
+        "Referrer",
+        "Landing URL",
+        "Meta Purchase Sent",
+        "Meta Purchase Status",
       ];
 
-      const rows = exportData.map((o) => [
-        o._id,
-        new Date(o.orderTime || o.createdAt).toLocaleString("en-GB", { hour12: true }),
-        `"${(o.customerName || "").replace(/"/g, '""')}"`,
-        `"${o.phone}"`,
-        `"${(o.address || "").replace(/"/g, '""')}"`,
-        `"${(o.thana || "").replace(/"/g, '""')}"`,
-        `"${(o.district || "").replace(/"/g, '""')}"`,
-        `"${(o.flavour || "").replace(/"/g, '""')}"`,
-        o.price,
-        o.paymentStatus === "Paid" ? "bKash" : "COD",
-        o.paymentStatus || "Pending",
-        o.transactionId ? `"${o.transactionId}"` : "",
-        `"${o.ipAddress || ""}"`,
-        o.status,
-        o.source === "admin" ? "Manual" : "Web",
-        `"${o.steadfastTrackingCode || o.steadfastConsignmentId || ""}"`,
-        `"${(o.steadfastStatus || "").replace(/_/g, " ")}"`,
-        `"${(o.statusUpdatedBy || "").replace(/"/g, '""')}"`,
-        o.statusUpdatedAt ? new Date(o.statusUpdatedAt).toLocaleString("en-GB", { hour12: true }) : "",
-      ]);
+      const rows = exportData.map((o) => {
+        const a = o.attribution || {};
+        return [
+          o._id,
+          new Date(o.orderTime || o.createdAt).toLocaleString("en-GB", { hour12: true }),
+          csvCell(getOrderProductDetails(o.product, o.pageUrl, o.productSlug).name),
+          csvCell(o.customerName),
+          csvCell(o.phone),
+          csvCell(o.address),
+          csvCell(o.thana),
+          csvCell(o.district),
+          csvCell(o.flavour),
+          o.price,
+          o.paymentStatus === "Paid" ? "bKash" : "COD",
+          o.paymentStatus || "Pending",
+          o.transactionId ? csvCell(o.transactionId) : "",
+          csvCell(o.ipAddress),
+          o.status,
+          o.source === "admin" ? "Manual" : "Web",
+          csvCell(o.steadfastTrackingCode || o.steadfastConsignmentId),
+          csvCell((o.steadfastStatus || "").replace(/_/g, " ")),
+          csvCell(o.statusUpdatedBy),
+          o.statusUpdatedAt ? new Date(o.statusUpdatedAt).toLocaleString("en-GB", { hour12: true }) : "",
+          csvCell(a.utmSource),
+          csvCell(a.utmMedium),
+          csvCell(a.utmCampaign),
+          csvCell(a.utmContent),
+          csvCell(a.utmTerm),
+          csvCell(a.gclid),
+          csvCell(a.gbraid),
+          csvCell(a.wbraid),
+          csvCell(a.fbclid),
+          csvCell(a.referrer),
+          csvCell(a.landingUrl),
+          o.metaPurchaseSentAt
+            ? new Date(o.metaPurchaseSentAt).toLocaleString("en-GB", { hour12: true })
+            : "",
+          o.metaPurchaseStatus || "",
+        ];
+      });
 
-      // UTF-8 BOM for MS Excel compatibility with Bengali Unicode characters
-      const csvContent =
-        "\uFEFF" +
-        headers.join(",") +
-        "\n" +
-        rows.map((row) => row.join(",")).join("\n");
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
       const dateStr = new Date().toISOString().split("T")[0];
       const filterLabel = statusFilter ? statusFilter.toLowerCase() : "all";
-      link.setAttribute("download", `milkimom_orders_${filterLabel}_${dateStr}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      downloadCsv(
+        `milkimom_orders_${filterLabel}_${dateStr}.csv`,
+        `${headers.join(",")}\n${rows.map((row) => row.join(",")).join("\n")}`
+      );
     } catch {
       alert("Failed to export orders. Please try again.");
     } finally {
       setIsExporting(false);
+    }
+  }
+
+  /**
+   * Exports confirmed orders that carry a Google click id, in the exact upload
+   * format Google Ads expects at Tools → Conversions → Uploads.
+   *
+   * There is no gtag on the site: the browser never sees a Google conversion,
+   * so the click id captured on the landing page plus this file is how a
+   * confirmed sale gets credited back to the Google campaign that produced it.
+   */
+  async function handleExportGoogleAds() {
+    setIsExportingGoogleAds(true);
+    try {
+      const result = await fetchOrders({
+        status: statusFilter || undefined,
+        phone: phoneSearch.trim() || undefined,
+        page: 1,
+        limit: 5000,
+      });
+
+      const source = (result.success && Array.isArray(result.data) ? result.data : orders) as Order[];
+
+      // Only confirmed-or-later sales, and only ones Google can actually match.
+      const exportData = source.filter(
+        (o) =>
+          PURCHASE_STATUSES.includes(o.status) &&
+          o.source !== "admin" &&
+          Boolean(o.attribution?.gclid)
+      );
+
+      if (exportData.length === 0) {
+        alert(
+          "No confirmed orders with a Google click id (gclid) found.\n\n" +
+            "Only orders placed after Google Ads attribution tracking went live can be uploaded."
+        );
+        return;
+      }
+
+      // Google wants "yyyy-MM-dd HH:mm:ss" in the timezone declared on line 1.
+      const conversionTime = (value?: string | null) => {
+        const d = value ? new Date(value) : new Date();
+        const pad = (n: number) => String(n).padStart(2, "0");
+        return (
+          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+          `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+        );
+      };
+
+      const lines = [
+        "Parameters:TimeZone=+0600",
+        "Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency",
+        ...exportData.map((o) =>
+          [
+            csvCell(o.attribution?.gclid),
+            csvCell(
+              `${getOrderProductDetails(o.product, o.pageUrl, o.productSlug).name} Confirmed Order`
+            ),
+            csvCell(conversionTime(o.statusUpdatedAt || o.orderTime || o.createdAt)),
+            o.price,
+            "BDT",
+          ].join(",")
+        ),
+      ];
+
+      const dateStr = new Date().toISOString().split("T")[0];
+      downloadCsv(`google_ads_offline_conversions_${dateStr}.csv`, lines.join("\n"));
+    } catch {
+      alert("Failed to export Google Ads conversions. Please try again.");
+    } finally {
+      setIsExportingGoogleAds(false);
     }
   }
 
@@ -855,6 +1004,24 @@ export default function AdminOrdersPage() {
                 <Download size={14} />
               )}
               Export Excel
+            </button>
+          )}
+
+          {/* Google Ads offline conversion upload file. The site has no gtag,
+              so this is how a confirmed sale gets credited to its Google campaign. */}
+          {activeTab === "orders" && (
+            <button
+              onClick={handleExportGoogleAds}
+              disabled={isExportingGoogleAds}
+              title="Export confirmed orders with a Google click id, ready to upload at Google Ads → Tools → Conversions → Uploads"
+              className="flex items-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800 transition hover:bg-blue-100 disabled:opacity-50 dark:border-blue-800/40 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+            >
+              {isExportingGoogleAds ? (
+                <Loader2 size={14} className="animate-spin text-blue-700 dark:text-blue-300" />
+              ) : (
+                <Download size={14} />
+              )}
+              Google Ads
             </button>
           )}
 
@@ -1294,7 +1461,7 @@ export default function AdminOrdersPage() {
                     {/* Product */}
                     <td className="px-3.5 py-3 whitespace-nowrap">
                       {(() => {
-                        const prodDetails = getOrderProductDetails(order.product, order.pageUrl);
+                        const prodDetails = getOrderProductDetails(order.product, order.pageUrl, order.productSlug);
                         return (
                           <div className="flex items-center gap-2">
                             <div className="relative size-8 shrink-0 overflow-hidden rounded-lg border border-border/80 bg-muted/40 p-0.5 flex items-center justify-center">
@@ -2343,7 +2510,7 @@ export default function AdminOrdersPage() {
 
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     {(() => {
-                      const drawerProdDetails = getOrderProductDetails(drawerOrder.product, drawerOrder.pageUrl);
+                      const drawerProdDetails = getOrderProductDetails(drawerOrder.product, drawerOrder.pageUrl, drawerOrder.productSlug);
                       return (
                         <div className="col-span-2 flex items-center gap-3 bg-background p-2.5 rounded-lg border border-border/60">
                           <img
@@ -2443,6 +2610,119 @@ export default function AdminOrdersPage() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Card 5b: Ad Attribution & Meta Purchase.
+                    Captured on the landing page and carried on the order,
+                    because Purchase is only reported to Meta once this order
+                    is Confirmed — long after the browser session is gone. */}
+                <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <Globe size={16} className="text-primary" />
+                      <span>Ad Attribution & Tracking</span>
+                    </div>
+                    {drawerOrder.source === "admin" && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                        Manual — not reported
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Meta Purchase:</span>
+                      {drawerOrder.metaPurchaseSentAt ? (
+                        <span className="font-bold text-brand-green">
+                          Sent ·{" "}
+                          {new Date(drawerOrder.metaPurchaseSentAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                          {typeof drawerOrder.metaPurchaseValue === "number" &&
+                            ` · ${drawerOrder.metaPurchaseValue}৳`}
+                        </span>
+                      ) : drawerOrder.metaPurchaseStatus === "failed" ? (
+                        <span className="font-bold text-destructive">Failed — will retry hourly</span>
+                      ) : PURCHASE_STATUSES.includes(drawerOrder.status) ? (
+                        <span className="font-bold text-amber-600 dark:text-amber-400">Sending…</span>
+                      ) : (
+                        <span className="font-semibold text-muted-foreground">
+                          Waiting for Confirmed
+                        </span>
+                      )}
+                    </div>
+
+                    {drawerOrder.metaPurchaseError && (
+                      <p className="rounded border border-destructive/30 bg-destructive/10 px-2 py-1 font-mono text-[10px] break-all text-destructive">
+                        {drawerOrder.metaPurchaseError}
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-border/40 pt-2">
+                      {(
+                        [
+                          ["Source", drawerOrder.attribution?.utmSource],
+                          ["Medium", drawerOrder.attribution?.utmMedium],
+                          ["Campaign", drawerOrder.attribution?.utmCampaign],
+                          ["Content", drawerOrder.attribution?.utmContent],
+                          ["Term", drawerOrder.attribution?.utmTerm],
+                          ["GCLID", drawerOrder.attribution?.gclid],
+                          ["GBRAID", drawerOrder.attribution?.gbraid],
+                          ["WBRAID", drawerOrder.attribution?.wbraid],
+                          ["FBCLID", drawerOrder.attribution?.fbclid],
+                        ] as Array<[string, string | undefined]>
+                      )
+                        .filter(([, value]) => Boolean(value))
+                        .map(([label, value]) => (
+                          <div key={label}>
+                            <span className="text-muted-foreground font-medium block">{label}</span>
+                            <span className="font-mono font-semibold text-foreground break-all">
+                              {value}
+                            </span>
+                          </div>
+                        ))}
+
+                      <div>
+                        <span className="text-muted-foreground font-medium block">Meta cookies</span>
+                        <span className="font-semibold text-foreground">
+                          {drawerOrder.fbp ? "fbp ✓" : "fbp ✗"} ·{" "}
+                          {drawerOrder.fbc ? "fbc ✓" : "fbc ✗"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {drawerOrder.attribution?.landingUrl && (
+                      <div className="border-t border-border/40 pt-2">
+                        <span className="text-muted-foreground font-medium block">Landing URL</span>
+                        <span className="font-mono text-[10px] break-all text-foreground">
+                          {drawerOrder.attribution.landingUrl}
+                        </span>
+                      </div>
+                    )}
+
+                    {drawerOrder.attribution?.referrer && (
+                      <div>
+                        <span className="text-muted-foreground font-medium block">Referrer</span>
+                        <span className="font-mono text-[10px] break-all text-foreground">
+                          {drawerOrder.attribution.referrer}
+                        </span>
+                      </div>
+                    )}
+
+                    {!drawerOrder.attribution?.landingUrl &&
+                      !drawerOrder.attribution?.gclid &&
+                      !drawerOrder.attribution?.fbclid &&
+                      !drawerOrder.attribution?.utmSource && (
+                        <p className="text-muted-foreground italic">
+                          No attribution captured — either a direct/organic visit, or an order
+                          placed before attribution tracking went live.
+                        </p>
+                      )}
                   </div>
                 </div>
 

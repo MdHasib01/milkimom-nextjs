@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -15,7 +15,10 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { singleJarPrice, siteConfig } from "@/lib/content";
+import { singleJarPrice, smoothflowSingleJarPrice, siteConfig } from "@/lib/content";
+import { getAttribution } from "@/lib/attribution";
+import { getFbBrowserIds, trackLead } from "@/lib/fbpixel";
+import { updateOrderAttribution } from "@/lib/api";
 
 interface OrderData {
   _id?: string;
@@ -30,7 +33,15 @@ interface OrderData {
   transactionId?: string;
   createdAt?: string;
   orderTime?: string;
+  product?: string;
+  productSlug?: string;
 }
+
+/** Human-facing product name per landing page. */
+const PRODUCT_LABELS: Record<string, { bn: string; en: string }> = {
+  milkimom: { bn: "মিল্কিমম", en: "Milkimom" },
+  smoothflow: { bn: "SmoothFlow", en: "SmoothFlow" },
+};
 
 export default function ThankYouPage() {
   return (
@@ -50,6 +61,18 @@ function ThankYouContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const [order, setOrder] = useState<OrderData | null>(null);
+  // The order object arrives twice (storage, then server), so both of these
+  // run inside effects that would otherwise fire again on the second render.
+  const leadTracked = useRef(false);
+  const attributionSynced = useRef(false);
+
+  // Two landings sell two different products at two different prices, so every
+  // fallback has to follow the order's product — a SmoothFlow buyer used to see
+  // Milkimom's name and its 4990৳ price whenever the order failed to load.
+  const productSlug = order?.productSlug === "smoothflow" ? "smoothflow" : "milkimom";
+  const productLabel = PRODUCT_LABELS[productSlug];
+  const priceFallback =
+    productSlug === "smoothflow" ? smoothflowSingleJarPrice : singleJarPrice;
 
   useEffect(() => {
     // First, try loading from sessionStorage for instant rendering
@@ -80,6 +103,54 @@ function ThankYouContent() {
     }
   }, [orderId]);
 
+  // Tops up tracking ids the order may have been created without. The Meta
+  // `_fbp` cookie is written by fbevents.js once the page is interactive, so a
+  // quick submit can beat it; by now it is reliably set. The server only fills
+  // fields that are still empty, so this can never clobber better data.
+  useEffect(() => {
+    const id = order?._id;
+    if (!id || attributionSynced.current) return;
+    attributionSynced.current = true;
+
+    const { fbp, fbc } = getFbBrowserIds();
+    updateOrderAttribution(id, {
+      fbp: fbp || undefined,
+      fbc: fbc || undefined,
+      attribution: getAttribution(),
+    }).catch(() => {
+      // Best-effort: the order already carries whatever it captured at submit.
+    });
+  }, [order?._id]);
+
+  // Lead, not Purchase — the order exists but is not yet a confirmed sale.
+  // Purchase is reported server-side once an admin confirms it. sessionStorage
+  // keeps a page refresh from counting the same order twice.
+  useEffect(() => {
+    const id = order?._id;
+    if (!id || leadTracked.current) return;
+
+    const storageKey = `milkimom_lead_${id}`;
+    try {
+      if (sessionStorage.getItem(storageKey)) {
+        leadTracked.current = true;
+        return;
+      }
+      sessionStorage.setItem(storageKey, "1");
+    } catch {
+      // Storage unavailable — the ref still guards this render pass.
+    }
+
+    leadTracked.current = true;
+    trackLead({
+      value: order.price || priceFallback.salePrice,
+      currency: "BDT",
+      content_type: "product",
+      content_ids: [productSlug],
+      content_name: productLabel.en,
+      eventID: `${id}-lead`,
+    });
+  }, [order?._id, order?.price, productSlug, productLabel.en, priceFallback.salePrice]);
+
   // Format date: e.g. July 28, 2026
   const formattedDate = order?.createdAt || order?.orderTime
     ? new Date(order.createdAt || order.orderTime!).toLocaleDateString("en-US", {
@@ -95,7 +166,7 @@ function ThankYouContent() {
 
   const shortId = order?._id ? order._id.slice(-6).toUpperCase() : "7696";
   const flavourName = order?.flavour || "ডার্ক চকলেট";
-  const totalPrice = order?.price || singleJarPrice.salePrice;
+  const totalPrice = order?.price || priceFallback.salePrice;
 
   const isBkash =
     order?.paymentMethod === "bKash" ||
@@ -197,7 +268,7 @@ function ThankYouContent() {
           <div className="p-5 space-y-3 text-sm">
             <div className="flex items-center justify-between font-medium border-b border-border/50 pb-3">
               <span className="font-sans text-foreground">
-                ১টি জার মিল্কিমম ({flavourName}) × 1
+                ১টি জার {productLabel.bn} ({flavourName}) × 1
               </span>
               <span className="font-bold text-foreground font-sans">
                 {totalPrice.toLocaleString("bn-BD")}৳

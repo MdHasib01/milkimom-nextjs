@@ -10,7 +10,7 @@ import {
   ArrowLeft,
   XCircle,
 } from "lucide-react";
-import { singleJarPrice, siteConfig } from "@/lib/content";
+import { singleJarPrice, smoothflowSingleJarPrice, siteConfig } from "@/lib/content";
 
 interface OrderData {
   _id?: string;
@@ -21,6 +21,7 @@ interface OrderData {
   thana?: string;
   address?: string;
   product?: string;
+  productSlug?: string;
   flavour?: string;
   paymentMethod?: string;
   paymentStatus?: string;
@@ -87,6 +88,12 @@ function InvoiceContent() {
     order?.paymentMethod === "Paid";
   const isConfirmed = order ? CONFIRMED_STATUSES.includes(order.status || "") : false;
   const isCancelled = order?.status === "Cancelled";
+
+  // The two landings sell different products at different prices — a
+  // SmoothFlow invoice must not fall back to Milkimom's 4990৳.
+  const priceFallback =
+    order?.productSlug === "smoothflow" ? smoothflowSingleJarPrice : singleJarPrice;
+  const invoicePrice = order?.price || priceFallback.salePrice;
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {
@@ -247,12 +254,15 @@ function InvoiceContent() {
             <tbody>
               <tr className="border-b border-gray-100">
                 <td className="py-4">
-                  <p className="font-bold text-gray-900">{order.product || "১টি জার মিল্কিমম"}</p>
+                  <p className="font-bold text-gray-900">{order.product ||
+                      (order.productSlug === "smoothflow"
+                        ? "১টি জার SmoothFlow"
+                        : "১টি জার মিল্কিমম")}</p>
                   <p className="text-xs text-gray-500">Flavour: {order.flavour || "ডার্ক চকলেট"} — 15 Days Only</p>
                 </td>
                 <td className="py-4 text-center text-gray-700">1</td>
                 <td className="py-4 text-right font-bold text-gray-900">
-                  {(order.price || singleJarPrice.salePrice).toLocaleString("bn-BD")}/=
+                  {invoicePrice.toLocaleString("bn-BD")}/=
                 </td>
               </tr>
             </tbody>
@@ -261,7 +271,7 @@ function InvoiceContent() {
                 <td></td>
                 <td className="py-4 text-right font-bold text-gray-500 uppercase text-xs tracking-wider">Total</td>
                 <td className="py-4 text-right font-black text-2xl text-primary whitespace-nowrap">
-                  {(order.price || singleJarPrice.salePrice).toLocaleString("bn-BD")}/=
+                  {invoicePrice.toLocaleString("bn-BD")}/=
                 </td>
               </tr>
             </tfoot>
@@ -282,14 +292,14 @@ function InvoiceContent() {
                 <>পেমেন্ট bKash-এর মাধ্যমে সম্পন্ন হয়েছে এবং অর্ডারটি কনফার্ম করা হয়েছে। ধন্যবাদ!</>
               )}
               {!isPaid && isConfirmed && (
-                <>অর্ডারটি কনফার্ম করা হয়েছে। ডেলিভারির সময় ক্যাশ অন ডেলিভারিতে <strong>{(order.price || singleJarPrice.salePrice).toLocaleString("bn-BD")}/=</strong> পরিশোধ করুন।</>
+                <>অর্ডারটি কনফার্ম করা হয়েছে। ডেলিভারির সময় ক্যাশ অন ডেলিভারিতে <strong>{invoicePrice.toLocaleString("bn-BD")}/=</strong> পরিশোধ করুন।</>
               )}
               {!isConfirmed && (
                 <>
                   অর্ডারটি এখনো কনফার্ম হয়নি — আমাদের টিম শীঘ্রই যাচাই করে কনফার্ম করবে।{" "}
                   {isPaid
                     ? "আপনার bKash পেমেন্টটি যাচাই করা হচ্ছে।"
-                    : `ডেলিভারির সময় ক্যাশ অন ডেলিভারিতে ${(order.price || singleJarPrice.salePrice).toLocaleString("bn-BD")}/= পরিশোধ করতে হবে।`}
+                    : `ডেলিভারির সময় ক্যাশ অন ডেলিভারিতে ${invoicePrice.toLocaleString("bn-BD")}/= পরিশোধ করতে হবে।`}
                 </>
               )}
             </div>

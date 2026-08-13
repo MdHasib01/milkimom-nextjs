@@ -18,9 +18,10 @@ import {
   X,
 } from "lucide-react";
 import { singleJarPrice, smoothflowSingleJarPrice } from "@/lib/content";
-import { useFlavors, type DisplayFlavor } from "@/lib/use-flavours";
+import { useFlavors, applyProductPricing, type DisplayFlavor } from "@/lib/use-flavours";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { getFbBrowserIds, trackInitiateCheckout } from "@/lib/fbpixel";
+import { getAttribution } from "@/lib/attribution";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,17 +98,10 @@ export function OrderSection() {
 
   const isSmoothflow = content.productSlug === "smoothflow";
 
-  const effectiveFlavors = useMemo(() => {
-    if (isSmoothflow) {
-      return flavors.map((f) => ({
-        ...f,
-        regularPrice: f.regularPrice === 8990 || !f.regularPrice ? smoothflowSingleJarPrice.regularPrice : f.regularPrice,
-        salePrice: f.salePrice === 4990 || !f.salePrice ? smoothflowSingleJarPrice.salePrice : f.salePrice,
-        image: f.smoothflowImage || "/images/smoothflow.png",
-      }));
-    }
-    return flavors;
-  }, [flavors, isSmoothflow]);
+  const effectiveFlavors = useMemo(
+    () => applyProductPricing(flavors, content.productSlug),
+    [flavors, content.productSlug]
+  );
 
   // null selection (initial, or the catalog was swapped under us after the
   // API load) resolves to the tagged/popular flavour.
@@ -119,10 +113,15 @@ export function OrderSection() {
     [effectiveFlavors, selectedFlavorId]
   );
 
+  // Only reached before the catalog loads; applyProductPricing has already
+  // resolved the right product's prices onto selectedFlavor by then.
+  const productFallback = isSmoothflow ? smoothflowSingleJarPrice : singleJarPrice;
+
   const deliveryCharge = 0;
-  const totalPrice = (selectedFlavor?.salePrice || 1999) + deliveryCharge;
-  const regularPriceVal = selectedFlavor?.regularPrice || (isSmoothflow ? 3450 : 8990);
-  const savingsVal = regularPriceVal > (selectedFlavor?.salePrice || 1999) ? regularPriceVal - (selectedFlavor?.salePrice || 1999) : 0;
+  const salePriceVal = selectedFlavor?.salePrice || productFallback.salePrice;
+  const totalPrice = salePriceVal + deliveryCharge;
+  const regularPriceVal = selectedFlavor?.regularPrice || productFallback.regularPrice;
+  const savingsVal = regularPriceVal > salePriceVal ? regularPriceVal - salePriceVal : 0;
   const productNameEn = content.productNameEn || (isSmoothflow ? "SmoothFlow" : "Milkimom");
 
   async function triggerPhoneIpCheck(phoneNum: string, overrideFlavor?: typeof selectedFlavor) {
@@ -323,10 +322,11 @@ export function OrderSection() {
   async function executeSaveOrder() {
     setStatus("submitting");
 
-    const priceToSave = isSmoothflow ? totalPrice : selectedFlavor.salePrice;
+    const priceToSave = totalPrice;
     const { fbp, fbc } = getFbBrowserIds();
     const result = await saveOrder({
       product: `${productNameEn} Complete Dose`,
+      productSlug: content.productSlug,
       customerName: form.name.trim() || "গ্রাহক",
       phone: form.phone.trim(),
       district: form.district || "",
@@ -340,17 +340,23 @@ export function OrderSection() {
       orderTime: new Date().toISOString(),
       fbp: fbp || undefined,
       fbc: fbc || undefined,
+      // Captured when the visitor landed. The Purchase is only reported once
+      // an admin confirms this order, so the ad click has to travel with it.
+      attribution: getAttribution(),
     });
 
     if (result.success && result.data) {
       // Purchase is NOT fired here — a just-placed order may be fake or get
-      // cancelled. The server reports Purchase via the Conversions API when
-      // the order is marked Delivered. The browser only signals checkout.
+      // cancelled. The server reports Purchase via the Conversions API once an
+      // admin confirms the order. The browser only signals checkout.
       if (result.status === 201 && !checkoutTracked.current) {
         checkoutTracked.current = true;
         trackInitiateCheckout({
           value: priceToSave,
           currency: "BDT",
+          content_ids: [content.productSlug],
+          content_type: "product",
+          content_name: productNameEn,
         });
       }
       if (typeof window !== "undefined") {

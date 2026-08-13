@@ -20,6 +20,8 @@ interface FlavourForm {
   description: string;
   price: string;
   offerPrice: string;
+  smoothflowPrice: string;
+  smoothflowOfferPrice: string;
   weight: string;
   invoiceCode: string;
   tag: string;
@@ -35,6 +37,8 @@ const emptyForm: FlavourForm = {
   description: "",
   price: "",
   offerPrice: "",
+  smoothflowPrice: "",
+  smoothflowOfferPrice: "",
   weight: "0.5",
   invoiceCode: "",
   tag: "",
@@ -51,6 +55,12 @@ function toForm(f: Flavour): FlavourForm {
     description: f.description || "",
     price: String(f.price ?? ""),
     offerPrice: f.offerPrice === null || f.offerPrice === undefined ? "" : String(f.offerPrice),
+    smoothflowPrice:
+      f.smoothflowPrice === null || f.smoothflowPrice === undefined ? "" : String(f.smoothflowPrice),
+    smoothflowOfferPrice:
+      f.smoothflowOfferPrice === null || f.smoothflowOfferPrice === undefined
+        ? ""
+        : String(f.smoothflowOfferPrice),
     weight: String(f.weight ?? 0.5),
     invoiceCode: f.invoiceCode || "",
     tag: f.tag || "",
@@ -68,6 +78,9 @@ function toPayload(form: FlavourForm) {
     description: form.description.trim(),
     price: Number(form.price),
     offerPrice: form.offerPrice.trim() === "" ? null : Number(form.offerPrice),
+    smoothflowPrice: form.smoothflowPrice.trim() === "" ? null : Number(form.smoothflowPrice),
+    smoothflowOfferPrice:
+      form.smoothflowOfferPrice.trim() === "" ? null : Number(form.smoothflowOfferPrice),
     weight: form.weight.trim() === "" ? 0.5 : Number(form.weight),
     invoiceCode: form.invoiceCode.trim(),
     tag: form.tag.trim(),
@@ -242,7 +255,7 @@ function FlavourFields({
       </div>
 
       <div>
-        <label className={labelClass}>Regular Price (BDT) *</label>
+        <label className={labelClass}>Milkimom — Regular Price (BDT) *</label>
         <input
           type="number"
           min={0}
@@ -254,8 +267,8 @@ function FlavourFields({
         />
       </div>
       <div>
-        <label className={labelClass}>Offer Price (BDT)</label>
-        <p className="mb-1 text-[11px] text-muted-foreground">What the customer pays. Blank = regular price.</p>
+        <label className={labelClass}>Milkimom — Offer Price (BDT)</label>
+        <p className="mb-1 text-[11px] text-muted-foreground">What the customer pays on <b>/</b>. Blank = regular price.</p>
         <input
           type="number"
           min={0}
@@ -263,6 +276,36 @@ function FlavourFields({
           onChange={(e) => set("offerPrice", e.target.value)}
           disabled={disabled}
           placeholder="4990"
+          className={inputClass}
+        />
+      </div>
+
+      {/* The /smoothflow landing sells a different product at its own price
+          from this same catalog. These are what it charges and what Meta gets
+          reported as the Purchase value for a SmoothFlow order. */}
+      <div>
+        <label className={labelClass}>SmoothFlow — Regular Price (BDT)</label>
+        <p className="mb-1 text-[11px] text-muted-foreground">Blank = built-in default (3450).</p>
+        <input
+          type="number"
+          min={0}
+          value={form.smoothflowPrice}
+          onChange={(e) => set("smoothflowPrice", e.target.value)}
+          disabled={disabled}
+          placeholder="3450"
+          className={inputClass}
+        />
+      </div>
+      <div>
+        <label className={labelClass}>SmoothFlow — Offer Price (BDT)</label>
+        <p className="mb-1 text-[11px] text-muted-foreground">What the customer pays on <b>/smoothflow</b>. Blank = built-in default (1999).</p>
+        <input
+          type="number"
+          min={0}
+          value={form.smoothflowOfferPrice}
+          onChange={(e) => set("smoothflowOfferPrice", e.target.value)}
+          disabled={disabled}
+          placeholder="1999"
           className={inputClass}
         />
       </div>
@@ -382,6 +425,23 @@ export function ProductsPanel({ isModerator }: { isModerator: boolean }) {
       const offer = Number(form.offerPrice);
       if (!Number.isFinite(offer) || offer < 0) return "Offer price must be a non-negative number.";
       if (offer > price) return "Offer price cannot be higher than the regular price.";
+    }
+
+    if (form.smoothflowPrice.trim() !== "") {
+      const sfPrice = Number(form.smoothflowPrice);
+      if (!Number.isFinite(sfPrice) || sfPrice <= 0) {
+        return "SmoothFlow regular price must be a positive number.";
+      }
+    }
+    if (form.smoothflowOfferPrice.trim() !== "") {
+      const sfOffer = Number(form.smoothflowOfferPrice);
+      if (!Number.isFinite(sfOffer) || sfOffer < 0) {
+        return "SmoothFlow offer price must be a non-negative number.";
+      }
+      const sfRegular = Number(form.smoothflowPrice);
+      if (Number.isFinite(sfRegular) && sfRegular > 0 && sfOffer > sfRegular) {
+        return "SmoothFlow offer price cannot be higher than its regular price.";
+      }
     }
     return null;
   }

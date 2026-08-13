@@ -2,8 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
-import { useFlavors, type DisplayFlavor } from "@/lib/use-flavours";
-import { smoothflowSingleJarPrice } from "@/lib/content";
+import { useFlavors, applyProductPricing, type DisplayFlavor } from "@/lib/use-flavours";
 import { useLandingPageContent } from "@/components/landing-page-content-provider";
 import { Reveal } from "@/components/motion/reveal";
 import { GridPattern } from "@/components/grid-pattern";
@@ -16,17 +15,10 @@ export function FlavorsSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const effectiveFlavors: DisplayFlavor[] = rawFlavors.map((f) => {
-    if (isSmoothflow) {
-      return {
-        ...f,
-        regularPrice: f.regularPrice === 8990 || !f.regularPrice ? smoothflowSingleJarPrice.regularPrice : f.regularPrice,
-        salePrice: f.salePrice === 4990 || !f.salePrice ? smoothflowSingleJarPrice.salePrice : f.salePrice,
-        image: f.smoothflowImage || "/images/smoothflow.png",
-      };
-    }
-    return f;
-  });
+  const effectiveFlavors: DisplayFlavor[] = applyProductPricing(
+    rawFlavors,
+    content.productSlug
+  );
 
   const handleScroll = () => {
     if (!scrollRef.current) return;

@@ -3,11 +3,13 @@
  *
  * The base pixel and the initial PageView are injected once from the root
  * layout by <MetaPixel />. The browser never fires Purchase: submitting the
- * order form only fires InitiateCheckout, because a freshly placed order may
- * still be fake or get cancelled. The real Purchase is reported server-side
- * via the Meta Conversions API when the order is marked Delivered in the
- * admin dashboard (see server/utils/metaCapi.js).
+ * order form fires InitiateCheckout and the thank-you page fires Lead, because
+ * a freshly placed order may still be fake or get cancelled. The real Purchase
+ * is reported server-side via the Meta Conversions API once an admin confirms
+ * the order in the dashboard (see server/utils/metaCapi.js).
  */
+
+import { getAttribution } from "./attribution";
 
 export const FB_PIXEL_ID: string =
   process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || "1067546575776185";
@@ -46,6 +48,15 @@ export function trackInitiateCheckout(params?: Record<string, unknown>) {
   trackFbEvent("InitiateCheckout", params);
 }
 
+/**
+ * Fires Lead on the thank-you page — the order exists but is not yet a
+ * confirmed sale. Gives Meta a same-session conversion signal to optimize on
+ * while Purchase waits on admin confirmation.
+ */
+export function trackLead(params?: Record<string, unknown>) {
+  trackFbEvent("Lead", params);
+}
+
 function readCookie(name: string): string {
   if (typeof document === "undefined") return "";
   const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
@@ -54,18 +65,28 @@ function readCookie(name: string): string {
 
 /**
  * Browser identifiers sent along with the order so the server-side Purchase
- * (fired on delivery, days later) can still be matched to this browser and
- * the ad click. `_fbc` only exists after an ad click (fbclid); when the
- * cookie is missing but fbclid is in the URL, it is reconstructed in the
- * `fb.1.<timestamp>.<fbclid>` format Meta expects.
+ * (fired on confirmation, days later) can still be matched to this browser and
+ * the ad click.
+ *
+ * `_fbc` only exists after an ad click. When the cookie is missing it is
+ * rebuilt in the `fb.1.<click_time_ms>.<fbclid>` format Meta expects, from the
+ * fbclid captured on the *landing* page — not from the current URL, which by
+ * checkout time has usually lost the query string. The timestamp is the real
+ * landing time for the same reason.
  */
 export function getFbBrowserIds(): { fbp: string; fbc: string } {
   const fbp = readCookie("_fbp");
   let fbc = readCookie("_fbc");
 
-  if (!fbc && typeof window !== "undefined") {
-    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
-    if (fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`;
+  if (!fbc) {
+    const attribution = getAttribution();
+    const clickMs = attribution?.firstSeenAt
+      ? Date.parse(attribution.firstSeenAt)
+      : NaN;
+
+    if (attribution?.fbclid && Number.isFinite(clickMs)) {
+      fbc = `fb.1.${clickMs}.${attribution.fbclid}`;
+    }
   }
 
   return { fbp, fbc };

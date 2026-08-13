@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri } from "next/font/google";
 import { ClarityAnalytics } from "@/components/clarity-analytics";
+import { AttributionCapture } from "@/components/attribution-capture";
 import { MetaPixel } from "@/components/meta-pixel";
 import { LandingPageThemeProvider } from "@/components/landing-page-theme-provider";
 import { LandingPageContentProvider } from "@/components/landing-page-content-provider";
@@ -104,6 +105,7 @@ export default function RootLayout({
       >
         <LandingPageThemeProvider productSlug="milkimom">
           <LandingPageContentProvider productSlug="milkimom" showLoader={false}>
+            <AttributionCapture />
             <MetaPixel />
             <ClarityAnalytics />
             {children}
