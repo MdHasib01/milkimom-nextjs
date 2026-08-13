@@ -97,6 +97,8 @@ export function OrderSection() {
   }, [otpResendTimer]);
 
   const isSmoothflow = content.productSlug === "smoothflow";
+  const isMilkready = content.productSlug === "milkready";
+  const isModernLanding = isSmoothflow || isMilkready;
 
   const effectiveFlavors = useMemo(
     () => applyProductPricing(flavors, content.productSlug),
@@ -529,8 +531,8 @@ export function OrderSection() {
           </div>
 
           {/* Right Column: Order Summary + Payment Method + Confirm Button (5 cols on lg) */}
-          {isSmoothflow ? (
-            /* --- SMOOTHFLOW ORDER SUMMARY COLUMN --- */
+          {isModernLanding ? (
+            /* --- MODERN ORDER SUMMARY COLUMN (SMOOTHFLOW & MILKREADY) --- */
             <div className="flex flex-col rounded-xl xs:rounded-2xl bg-muted/60 dark:bg-muted/30 p-4 xs:p-5 sm:p-6 min-w-0 border border-border/60 shadow-xs lg:col-span-5 lg:sticky lg:top-24 space-y-4">
               <h3 className="font-heading text-base xs:text-lg font-bold text-foreground">
                 Order Summary

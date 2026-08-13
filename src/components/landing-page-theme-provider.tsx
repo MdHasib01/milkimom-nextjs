@@ -29,6 +29,14 @@ const DEFAULT_THEME_COLORS: Record<string, ThemeColors> = {
     ctaTextColor: "#3a2600",
     backgroundColor: "#FFF9FB",
   },
+  milkready: {
+    productSlug: "milkready",
+    themeColor: "#0284c7",
+    accentColor: "#38bdf8",
+    ctaColor: "#ffd100",
+    ctaTextColor: "#0f172a",
+    backgroundColor: "#f8fbff",
+  },
 };
 
 export function LandingPageThemeProvider({

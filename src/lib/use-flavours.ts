@@ -125,14 +125,25 @@ export function applyProductPricing(
   flavors: DisplayFlavor[],
   productSlug: string
 ): DisplayFlavor[] {
-  if (productSlug !== "smoothflow") return flavors;
+  if (productSlug === "smoothflow") {
+    return flavors.map((f) => ({
+      ...f,
+      regularPrice: f.smoothflowRegularPrice,
+      salePrice: f.smoothflowSalePrice,
+      image: f.smoothflowImage || "/images/smoothflow.png",
+    }));
+  }
 
-  return flavors.map((f) => ({
-    ...f,
-    regularPrice: f.smoothflowRegularPrice,
-    salePrice: f.smoothflowSalePrice,
-    image: f.smoothflowImage || "/images/smoothflow.png",
-  }));
+  if (productSlug === "milkready") {
+    return flavors.map((f) => ({
+      ...f,
+      regularPrice: 5650,
+      salePrice: 3399,
+      image: "/images/milkready/product-jar.jpg",
+    }));
+  }
+
+  return flavors;
 }
 
 export function useFlavors(): DisplayFlavor[] {
