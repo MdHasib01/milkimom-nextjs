@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, HelpCircle, ShoppingBag } from "lucide-react";
+import { ChevronDown, ChevronUp, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const FAQS = [
@@ -58,10 +58,6 @@ export function MilkreadyFaq() {
     <section className="py-10 md:py-16 px-4 bg-slate-50 border-y border-slate-200/60">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-[#0284c7] mb-2.5">
-            <HelpCircle className="size-3.5" />
-            <span>সচরাচর জিজ্ঞাসা</span>
-          </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-800 leading-snug">
             <span className="text-[#0284c7]">MilkReady</span> নিয়ে আপনার প্রশ্নের উত্তর।
           </h2>

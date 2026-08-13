@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag, Timer, Sparkles } from "lucide-react";
+import { ShoppingBag, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -54,12 +54,8 @@ export function MilkreadyPricing() {
           transition={{ duration: 0.5 }}
           className="mb-6"
         >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-[#0284c7] mb-2.5">
-            <Sparkles className="size-3.5" />
-            <span>সীমিত সময়ের অফার</span>
-          </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 leading-snug">
-            বুকের দুধ সম্পর্কে নিশ্চিত হয়ে নিন <span className="text-[#0284c7]">Delivery-এর আগেই</span>।
+            বুকের দুধ সম্পর্কে নিশ্চিত হয়ে নিন <span className="text-[#0284c7]">Delivery-এর আগেই</span>
           </h2>
         </motion.div>
 
@@ -88,8 +84,7 @@ export function MilkreadyPricing() {
             </div>
           </div>
 
-          <h3 className="font-extrabold text-slate-900 text-lg mb-1">MilkReady™ Prenatal Dose</h3>
-          <p className="text-xs text-slate-500 mb-4 font-medium">সম্পূর্ণ ডোজ · ৬০টি সার্ভিং</p>
+          <h3 className="font-extrabold text-slate-900 text-lg mb-3">MilkReady™ Prenatal Dose</h3>
 
           {/* Pricing Details */}
           <div className="mb-4 flex flex-col items-center gap-1">
