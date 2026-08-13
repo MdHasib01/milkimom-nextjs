@@ -1,89 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-
-const IMAGES = [
-  "/images/milkready/maternal-moment.jpg",
-  "/images/lifestyle-grass.webp",
-  "/images/lifestyle-window.webp",
-];
 
 export function MilkreadyImagine() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % IMAGES.length);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
-
   const scrollToOrder = () => {
     document.getElementById("order-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <section className="py-8 md:py-12 px-4 overflow-hidden bg-slate-50 border-y border-slate-200/60">
-      <div className="max-w-3xl mx-auto text-center">
+    <section className="py-8 md:py-14 overflow-hidden bg-slate-50 border-y border-slate-200/60">
+      <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
         <motion.h2 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-lg xs:text-xl sm:text-2xl font-bold mb-5 text-slate-800 leading-snug px-2"
+          className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold mb-6 text-slate-800 leading-snug px-2"
         >
           Delivery-এর পর বাচ্চাকে{" "}
           <span className="text-slate-500 font-semibold">Formula Milk</span> না দিয়ে, যদি{" "}
           <span className="text-[#0284c7] font-black">নিজের বুকের দুধ</span> খাওয়াতে পারেন—কেমন হয়?
         </motion.h2>
+      </div>
 
-        {/* Maternal Visual Frame */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-100"
-        >
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="absolute inset-0 w-full h-full"
-            >
-              <Image
-                src={IMAGES[index]}
-                alt="Happy mother with newborn baby"
-                fill
-                priority={index === 0}
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 768px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            </motion.div>
-          </AnimatePresence>
+      {/* Before Vs After Visual - Edge-to-edge full width on mobile, no border, no radius */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.99 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-4xl mx-auto px-0"
+      >
+        <img
+          src="/images/milkready/Before Vs After.jpg"
+          alt="Delivery এর পর Formula Milk না দিয়ে নিজের বুকের দুধ খাওয়ানোর প্রস্তুতি - Before Vs After"
+          className="w-full h-auto object-contain block"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/images/milkready/before-vs-after.jpg";
+          }}
+        />
+      </motion.div>
 
-          {/* Dots Indicator */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-            {IMAGES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setIndex(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                className={`h-2 rounded-full transition-all ${
-                  index === i ? "w-6 bg-white" : "w-2 bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
-        </motion.div>
-
+      <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
         <p className="mt-6 mb-5 font-bold text-base sm:text-lg text-slate-800">
           সেই <span className="text-[#0284c7]">Happiness</span> পৃথিবীতে আর কোথাও নেই।
         </p>
