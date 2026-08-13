@@ -304,6 +304,7 @@ export interface UnfinishedOrder {
   district?: string;
   thana?: string;
   product?: string;
+  productSlug?: "milkimom" | "smoothflow";
   productName?: string;
   flavour?: string;
   price?: number;

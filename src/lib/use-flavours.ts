@@ -86,7 +86,9 @@ function mapApiFlavour(f: ApiFlavour, index: number): DisplayFlavor {
   const sfRegular = Number(f.smoothflowPrice) || smoothflowSingleJarPrice.regularPrice;
   const sfOffer = Number(f.smoothflowOfferPrice);
   const sfSale =
-    Number.isFinite(sfOffer) && sfOffer > 0 && sfOffer < sfRegular ? sfOffer : sfRegular;
+    Number.isFinite(sfOffer) && sfOffer > 0 && sfOffer < sfRegular
+      ? sfOffer
+      : smoothflowSingleJarPrice.salePrice;
 
   return {
     id: f._id || visual.id,

@@ -109,6 +109,7 @@ export interface CheckIpResult {
 
 export interface UnfinishedPayload {
   product?: string;
+  productSlug?: string;
   flavour?: string;
   price?: number;
   customerName?: string;

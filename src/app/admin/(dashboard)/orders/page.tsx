@@ -53,6 +53,12 @@ import { cn } from "@/lib/utils";
 
 const STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as const;
 
+/**
+ * Statuses that count as a real sale. Mirrors PURCHASE_STATUSES in
+ * server/controllers/orderController.js — these are the orders reported to Meta as a Purchase.
+ */
+const PURCHASE_STATUSES: string[] = ["Confirmed", "Shipped", "Delivered"];
+
 // Same format the public order form enforces
 const PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -1120,12 +1126,13 @@ export default function AdminOrdersPage() {
                               f.nameEn?.toLowerCase() === (u.flavour || "").toLowerCase() ||
                               f.name?.toLowerCase() === (u.flavour || "").toLowerCase()
                           );
+                          const isSmoothflow = u.productSlug === "smoothflow";
                           const displayPrice =
                             u.price && u.price !== 1200
                               ? u.price
                               : matchedFlavor
-                              ? matchedFlavor.salePrice
-                              : 4990;
+                              ? (isSmoothflow ? matchedFlavor.smoothflowSalePrice : matchedFlavor.salePrice)
+                              : (isSmoothflow ? 1999 : 4990);
 
                           return (
                             <>
@@ -2911,7 +2918,7 @@ export default function AdminOrdersPage() {
                     <div>
                       <span className="text-muted-foreground font-medium block">Price</span>
                       <span className="font-bold text-amber-600 text-base">
-                        ৳{(drawerUnfinishedOrder.price || 4990).toLocaleString("bn-BD")}
+                        ৳{(drawerUnfinishedOrder.price || (drawerUnfinishedOrder.productSlug === "smoothflow" ? 1999 : 4990)).toLocaleString("bn-BD")}
                       </span>
                     </div>
                   </div>

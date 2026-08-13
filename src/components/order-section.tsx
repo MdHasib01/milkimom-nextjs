@@ -138,7 +138,8 @@ export function OrderSection() {
     try {
       const res = await checkIpAndFraud(phoneNum, {
         flavour: currentFlavor ? (currentFlavor.nameEn || currentFlavor.name) : "Dark Chocolate",
-        price: currentFlavor ? currentFlavor.salePrice : 4990,
+        price: currentFlavor ? currentFlavor.salePrice : (isSmoothflow ? 1999 : 4990),
+        productSlug: content.productSlug,
         customerName: form.name.trim() || undefined,
         district: form.district || undefined,
         thana: form.thana.trim() || undefined,
