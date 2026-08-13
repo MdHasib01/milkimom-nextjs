@@ -115,7 +115,7 @@ export function MilkreadyComparison() {
           
           <Button
             onClick={scrollToOrder}
-            className="cta-shine w-full sm:w-auto px-8 py-3.5 h-auto rounded-full bg-[#FFD100] hover:bg-[#FACC15] text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+            className="cta-shine w-full sm:w-auto px-8 py-3.5 h-auto rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-sm sm:text-base shadow-md shadow-sky-600/20 active:scale-95 transition-all cursor-pointer"
           >
             হ্যাঁ, আমি Delivery-এর আগেই প্রস্তুত হতে চাই
           </Button>

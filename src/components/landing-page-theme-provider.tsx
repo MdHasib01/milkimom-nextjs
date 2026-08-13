@@ -33,8 +33,8 @@ const DEFAULT_THEME_COLORS: Record<string, ThemeColors> = {
     productSlug: "milkready",
     themeColor: "#0284c7",
     accentColor: "#38bdf8",
-    ctaColor: "#ffd100",
-    ctaTextColor: "#0f172a",
+    ctaColor: "#0284c7",
+    ctaTextColor: "#ffffff",
     backgroundColor: "#f8fbff",
   },
 };
