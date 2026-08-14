@@ -60,7 +60,7 @@ export function MilkreadyReviews() {
           className="text-center mb-8 sm:mb-10"
         >
           <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2 text-slate-800 leading-snug">
-            আপনার মতো অন্য মায়েরাও <span className="text-[#0284c7]">Delivery-এর আগেই</span> প্রস্তুতি নিয়েছিলেন।
+            আপনার মতো অন্য মায়েরাও <span className="text-[#0284c7]">Delivery-এর আগেই</span> প্রস্তুতি নিয়েছিলেন
           </h2>
           <p className="text-sm sm:text-base text-slate-600 font-medium">
             আর আজ তারা তাদের Experience Share করছেন।

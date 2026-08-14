@@ -116,7 +116,21 @@ export function MilkreadyHero() {
           >
             <div className="relative overflow-hidden rounded-full border border-sky-300/60 bg-gradient-to-r from-sky-50 via-white to-sky-50 px-4 py-3 sm:px-6 sm:py-3.5 shadow-sm">
               <p className="text-xs xs:text-sm sm:text-base font-semibold text-slate-700 leading-relaxed text-center">
-                {content.heroSubtitle || "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে"}
+                {(() => {
+                  const sub =
+                    content.heroSubtitle ||
+                    "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে";
+                  const parts = sub.split(/(১)/g);
+                  return parts.map((part, idx) =>
+                    part === "১" ? (
+                      <strong key={idx} className="font-extrabold text-slate-950">
+                        ১
+                      </strong>
+                    ) : (
+                      part
+                    )
+                  );
+                })()}
               </p>
             </div>
           </motion.div>

@@ -20,7 +20,7 @@ export function MilkreadyGuarantee() {
             <span className="text-[#0284c7]">100%</span> Satisfaction Guarantee
           </h2>
           <p className="text-slate-600 mb-6 text-xs sm:text-sm md:text-base font-medium">
-            আমরা জানি একজন মায়ের জন্য Delivery-এর আগের Preparation কতটা গুরুত্বপূর্ণ।
+            আমরা জানি বাচ্চা জন্মের শুরু থেকেই বুকের দুধ কতটা গুরুত্বপূর্ণ
           </p>
         </motion.div>
 
@@ -40,7 +40,7 @@ export function MilkreadyGuarantee() {
             {content.guaranteeTitle || "৩ দিনের Money Back Guarantee"}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-            {content.guaranteeText || "MilkReady ব্যবহার করে কোনো পরিবর্তন অনুভব না করলে আমাদের জানান। আমাদের Guarantee Policy অনুযায়ী আপনার সম্পূর্ণ টাকা রিফান্ড করে দেওয়া হবে।"}
+            {content.guaranteeText || "বাচ্চা জন্মের পরে ৩ দিনের বুকের দুধ না পেলে আমাদেরকে জানালে আমরা সম্পূর্ণ টাকাটাই ফেরত দিবো। এমনকি আপনাকে একটা প্রশ্নও করা হবে না।"}
           </p>
         </motion.div>
       </div>

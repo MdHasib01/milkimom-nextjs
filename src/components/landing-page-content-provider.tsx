@@ -215,7 +215,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     orderHeadline: "MilkReady অর্ডার করুন",
     orderSubheadline: "Delivery-এর আগেই Breastfeeding Preparation শুরু করুন।",
     guaranteeTitle: "৩ দিনের Money Back Guarantee",
-    guaranteeText: "MilkReady ব্যবহার করে কোনো পরিবর্তন অনুভব না করলে আমাদের জানান। আমাদের Guarantee Policy অনুযায়ী আপনার সম্পূর্ণ টাকা রিফান্ড করে দেওয়া হবে।",
+    guaranteeText: "বাচ্চা জন্মের পরে ৩ দিনের বুকের দুধ না পেলে আমাদেরকে জানালে আমরা সম্পূর্ণ টাকাটাই ফেরত দিবো। এমনকি আপনাকে একটা প্রশ্নও করা হবে না।",
     footerText: "MilkReady™ - Delivery-এর আগের সুনির্দিষ্ট প্রেটাল প্রিপারেশন।",
     footerPhone: "01517-102603",
     footerEmail: "milkimominfo@gmail.com",

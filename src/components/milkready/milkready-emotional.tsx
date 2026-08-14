@@ -37,8 +37,8 @@ export function MilkreadyEmotional() {
         </motion.h2>
 
         <div className="flex flex-col gap-3 text-slate-700 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-          <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-3.5 text-rose-900 font-semibold">
-            Formula Milk-এর পেছনে খরচ হতে পারে ৮–১০ লাখ টাকা।
+          <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-3.5 text-rose-900 font-medium">
+            Formula Milk-এর পেছনে খরচ হতে পারে <span className="font-extrabold text-rose-950">৮–১০ লাখ টাকা</span>।
           </div>
 
           <p className="mt-1">
