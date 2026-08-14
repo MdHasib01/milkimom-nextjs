@@ -52,6 +52,8 @@ export function MilkreadyEmotional() {
           <p className="font-bold text-slate-900 mt-2 text-sm sm:text-base">
             এত কষ্টের পরেও একটা অসুস্থ আর অপুষ্ট বাচ্চার যন্ত্রণা কোনো মা-বাবার পক্ষেই মেনে নেওয়া সম্ভব নয়।
           </p>
+
+          <div className="text-4xl mt-2 select-none">😔</div>
         </div>
       </div>
     </section>
