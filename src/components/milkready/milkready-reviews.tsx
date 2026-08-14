@@ -12,7 +12,7 @@ const REVIEWS = [
     location: "মিরপুর, ঢাকা",
     review: "আলহামদুলিল্লাহ! ডেলিভারির ৩ সপ্তাহ আগে থেকেই MilkReady খাওয়া শুরু করেছিলাম। ডেলিভারির প্রথম দিন থেকেই পর্যাপ্ত বুকের দুধ হয়েছে, কোনো ফর্মুলা দুধের প্রয়োজন হয়নি!",
     rating: 5,
-    avatar: "/assets/reviewer/girl1.jpeg",
+    avatar: "/images/milkready/reviewer-1.jpg",
     timeAgo: "২ দিন আগে",
   },
   {
@@ -21,7 +21,7 @@ const REVIEWS = [
     location: "উত্তরা, ঢাকা",
     review: "প্রথম বাচ্চার সময় দুধ না হওয়ার কারণে অনেক কষ্ট পেতে হয়েছিল। তাই এবার ২য় প্রেগন্যান্সির ৮ম মাসে MilkReady নিই। ডেলিভারির পর এবার আর কোনো টেনশন করতে হয়নি।",
     rating: 5,
-    avatar: "/assets/reviewer/girl2.jpeg",
+    avatar: "/images/milkready/reviewer-2.jpg",
     timeAgo: "৫ দিন আগে",
   },
   {
@@ -30,7 +30,7 @@ const REVIEWS = [
     location: "ধানমন্ডি, ঢাকা",
     review: "আমার গাইনি ডাক্তারের পরামর্শে MilkReady ট্রাই করি। ডেলিভারির পর থেকেই দুধের ফ্লো খুব ভালো। টেস্টটাও খুব দারুণ!",
     rating: 5,
-    avatar: "/assets/reviewer/girl3.jpeg",
+    avatar: "/images/milkready/reviewer-3.jpg",
     timeAgo: "১ সপ্তাহ আগে",
   },
   {
@@ -39,7 +39,7 @@ const REVIEWS = [
     location: "চট্টগ্রাম",
     review: "অসাধারণ প্রোডাক্ট! নতুন মায়েদের ডেলিভারির আগে এই প্রস্তুতিটা নেওয়া কতটা জরুরি তা ব্যবহার না করলে বুঝতে পারতাম না। অনেক ধন্যবাদ MilkReady কে।",
     rating: 5,
-    avatar: "/assets/reviewer/girl4.jpeg",
+    avatar: "/images/milkready/reviewer-4.jpg",
     timeAgo: "২ সপ্তাহ আগে",
   },
 ];
