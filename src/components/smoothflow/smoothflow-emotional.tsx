@@ -24,7 +24,7 @@ export function SmoothflowEmotional() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1A1A1A] leading-tight mb-6">
-          একটা Painful Feeding-এর দাম টাকা দিয়ে মাপা যায় না।
+          একটা Painful Feeding-এর দাম টাকা দিয়ে মাপা যায় না
         </h2>
 
         <div className="text-[#1A1A1A]/80 text-[15px] md:text-[17px] leading-[1.5] space-y-[10px] md:space-y-[12px] font-medium">

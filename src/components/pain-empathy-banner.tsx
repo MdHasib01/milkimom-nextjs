@@ -44,7 +44,7 @@ export function PainEmpathyBanner() {
                 <span className="bg-gradient-to-r from-primary via-rose-500 to-primary bg-clip-text text-transparent">
                   painful Feeding-এর দাম
                 </span>{" "}
-                টাকা দিয়ে মাপা যায় না।”
+                টাকা দিয়ে মাপা যায় না”
               </h3>
 
               {/* Emotional Pain Point Cards Grid */}
