@@ -41,6 +41,7 @@ interface OrderData {
 const PRODUCT_LABELS: Record<string, { bn: string; en: string }> = {
   milkimom: { bn: "মিল্কিমম", en: "Milkimom" },
   smoothflow: { bn: "SmoothFlow", en: "SmoothFlow" },
+  milkready: { bn: "MilkReady", en: "MilkReady" },
 };
 
 export default function ThankYouPage() {
@@ -66,13 +67,19 @@ function ThankYouContent() {
   const leadTracked = useRef(false);
   const attributionSynced = useRef(false);
 
-  // Two landings sell two different products at two different prices, so every
-  // fallback has to follow the order's product — a SmoothFlow buyer used to see
-  // Milkimom's name and its 4990৳ price whenever the order failed to load.
-  const productSlug = order?.productSlug === "smoothflow" ? "smoothflow" : "milkimom";
+  const productSlug =
+    order?.productSlug === "smoothflow"
+      ? "smoothflow"
+      : order?.productSlug === "milkready"
+      ? "milkready"
+      : "milkimom";
   const productLabel = PRODUCT_LABELS[productSlug];
   const priceFallback =
-    productSlug === "smoothflow" ? smoothflowSingleJarPrice : singleJarPrice;
+    productSlug === "smoothflow"
+      ? smoothflowSingleJarPrice
+      : productSlug === "milkready"
+      ? { regularPrice: 5650, salePrice: 3399 }
+      : singleJarPrice;
 
   useEffect(() => {
     // First, try loading from sessionStorage for instant rendering

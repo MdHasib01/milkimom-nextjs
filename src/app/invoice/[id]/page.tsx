@@ -89,10 +89,14 @@ function InvoiceContent() {
   const isConfirmed = order ? CONFIRMED_STATUSES.includes(order.status || "") : false;
   const isCancelled = order?.status === "Cancelled";
 
-  // The two landings sell different products at different prices — a
-  // SmoothFlow invoice must not fall back to Milkimom's 4990৳.
+  // The landings sell different products at different prices — an invoice
+  // must resolve the correct fallback price for its landing.
   const priceFallback =
-    order?.productSlug === "smoothflow" ? smoothflowSingleJarPrice : singleJarPrice;
+    order?.productSlug === "smoothflow"
+      ? smoothflowSingleJarPrice
+      : order?.productSlug === "milkready"
+      ? { regularPrice: 5650, salePrice: 3399 }
+      : singleJarPrice;
   const invoicePrice = order?.price || priceFallback.salePrice;
 
   const handlePrint = () => {
