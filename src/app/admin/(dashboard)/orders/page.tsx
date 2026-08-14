@@ -91,7 +91,7 @@ interface Attribution {
 interface Order {
   _id: string;
   product?: string;
-  productSlug?: "milkimom" | "smoothflow";
+  productSlug?: "milkimom" | "smoothflow" | "milkready";
   pageUrl?: string;
   customerName: string;
   phone: string;
@@ -136,15 +136,32 @@ interface Order {
 function getOrderProductDetails(productName?: string, pageUrl?: string, productSlug?: string) {
   const prod = (productName || "").trim();
   const url = (pageUrl || "").toLowerCase();
+  const slug = (productSlug || "").toLowerCase();
 
   // productSlug is set at order time and authoritative. Orders placed before
   // it existed fall back to sniffing the product name and landing URL.
-  const isSmoothflow = productSlug
-    ? productSlug === "smoothflow"
-    : prod.toLowerCase().includes("smoothflow") ||
-      prod.includes("স্মুথফ্লো") ||
-      url.includes("/smoothflow") ||
-      url.includes("smoothflow");
+  const isMilkready =
+    slug === "milkready" ||
+    prod.toLowerCase().includes("milkready") ||
+    prod.includes("মিল্করেডি") ||
+    url.includes("/milkready") ||
+    url.includes("milkready");
+
+  if (isMilkready) {
+    return {
+      name: "MilkReady",
+      fullName: prod || "MilkReady Complete Dose",
+      image: "/images/milkready/product-jar.png",
+      badgeColor: "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-950/60 dark:text-sky-300",
+    };
+  }
+
+  const isSmoothflow =
+    slug === "smoothflow" ||
+    prod.toLowerCase().includes("smoothflow") ||
+    prod.includes("স্মুথফ্লো") ||
+    url.includes("/smoothflow") ||
+    url.includes("smoothflow");
 
   if (isSmoothflow) {
     return {
@@ -1745,13 +1762,25 @@ export default function AdminOrdersPage() {
                 <label className="block font-bold text-foreground mb-1">Product</label>
                 <select
                   value={addForm.product}
-                  onChange={(e) =>
-                    setAddForm((prev) => ({ ...prev, product: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    const newProd = e.target.value;
+                    const defaultPrice =
+                      newProd.includes("SmoothFlow")
+                        ? "1999"
+                        : newProd.includes("MilkReady")
+                        ? "3399"
+                        : String(featuredFlavor.salePrice);
+                    setAddForm((prev) => ({
+                      ...prev,
+                      product: newProd,
+                      price: defaultPrice,
+                    }));
+                  }}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
                 >
                   <option value="Milkimom Complete Dose">Milkimom (মিল্কিমম)</option>
                   <option value="SmoothFlow Complete Dose">SmoothFlow (স্মুথফ্লো)</option>
+                  <option value="MilkReady Complete Dose">MilkReady (মিল্করেডি)</option>
                 </select>
               </div>
 
