@@ -115,11 +115,11 @@ const DEFAULT_BENEFITS_SMOOTHFLOW: BenefitItemData[] = [
 ];
 
 const DEFAULT_BENEFITS_MILKREADY: BenefitItemData[] = [
-  { id: "1", accent: "Breastfeeding Preparation", rest: "নিশ্চিত করে", sortOrder: 1 },
-  { id: "2", accent: "Maternal Nutrition Support", rest: "দেয়", sortOrder: 2 },
-  { id: "3", accent: "Breast Tissue Support", rest: "দেয়", sortOrder: 3 },
-  { id: "4", accent: "Milk Duct Preparation", rest: "প্রস্তুত করে", sortOrder: 4 },
-  { id: "5", accent: "Post-Delivery Feeding Readiness", rest: "নিশ্চিত করে", sortOrder: 5 },
+  { id: "1", accent: "ব্রেস্টফিডিং প্রিপারেশন", rest: "নিশ্চিত করে", sortOrder: 1 },
+  { id: "2", accent: "ম্যাটারনাল নিউট্রিশন সাপোর্ট", rest: "দেয়", sortOrder: 2 },
+  { id: "3", accent: "ব্রেস্ট টিস্যু সাপোর্ট", rest: "দেয়", sortOrder: 3 },
+  { id: "4", accent: "মিল্ক ডাক্ট প্রিপারেশন", rest: "প্রস্তুত করে", sortOrder: 4 },
+  { id: "5", accent: "পোস্ট-ডেলিভারি ফিডিং রেডিনেস", rest: "নিশ্চিত করে", sortOrder: 5 },
 ];
 
 const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {

@@ -21,11 +21,11 @@ function toBengaliNumber(num: number): string {
 }
 
 const defaultBenefits = [
-  { accent: "Breastfeeding Preparation", rest: "নিশ্চিত করে" },
-  { accent: "Maternal Nutrition Support", rest: "দেয়" },
-  { accent: "Breast Tissue Support", rest: "দেয়" },
-  { accent: "Milk Duct Preparation", rest: "প্রস্তুত করে" },
-  { accent: "Post-Delivery Feeding Readiness", rest: "নিশ্চিত করে" },
+  { accent: "ব্রেস্টফিডিং প্রিপারেশন", rest: "নিশ্চিত করে" },
+  { accent: "ম্যাটারনাল নিউট্রিশন সাপোর্ট", rest: "দেয়" },
+  { accent: "ব্রেস্ট টিস্যু সাপোর্ট", rest: "দেয়" },
+  { accent: "মিল্ক ডাক্ট প্রিপারেশন", rest: "প্রস্তুত করে" },
+  { accent: "পোস্ট-ডেলিভারি ফিডিং রেডিনেস", rest: "নিশ্চিত করে" },
 ];
 
 export function MilkreadyBenefits() {
