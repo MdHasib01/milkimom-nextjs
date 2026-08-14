@@ -80,7 +80,7 @@ export function MilkreadyHero() {
       </div>
 
       {/* HERO MAIN */}
-      <section className="relative overflow-hidden pt-[75px] md:pt-[90px] pb-12 md:pb-16 min-h-[65vh] flex flex-col items-center justify-center w-full max-w-full bg-gradient-to-b from-[#f0f9ff] via-[#f8fbff] to-white">
+      <section className="relative overflow-hidden pt-[70px] md:pt-[85px] pb-5 md:pb-8 flex flex-col items-center justify-center w-full max-w-full bg-gradient-to-b from-[#f0f9ff] via-[#f8fbff] to-white">
         <GridPattern size={32} className="opacity-20" />
         <div
           aria-hidden
@@ -97,9 +97,9 @@ export function MilkreadyHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="max-w-3xl mx-auto w-full mb-4 md:mb-6"
+            className="max-w-3xl mx-auto w-full mb-3 md:mb-4"
           >
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 leading-[1.2] mb-3 tracking-tight text-center break-words max-w-full">
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 leading-[1.2] mb-2 tracking-tight text-center break-words max-w-full">
               {content.heroTitle ? content.heroTitle.split("?")[0] + "?" : "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়?"}
             </h1>
             <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0284c7] leading-tight text-center break-words max-w-full">
@@ -112,7 +112,7 @@ export function MilkreadyHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl mx-auto w-full mb-6 sm:mb-8 px-2"
+            className="max-w-2xl mx-auto w-full mb-4 sm:mb-5 px-2"
           >
             <div className="relative overflow-hidden rounded-full border border-sky-300/60 bg-gradient-to-r from-sky-50 via-white to-sky-50 px-4 py-3 sm:px-6 sm:py-3.5 shadow-sm">
               <p className="text-xs xs:text-sm sm:text-base font-semibold text-slate-700 leading-relaxed text-center">

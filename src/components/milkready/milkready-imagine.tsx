@@ -10,7 +10,7 @@ export function MilkreadyImagine() {
   };
 
   return (
-    <section className="py-8 md:py-14 overflow-hidden bg-slate-50 border-y border-slate-200/60">
+    <section className="pt-6 pb-8 md:pt-8 md:pb-12 overflow-hidden bg-slate-50 border-y border-slate-200/60">
       <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
         <motion.h2 
           initial={{ opacity: 0, y: 15 }}
