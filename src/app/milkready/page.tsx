@@ -17,16 +17,35 @@ import { SiteFooter } from "@/components/site-footer";
 import { FloatingActions } from "@/components/floating-actions";
 
 export const metadata: Metadata = {
-  title: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন আগেই | MilkReady™",
+  title: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন এখনই | MilkReady™",
   description:
     "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে।",
+  alternates: {
+    canonical: "https://www.milkimom.com/milkready",
+  },
   openGraph: {
-    title: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন আগেই | MilkReady™",
+    title: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন এখনই | MilkReady™",
     description:
       "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে।",
+    url: "https://www.milkimom.com/milkready",
     siteName: "MilkReady™",
+    images: [
+      {
+        url: "/images/milkready/product-jar.png",
+        width: 1200,
+        height: 630,
+        alt: "MilkReady™ - ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন এখনই",
+      },
+    ],
     locale: "bn_BD",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন এখনই | MilkReady™",
+    description:
+      "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে।",
+    images: ["/images/milkready/product-jar.png"],
   },
 };
 

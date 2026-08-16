@@ -20,13 +20,32 @@ export const metadata: Metadata = {
   title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | SmoothFlow™",
   description:
     "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান SmoothFlow™ দিয়ে।",
+  alternates: {
+    canonical: "https://www.milkimom.com/smoothflow",
+  },
   openGraph: {
     title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | SmoothFlow™",
     description:
       "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান SmoothFlow™ দিয়ে।",
+    url: "https://www.milkimom.com/smoothflow",
     siteName: "SmoothFlow™",
+    images: [
+      {
+        url: "/images/smoothflow/Hero Image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SmoothFlow™ - বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান",
+      },
+    ],
     locale: "bn_BD",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "বাচ্চাকে দুধ খাওয়াতে গেলেই বুকের ব্যথা? মাত্র ২৪ ঘন্টায় মুক্তি পান | SmoothFlow™",
+    description:
+      "বুকের শক্ত চাকার মতো অনুভূতি, চাপ, tenderness, আর Feed করানোর সময় অস্বস্তি থেকে মাত্র ২৪ ঘন্টায় স্বস্তি পান SmoothFlow™ দিয়ে।",
+    images: ["/images/smoothflow/Hero Image.jpg"],
   },
 };
 
