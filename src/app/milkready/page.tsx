@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: "MilkReady™",
     images: [
       {
-        url: "/images/milkready/product-jar.png",
+        url: "/images/milkready/product-jar.webp",
         width: 1200,
         height: 630,
         alt: "MilkReady™ - ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন এখনই",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     title: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন এখনই | MilkReady™",
     description:
       "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে।",
-    images: ["/images/milkready/product-jar.png"],
+    images: ["/images/milkready/product-jar.webp"],
   },
 };
 

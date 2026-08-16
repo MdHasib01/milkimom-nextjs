@@ -151,7 +151,7 @@ function getOrderProductDetails(productName?: string, pageUrl?: string, productS
     return {
       name: "MilkReady",
       fullName: prod || "MilkReady Complete Dose",
-      image: "/images/milkready/product-jar.png",
+      image: "/images/milkready/product-jar.webp",
       badgeColor: "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-950/60 dark:text-sky-300",
     };
   }

@@ -21,7 +21,7 @@ export function LandingPageLoader({ productSlug = "milkimom" }: LandingPageLoade
   const productImage = isMilkimom
     ? "/images/product-jar.webp"
     : isMilkready
-    ? "/images/milkready/product-jar.png"
+    ? "/images/milkready/product-jar.webp"
     : "/images/smoothflow.png";
 
   return (

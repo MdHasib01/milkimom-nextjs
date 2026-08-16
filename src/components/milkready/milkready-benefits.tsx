@@ -34,8 +34,8 @@ export function MilkreadyBenefits() {
 
   const rawImg = content.howItWorksImage && content.howItWorksImage.trim()
     ? content.howItWorksImage
-    : "/images/milkready/product-jar.png";
-  const jarImg = getImageUrl(rawImg, "/images/milkready/product-jar.png");
+    : "/images/milkready/product-jar.webp";
+  const jarImg = getImageUrl(rawImg, "/images/milkready/product-jar.webp");
 
   const benefitsList = Array.isArray(content.benefitsItems) && content.benefitsItems.length > 0 && content.benefitsItems[0]?.accent !== "বুকের দুধ"
     ? content.benefitsItems
@@ -59,7 +59,7 @@ export function MilkreadyBenefits() {
                 src={jarImg}
                 alt={content.productNameEn || "MilkReady"}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/images/milkready/product-jar.png";
+                  (e.target as HTMLImageElement).src = "/images/milkready/product-jar.webp";
                 }}
                 className="h-28 w-auto object-contain drop-shadow-2xl sm:h-44 md:h-[228px] lg:h-64 xl:h-[300px]"
               />

@@ -75,7 +75,7 @@ export function MilkreadyPricing() {
           <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-4 relative flex items-center justify-center">
             <div className="relative w-full h-full">
               <Image 
-                src="/images/milkready/product-jar.png" 
+                src="/images/milkready/product-jar.webp" 
                 alt="MilkReady Complete Dose" 
                 fill
                 className="object-contain drop-shadow-xl"
