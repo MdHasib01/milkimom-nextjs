@@ -53,7 +53,7 @@ const initialForm: FormState = {
   trxId: "",
 };
 
-export function OrderSection() {
+export function OrderSection({ forceModernStyle = false }: { forceModernStyle?: boolean } = {}) {
   const { content } = useLandingPageContent();
   const router = useRouter();
   // Admin-managed catalog; falls back to the hardcoded flavours until loaded.
@@ -98,7 +98,7 @@ export function OrderSection() {
 
   const isSmoothflow = content.productSlug === "smoothflow";
   const isMilkready = content.productSlug === "milkready";
-  const isModernLanding = isSmoothflow || isMilkready;
+  const isModernLanding = isSmoothflow || isMilkready || forceModernStyle;
 
   const effectiveFlavors = useMemo(
     () => applyProductPricing(flavors, content.productSlug),
