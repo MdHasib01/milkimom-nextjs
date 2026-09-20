@@ -22,7 +22,7 @@ export const config = {
    *
    * No trailing slash — paths are appended directly.
    */
-  backendOrigin: "https://milkimomapi.mdhasib.xyz",
+  backendOrigin: "https://milkimomapi.nuktatechnologies.com",
 
   /**
    * Public origin of this site, used as the base for canonical URLs and social

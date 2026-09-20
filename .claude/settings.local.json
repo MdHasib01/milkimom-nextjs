@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"new_frontend/public/images\")",
+      "Bash(cp \"assets/logo.png\" \"new_frontend/public/images/logo.png\")",
+      "Bash(cp \"assets/product.png\" \"new_frontend/public/images/product-jar.png\")",
+      "Bash(cp \"assets/doctor.png\" \"new_frontend/public/images/doctor.png\")",
+      "Bash(cp \"assets/pic2.png\" \"new_frontend/public/images/lifestyle-hands.png\")"
+    ]
+  }
+}
