@@ -170,6 +170,14 @@ export const smoothflowSingleJarPrice = {
   perJarDays: 15,
 };
 
+export const milkreadySingleJarPrice = {
+  label: "১ জার",
+  regularPrice: 5650,
+  salePrice: 3399,
+  saving: 2251,
+  perJarDays: 15,
+};
+
 export const smoothflowBenefits = [
   {
     accent: "২৪ ঘন্টায়",

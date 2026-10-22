@@ -17,7 +17,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { singleJarPrice, smoothflowSingleJarPrice } from "@/lib/content";
+import { singleJarPrice, smoothflowSingleJarPrice, milkreadySingleJarPrice } from "@/lib/content";
 import { useFlavors, applyProductPricing, type DisplayFlavor } from "@/lib/use-flavours";
 import { saveOrder, checkIpAndFraud, sendFraudOtp, verifyFraudOtp } from "@/lib/api";
 import { getFbBrowserIds, trackInitiateCheckout } from "@/lib/fbpixel";
@@ -117,14 +117,18 @@ export function OrderSection({ forceModernStyle = false }: { forceModernStyle?: 
 
   // Only reached before the catalog loads; applyProductPricing has already
   // resolved the right product's prices onto selectedFlavor by then.
-  const productFallback = isSmoothflow ? smoothflowSingleJarPrice : singleJarPrice;
+  const productFallback = isMilkready
+    ? milkreadySingleJarPrice
+    : isSmoothflow
+    ? smoothflowSingleJarPrice
+    : singleJarPrice;
 
   const deliveryCharge = 0;
   const salePriceVal = selectedFlavor?.salePrice || productFallback.salePrice;
   const totalPrice = salePriceVal + deliveryCharge;
   const regularPriceVal = selectedFlavor?.regularPrice || productFallback.regularPrice;
   const savingsVal = regularPriceVal > salePriceVal ? regularPriceVal - salePriceVal : 0;
-  const productNameEn = content.productNameEn || (isSmoothflow ? "SmoothFlow" : "Milkimom");
+  const productNameEn = content.productNameEn || (isSmoothflow ? "SmoothFlow" : isMilkready ? "MilkReady" : "Milkimom");
 
   async function triggerPhoneIpCheck(phoneNum: string, overrideFlavor?: typeof selectedFlavor) {
     if (isCheckingPhone || phoneNum === lastCheckedPhone) return;
