@@ -119,7 +119,7 @@ export function MilkreadyHero() {
                 {(() => {
                   const sub =
                     content.heroSubtitle ||
-                    "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে";
+                    "প্রেগন্যান্সিতে ১ ডোজ মিল্করেডি খেলে,  বাচ্চা জন্মের শুরুতেই পর্যাপ্ত বুকের দুধ পায়, ফর্মুলা দেওয়া লাগে না।";
                   const parts = sub.split(/(১)/g);
                   return parts.map((part, idx) =>
                     part === "১" ? (

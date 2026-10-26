@@ -203,7 +203,7 @@ const DEFAULT_SECTION_CONTENTS: Record<string, LandingPageSectionContent> = {
     heroBadge: "ডেলিভারি পূর্ববর্তী প্রস্তুতি",
     heroTitle: "ডেলিভারির পর বুকের দুধ না হওয়ার ভয়? প্রস্তুতি নিন আগেই।",
     heroTitleHighlight: "প্রস্তুতি নিন আগেই।",
-    heroSubtitle: "Delivery-এর আগের শেষ ৩ মাসের মধ্যে ১ ডোজ MilkReady—ডেলিভারি এর পরে বুকের দুধ নিশ্চিত করে",
+    heroSubtitle: "প্রেগন্যান্সিতে ১ ডোজ মিল্করেডি খেলে,  বাচ্চা জন্মের শুরুতেই পর্যাপ্ত বুকের দুধ পায়, ফর্মুলা দেওয়া লাগে না।",
     heroSubtitleHighlight: "১ ডোজ MilkReady",
     heroCtaText: "MilkReady অর্ডার করতে ক্লিক করুন",
     heroImage: "/images/milkready/product-jar.webp",
@@ -270,7 +270,7 @@ export function LandingPageContentProvider({
 
     async function fetchContent() {
       const startTime = Date.now();
-      
+
       const timeoutPromise = new Promise<{ isTimeout: boolean }>((resolve) => {
         timerId = setTimeout(() => {
           resolve({ isTimeout: true });
