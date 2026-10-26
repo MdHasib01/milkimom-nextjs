@@ -84,8 +84,6 @@ export function MilkreadyPricing() {
             </div>
           </div>
 
-          <h3 className="font-extrabold text-slate-900 text-lg mb-3">MilkReady™ Prenatal Dose</h3>
-
           {/* Pricing Details */}
           <div className="mb-4 flex flex-col items-center gap-1">
             <div className="flex items-baseline justify-center gap-3">
