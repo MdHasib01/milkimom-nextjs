@@ -17,7 +17,7 @@ import { StickyMobileBar } from "@/components/sticky-mobile-bar";
 import { FloatingActions } from "@/components/floating-actions";
 import { config } from "@/config";
 import { siteConfig } from "@/lib/content";
-import { OG_IMAGE, SEO_DESCRIPTION } from "@/lib/seo";
+import { OG_IMAGE, SEO_SUMMARY } from "@/lib/seo";
 
 // Structured data is what Google reads to pick the thumbnail and summary for
 // the search result. Invisible to visitors.
@@ -34,7 +34,7 @@ const jsonLd = {
       "@type": "Product",
       name: `${siteConfig.name}™`,
       alternateName: siteConfig.nameEn,
-      description: SEO_DESCRIPTION,
+      description: SEO_SUMMARY,
       image: [`${config.siteUrl}${OG_IMAGE.url}`, `${config.siteUrl}/images/product-jar.webp`],
       brand: { "@type": "Brand", name: siteConfig.nameEn },
       offers: {

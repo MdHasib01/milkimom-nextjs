@@ -7,13 +7,16 @@ const toBengaliNumber = (num: number) =>
 export const SEO_TITLE =
   "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™";
 
+/** Meta, Open Graph and Twitter description — the hero subtitle, unchanged. */
+export const SEO_DESCRIPTION =
+  "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।";
+
 /**
- * Search/social summary: the hero title followed by the five উপকারিতা exactly
- * as the benefits section renders them. Built from `benefits` so the snippet
- * never drifts from what is on the page — Google prefers descriptions that
- * match visible content.
+ * Product summary for Google (JSON-LD): the hero title followed by the five
+ * উপকারিতা exactly as the benefits section renders them. Built from `benefits`
+ * so it never drifts from what is on the page.
  */
-export const SEO_DESCRIPTION = `১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! একটি ডোজে ৫টি উপকারিতা: ${benefits
+export const SEO_SUMMARY = `১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! একটি ডোজে ৫টি উপকারিতা: ${benefits
   .map((b, i) => `${toBengaliNumber(i + 1)}. ${b.accent} ${b.rest}`)
   .join(" ")}।`;
 
