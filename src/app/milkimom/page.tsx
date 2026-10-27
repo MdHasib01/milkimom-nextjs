@@ -15,6 +15,7 @@ import { MilkimomOrder } from "@/components/milkimom/milkimom-order";
 import { MilkimomStickyCTA } from "@/components/milkimom/milkimom-sticky-cta";
 import { SiteFooter } from "@/components/site-footer";
 import { FloatingActions } from "@/components/floating-actions";
+import { OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | Milkimom™",
@@ -29,14 +30,7 @@ export const metadata: Metadata = {
       "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
     url: "https://www.milkimom.com/milkimom",
     siteName: "Milkimom™",
-    images: [
-      {
-        url: "/images/product-jar.webp",
-        width: 1200,
-        height: 630,
-        alt: "Milkimom™ - পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম",
-      },
-    ],
+    images: [OG_IMAGE],
     locale: "bn_BD",
     type: "website",
   },
@@ -45,7 +39,7 @@ export const metadata: Metadata = {
     title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | Milkimom™",
     description:
       "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
-    images: ["/images/product-jar.webp"],
+    images: [OG_IMAGE.url],
   },
 };
 

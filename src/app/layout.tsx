@@ -5,6 +5,7 @@ import { AttributionCapture } from "@/components/attribution-capture";
 import { MetaPixel } from "@/components/meta-pixel";
 import { LandingPageThemeProvider } from "@/components/landing-page-theme-provider";
 import { LandingPageContentProvider } from "@/components/landing-page-content-provider";
+import { OG_IMAGE, SEO_DESCRIPTION, SEO_TITLE } from "@/lib/seo";
 import "./globals.css";
 
 /**
@@ -38,9 +39,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™",
-  description:
-    "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
+  title: SEO_TITLE,
+  description: SEO_DESCRIPTION,
+  // Without max-image-preview:large Google is limited to a small thumbnail (or
+  // none) next to the result.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   // Purpose-built icons rather than the full 900x593 / 44KB logo.webp. The
   // browser fetched that logo four times per load — once per rel — for tab
   // artwork that renders at 16-32px.
@@ -50,28 +63,19 @@ export const metadata: Metadata = {
     apple: "/images/apple-icon-180.png",
   },
   openGraph: {
-    title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™",
-    description:
-      "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
+    title: SEO_TITLE,
+    description: SEO_DESCRIPTION,
     url: SITE_URL,
     siteName: "মিল্কিমম™",
-    images: [
-      {
-        url: "/images/product-jar.webp",
-        width: 1200,
-        height: 630,
-        alt: "মিল্কিমম™ - ১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে!",
-      },
-    ],
+    images: [OG_IMAGE],
     locale: "bn_BD",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "১ ডোজেই, পার্মানেন্টলি বুকের দুধ বাড়াতে মিল্কিমম খান নিশ্চিন্তে! | মিল্কিমম™",
-    description:
-      "মিল্কিমম খেলে মাত্র ৩ দিনের মধ্যেই বুকের দুধ বাড়ে, এবং ব্রেস্ট ফিডিং এর শেষ পর্যন্ত স্থায়ী হয়। এটি সম্পূর্ণ সাইডইফেক্ট মুক্ত ও ন্যাচারাল।",
-    images: ["/images/product-jar.webp"],
+    title: SEO_TITLE,
+    description: SEO_DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
 };
 
